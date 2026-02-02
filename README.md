@@ -77,6 +77,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Fold/unfold all
 - ✅ Toggle fold (Ctrl+Shift+F)
 - ✅ Full screen mode (F11)
+- ✅ **Preferences Dialog** (Ctrl+,) - Editor and display settings
 
 ### Syntax Highlighting
 **20+ programming languages supported:**

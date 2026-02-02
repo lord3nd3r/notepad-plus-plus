@@ -193,6 +193,21 @@ Quick access buttons:
 - Open file
 - Save file
 
+### Settings Menu
+- **Preferences** (Ctrl+,) ⭐ NEW: Comprehensive settings dialog
+  - **Editor Settings Tab**:
+    - Tab width (1-16 spaces)
+    - Use tabs vs spaces
+    - Auto-indent
+    - Show indent guides
+    - Edge column (40-200)
+    - Show edge line
+  - **Display Settings Tab**:
+    - Font selection (family and size)
+    - Highlight current line
+  - Settings saved to: `~/.config/notepad-plus-plus-gtk/preferences.ini`
+  - Applied to all open tabs immediately
+
 ### Menu Bar
 Complete menu system with keyboard shortcuts and mnemonics
 

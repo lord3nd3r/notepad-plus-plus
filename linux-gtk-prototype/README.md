@@ -41,6 +41,7 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 - Find and replace (Ctrl+H)
 - Replace all
 - **Regular expression support** - Find/Replace with regex patterns ⭐ NEW
+- **Preferences dialog** (Ctrl+,) - Comprehensive settings for editor and display ⭐ NEW
 - Go to line (Ctrl+G)
 - **Find in Files** (Ctrl+Shift+F) - Recursive directory search ⭐ NEW
 

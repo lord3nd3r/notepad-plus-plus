@@ -82,6 +82,6 @@
 **Phase 7**: ✅ Session management complete
 **Phase 8**: ✅ Command-line args complete
 
-**Current Priority**: Preferences dialog, regex support, macro recording
-**Features Completed**: 85+ keyboard shortcuts, ~2,200 lines of code
-**Latest Features**: Command-line args, full screen, Find in Files, code folding
+**Current Priority**: Macro recording, incremental search, packaging
+**Features Completed**: 85+ keyboard shortcuts, ~2,505 lines of code
+**Latest Features**: Preferences dialog, regex support, command-line args

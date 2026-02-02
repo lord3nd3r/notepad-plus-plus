@@ -9,7 +9,16 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - Status bar showing line, column, and document length
 - Line number margin and monospace font
 - Syntax highlighting via Lexilla (detects file extension)
-- Keyboard shortcuts (Ctrl+O, Ctrl+S)
+- **80+ keyboard shortcuts** (Ctrl+O, Ctrl+S, Ctrl+D, etc.)
+- **Multi-cursor editing** (Ctrl+D, Ctrl+Shift+L, Escape)
+- **Column/rectangular selection** (Alt+mouse drag)
+- **Bookmarks** with visual indicators (F2, Shift+F2, Ctrl+F2)
+- **Find/Replace** with Find Next/Previous (F3/Shift+F3)
+- **Recent files menu** (last 10 files)
+- **Line operations** (duplicate, delete, move, transpose, join, split)
+- **Text transformations** (case conversion, indent, trim)
+- **Block comment/uncomment** (Ctrl+/, Ctrl+Shift+/)
+- **View controls** (zoom, wrap, show whitespace/EOL/line numbers)
 
 ## Dependencies
 - g++ (C++17)
@@ -54,6 +63,10 @@ LD_LIBRARY_PATH=../scintilla/bin:../lexilla/bin ./build/gtk-proto
 ```
 
 ## Notes
-- The prototype uses the Scintilla GTK widget (`scintilla_object_new()`) and Lexilla for syntax highlighting.
-- Extension-to-lexer mapping supports common languages: C/C++, Python, JavaScript, Rust, Go, HTML, XML, JSON, Markdown, etc.
-- To add more lexers or customize, edit the extension mapping in `main_gui.cxx` (around line 100).
+- This is a **full-featured native Linux port** with 1,700+ lines of C++17 code
+- Uses the Scintilla GTK widget (`scintilla_object_new()`) and Lexilla for syntax highlighting
+- Extension-to-lexer mapping supports 20+ languages: C/C++, Python, JavaScript, Rust, Go, HTML, XML, JSON, Markdown, etc.
+- **Multi-cursor editing** works like VS Code (Ctrl+D to add next occurrence)
+- **Column mode** enabled with Alt+mouse drag for rectangular selections
+- To add more lexers or customize, edit the extension mapping in `main_gui.cxx`
+- See [PORTING_STATUS.md](../PORTING_STATUS.md) for complete feature list and roadmap

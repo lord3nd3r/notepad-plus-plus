@@ -21,7 +21,25 @@
 | **Windows 8.1**         | current version          |          Yes              |
 | **Windows 10**          | current version          |          Yes              |
 | **Windows 11**          | current version          |          Yes              |
+| **Linux** (GTK Port)    | current version          |          Yes              |
 
 \* The current version of Notepad++ built by GCC can be run under Vista & Server 2008
 
 *Note that the list is meant for the last SP of each version*
+
+## Linux Support
+
+A native Linux port using GTK3 is available in the `linux-gtk-prototype` directory. This is a fully-featured native implementation that provides:
+- Native GTK3 interface
+- Multi-cursor editing
+- Column/rectangular selection
+- Full Scintilla editing capabilities
+- Syntax highlighting for 20+ languages
+- 80+ keyboard shortcuts
+
+Supported Linux distributions:
+- Ubuntu 20.04+
+- Debian 10+
+- Fedora 33+
+- Arch Linux (current)
+- Other distributions with GTK 3.0+

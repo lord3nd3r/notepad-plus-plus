@@ -48,6 +48,48 @@ More about the previous build process: <https://community.notepad-plus-plus.org/
 Since `Notepad++` version 6.0 - 7.9.5, the build of dynamic linked `SciLexer.dll` that is distributed
 uses features from Boost's `Boost.Regex` library.
 
+## Linux GTK Build
+
+**Pre-requisites:**
+
+- GCC or Clang with C++17 support
+- CMake >= 3.10
+- GTK 3 development headers
+- pkg-config
+
+### Building the Linux GTK Port
+
+The Linux native port uses GTK3 and Scintilla to provide a native Linux experience.
+
+```bash
+# Install dependencies (Ubuntu/Debian)
+sudo apt-get install build-essential cmake libgtk-3-dev
+
+# Build
+cd linux-gtk-prototype
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+
+# Run
+./build/gtk-proto
+```
+
+### Features
+
+The Linux GTK port includes:
+- Native GTK3 interface with tabbed editing
+- 80+ keyboard shortcuts
+- Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
+- Column/rectangular selection (Alt+mouse drag)
+- Syntax highlighting for 20+ languages
+- Find/Replace with Find Next/Previous
+- Bookmarks with visual indicators
+- Line operations, text transformations
+- Recent files menu
+- And more...
+
+See [linux-gtk-prototype/README.md](linux-gtk-prototype/README.md) for complete feature list.
+
 ## GCC
 
 If you have [MinGW-w64](https://www.mingw-w64.org/) installed, you can compile Notepad++ with GCC. Otherwise MinGW-w64 can be downloaded [here](https://sourceforge.net/projects/mingw-w64/files/). You can also download some collection of tools which supports MinGW-w64, like [MSYS2](https://www.msys2.org/) or [WinLibs](https://winlibs.com/).

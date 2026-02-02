@@ -23,14 +23,24 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Delete**: Delete selection
 - **Select All** (Ctrl+A): Select entire document
 
+#### Multi-Cursor Editing ⭐ NEW
+- **Add Next Occurrence** (Ctrl+D): Select next matching text and create additional cursor
+- **Select All Occurrences** (Ctrl+Shift+L): Select all matching text at once
+- **Clear Multiple Selections** (Escape): Remove all but main selection
+- **Column Selection** (Alt+Mouse Drag): Rectangular/column selection mode
+- **Multiple Cursor Typing**: Edit all selections simultaneously
+
 #### Line Operations
-- **Duplicate Line** (Ctrl+D): Duplicate current line
+- **Duplicate Line** (Ctrl+Alt+D): Duplicate current line
 - **Delete Line** (Ctrl+L): Delete current line
-- **Cut Line**: Cut entire line to clipboard
-- **Copy Line**: Copy entire line to clipboard
+- **Cut Line** (Ctrl+Shift+X): Cut entire line to clipboard
+- **Copy Line** (Ctrl+Shift+C): Copy entire line to clipboard
 - **Move Line Up** (Ctrl+Shift+Up): Move line(s) up
 - **Move Line Down** (Ctrl+Shift+Down): Move line(s) down
 - **Transpose Lines** (Ctrl+T): Swap current line with next line
+- **Join Lines** (Ctrl+J): Join current line with next
+- **Split Lines**: Split long lines at edge column
+- **Select Word** (Ctrl+Alt+W): Select word under cursor
 
 #### Text Transformations
 - **Convert Case**
@@ -40,10 +50,28 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Unindent** (Ctrl+Shift+Tab): Unindent selection
 - **Trim Trailing Space**: Remove trailing whitespace from all lines
 
+#### Block Operations
+- **Block Comment** (Ctrl+/): Comment selected lines
+- **Block Uncomment** (Ctrl+Shift+/): Uncomment selected lines
+
 ### Search Menu
 - **Find** (Ctrl+F): Search for text with case-sensitive option
+- **Find Next** (F3): Find next occurrence
+- **Find Previous** (Shift+F3): Find previous occurrence
 - **Replace** (Ctrl+H): Find and replace with Replace/Replace All options
 - **Go to Line** (Ctrl+G): Jump to specific line number
+
+### Bookmarks
+- **Toggle Bookmark** (F2): Add/remove bookmark on current line
+- **Next Bookmark** (Shift+F2): Jump to next bookmark
+- **Previous Bookmark** (Ctrl+F2): Jump to previous bookmark
+- **Clear All Bookmarks**: Remove all bookmarks
+- **Visual Indicators**: Red circles in margin for bookmarked lines
+
+### File Management
+- **Recent Files Menu**: Quick access to last 10 opened files
+- **Modified Indicator**: Asterisk (*) in tab title for unsaved changes
+- **Multiple Tabs**: Notebook interface with tab navigation (Ctrl+PageDown/Up)
 
 ### View Menu
 - **Word Wrap**: Toggle word wrapping

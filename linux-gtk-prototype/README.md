@@ -22,18 +22,24 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 
 ### 📝 Editing Features
 - Complete undo/redo
-- Line operations (duplicate, delete, move, transpose)
+- **Multi-cursor editing** (Ctrl+D, Ctrl+Shift+L) ⭐ NEW
+- **Column/rectangular selection** (Alt+mouse drag) ⭐ NEW
+- Line operations (duplicate, delete, move, transpose, join, split)
 - Text transformations (case conversion, trim whitespace)
+- Block comment/uncomment (Ctrl+/, Ctrl+Shift+/)
 - Smart indentation
 - Word wrap toggle
 - Line numbering
 - EOL format control (Windows/Unix/Mac)
+- **Recent files menu** (last 10 files)
+- Bookmarks with visual indicators (F2, Shift+F2, Ctrl+F2)
 
 ### 🔎 Search Features
-- Find with case sensitivity
-- Find and replace
+- Find with case sensitivity (Ctrl+F)
+- Find Next/Previous (F3/Shift+F3)
+- Find and replace (Ctrl+H)
 - Replace all
-- Go to line
+- Go to line (Ctrl+G)
 
 ### 👁️ View Features
 - Word wrap

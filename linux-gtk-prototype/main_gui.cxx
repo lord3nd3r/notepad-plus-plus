@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <regex>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -384,21 +385,54 @@ static void cmd_find(GtkWidget *w, gpointer data) {
     GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     GtkWidget *entry = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(entry), app->last_search.c_str());
+    GtkWidget *regex_check = gtk_check_button_new_with_label("Regular expression");
     gtk_box_pack_start(GTK_BOX(content), gtk_label_new("Find what:"), FALSE, FALSE, 5);
     gtk_box_pack_start(GTK_BOX(content), entry, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(content), regex_check, FALSE, FALSE, 5);
     gtk_widget_show_all(content);
 
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
         const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+        bool use_regex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(regex_check));
         app->last_search = text;
-        int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
-        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, pos, 0);
-        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, 
-                              scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0), 0);
-        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, 0, 0);
-        int found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, strlen(text), (sptr_t)text);
-        if (found >= 0) {
-            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, found, found + strlen(text));
+        
+        if (use_regex) {
+            // Use regex search
+            try {
+                std::regex pattern(text);
+                int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+                int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+                
+                // Get document text from current position to end
+                char *doc_text = new char[doc_length + 1];
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXT, doc_length + 1, (sptr_t)doc_text);
+                
+                std::string search_text(doc_text + pos);
+                std::smatch match;
+                if (std::regex_search(search_text, match, pattern)) {
+                    int found_pos = pos + match.position();
+                    int found_len = match.length();
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, found_pos, found_pos + found_len);
+                }
+                delete[] doc_text;
+            } catch (const std::regex_error &e) {
+                GtkWidget *error_dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+                    GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                    "Invalid regular expression: %s", e.what());
+                gtk_dialog_run(GTK_DIALOG(error_dialog));
+                gtk_widget_destroy(error_dialog);
+            }
+        } else {
+            // Use literal search
+            int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, pos, 0);
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, 
+                                  scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0), 0);
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, 0, 0);
+            int found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, strlen(text), (sptr_t)text);
+            if (found >= 0) {
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, found, found + strlen(text));
+            }
         }
     }
     gtk_widget_destroy(dialog);
@@ -417,32 +451,67 @@ static void cmd_replace(GtkWidget *w, gpointer data) {
     GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     GtkWidget *find_entry = gtk_entry_new();
     GtkWidget *replace_entry = gtk_entry_new();
+    GtkWidget *regex_check = gtk_check_button_new_with_label("Regular expression");
     gtk_box_pack_start(GTK_BOX(content), gtk_label_new("Find what:"), FALSE, FALSE, 5);
     gtk_box_pack_start(GTK_BOX(content), find_entry, FALSE, FALSE, 5);
     gtk_box_pack_start(GTK_BOX(content), gtk_label_new("Replace with:"), FALSE, FALSE, 5);
     gtk_box_pack_start(GTK_BOX(content), replace_entry, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(content), regex_check, FALSE, FALSE, 5);
     gtk_widget_show_all(content);
 
     int response = gtk_dialog_run(GTK_DIALOG(dialog));
     if (response == 1 || response == 2) {
         const char *find_text = gtk_entry_get_text(GTK_ENTRY(find_entry));
         const char *replace_text = gtk_entry_get_text(GTK_ENTRY(replace_entry));
+        bool use_regex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(regex_check));
         
-        if (response == 2) { // Replace All
-            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, 0, 0);
-            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, 
-                                  scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0), 0);
-            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, 0, 0);
-            
-            while (true) {
-                int found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, 
-                                                  strlen(find_text), (sptr_t)find_text);
-                if (found < 0) break;
-                scintilla_send_message((ScintillaObject*)td->sci, SCI_REPLACETARGET, 
-                                      strlen(replace_text), (sptr_t)replace_text);
-                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, found + strlen(replace_text), 0);
+        if (use_regex) {
+            // Use regex replace
+            try {
+                std::regex pattern(find_text);
+                int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+                char *doc_text = new char[doc_length + 1];
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXT, doc_length + 1, (sptr_t)doc_text);
+                
+                std::string text(doc_text);
+                std::string result;
+                
+                if (response == 2) { // Replace All
+                    result = std::regex_replace(text, pattern, replace_text);
+                } else { // Replace first occurrence from current position
+                    int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+                    std::string before = text.substr(0, pos);
+                    std::string after = text.substr(pos);
+                    result = before + std::regex_replace(after, pattern, replace_text, std::regex_constants::format_first_only);
+                }
+                
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)result.c_str());
+                delete[] doc_text;
+            } catch (const std::regex_error &e) {
+                GtkWidget *error_dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+                    GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                    "Invalid regular expression: %s", e.what());
+                gtk_dialog_run(GTK_DIALOG(error_dialog));
+                gtk_widget_destroy(error_dialog);
+            }
+        } else {
+            // Use literal replace
+            if (response == 2) { // Replace All
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, 0, 0);
                 scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, 
                                       scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0), 0);
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, 0, 0);
+                
+                while (true) {
+                    int found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, 
+                                                      strlen(find_text), (sptr_t)find_text);
+                    if (found < 0) break;
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_REPLACETARGET, 
+                                          strlen(replace_text), (sptr_t)replace_text);
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, found + strlen(replace_text), 0);
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, 
+                                          scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0), 0);
+                }
             }
         }
     }

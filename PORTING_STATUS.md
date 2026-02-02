@@ -10,7 +10,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~1,500 lines (main_gui.cxx)
+- **Source Code**: ~1,700 lines (main_gui.cxx)
 
 ## Completed Features ✅
 
@@ -20,6 +20,13 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] Delete (Delete key)
 - [x] Select All (Ctrl+A)
 - [x] Select Word (Ctrl+Alt+W)
+
+### Multi-Cursor Editing ⭐ NEW
+- [x] Add Next Occurrence (Ctrl+D) - Select next matching text
+- [x] Select All Occurrences (Ctrl+Shift+L) - Select all matches at once
+- [x] Multiple cursors typing - Edit all selections simultaneously
+- [x] Clear Multiple Selections (Escape)
+- [x] Column/Rectangular Selection (Alt+Mouse Drag)
 
 ### File Operations
 - [x] New File (Ctrl+N)
@@ -31,15 +38,15 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] Quit (Ctrl+Q)
 
 ### Line Operations
-- [x] Duplicate Line (Ctrl+D)
+- [x] Duplicate Line (Ctrl+Alt+D) - Changed from Ctrl+D
 - [x] Delete Line (Ctrl+L)
 - [x] Cut Line (Ctrl+Shift+X)
 - [x] Copy Line (Ctrl+Shift+C)
 - [x] Move Line Up (Ctrl+Shift+Up)
 - [x] Move Line Down (Ctrl+Shift+Down)
 - [x] Transpose Lines (Ctrl+T)
-- [x] Join Lines (Ctrl+J) - NEW
-- [x] Split Lines - NEW
+- [x] Join Lines (Ctrl+J)
+- [x] Split Lines
 
 ### Text Transformations
 - [x] UPPERCASE (Ctrl+Shift+U)
@@ -112,18 +119,10 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 
 ### User Interface
 - [x] Complete menu system (File, Edit, Search, View, Language, Encoding, Help)
-- [x] 70+ keyboard shortcuts
+- [x] 80+ keyboard shortcuts
 - [x] Toolbar with common actions
 - [x] Responsive status bar
 - [x] GTK native dialogs
-
-## In Progress 🔄
-
-### Multi-Selection Editing
-- [ ] Add next occurrence (Ctrl+D)
-- [ ] Select all occurrences (Ctrl+Shift+L)
-- [ ] Column (rectangular) selection (Alt+Drag)
-- [ ] Multiple carets
 
 ## Planned Features 📋
 
@@ -171,8 +170,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - ✅ Recent files
 - ✅ Join/Split lines
 - ✅ Select word
-- ⏳ Multi-cursor editing
-- ⏳ Column mode
+- ✅ Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
+- ✅ Column/rectangular mode (Alt+drag)
 - ⏳ Split view
 
 ## Performance
@@ -180,6 +179,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - Smooth scrolling with large files
 - Efficient syntax highlighting
 - Low memory footprint
+- Multiple cursors with real-time typing
 
 ## Compatibility
 - Tested on: Linux x86_64
@@ -189,7 +189,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 
 ## Repository
 - GitHub: https://github.com/lord3nd3r/notepad-plus-plus
-- Latest Commit: 9b9db7cbf
+- Latest Commit: 0e1f0a2ac
 - Branch: master
 
 ## Build Instructions
@@ -201,26 +201,35 @@ cmake --build .
 ```
 
 ## Recent Updates
-### Latest (Commit 9b9db7cbf)
-- ✨ Added Recent Files menu with dynamic updates (max 10 files)
-- ✨ Implemented Join Lines (Ctrl+J) - joins current line with next
-- ✨ Implemented Split Lines - splits lines at edge column
-- ✨ Added Select Word (Ctrl+Alt+W) - selects word under cursor
-- 🔧 Added `<algorithm>` include for std::find
-- 🔧 Fixed forward declaration order
+### Latest (Commit 0e1f0a2ac)
+- ✨ **Multi-Cursor Editing**: Add Next Occurrence (Ctrl+D), Select All Occurrences (Ctrl+Shift+L)
+- ✨ **Column Selection**: Alt+mouse drag for rectangular selection mode
+- ✨ **Clear Selections**: Escape key to clear multiple cursors
+- 🔧 Changed Duplicate Line shortcut to Ctrl+Alt+D (to avoid conflict with Ctrl+D)
+- 🔧 Enabled Scintilla multiple selection, additional typing, and virtual space options
+- 🔧 Added status bar messages showing selection count
+- ⚡ Real-time typing across multiple cursors
 
-### Previous (Commit 3b57f4cef)
-- Initial comprehensive implementation
-- All core editing features
-- Complete menu system
+### Previous (Commit bb895bd93, f85ba6f5f, 9b9db7cbf)
+- ✨ Complete README rewrite for Linux GTK port
+- ✨ Added PORTING_STATUS.md comprehensive documentation
+- ✨ Recent Files menu with dynamic updates (max 10 files)
+- ✨ Join Lines (Ctrl+J) and Split Lines features
+- ✨ Select Word (Ctrl+Alt+W)
+- 🔧 Fixed Scintilla API usage (TextRangeFull)
+
+### Initial (Commit 3b57f4cef)
+- Initial comprehensive implementation with 70+ shortcuts
+- All core editing features (undo/redo, cut/copy/paste, etc.)
+- Complete menu system (File, Edit, Search, View, Language, Encoding, Help)
 - Bookmarks with visual indicators
 - Block comment/uncomment
 - Find/Replace with Find Next/Previous
-- 70+ keyboard shortcuts
+- Syntax highlighting for 20+ languages
 
 ## Next Steps
-1. Implement multi-cursor editing
-2. Add column (rectangular) selection mode
+1. ✅ ~~Implement multi-cursor editing~~ DONE
+2. ✅ ~~Add column (rectangular) selection mode~~ DONE
 3. Implement split view (horizontal/vertical panes)
 4. Create preferences dialog
 5. Add session management

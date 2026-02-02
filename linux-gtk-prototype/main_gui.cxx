@@ -144,6 +144,15 @@ static GtkWidget* create_scintilla_widget(AppState *app) {
     scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETFORE, 1, 0x0000FF); // Red bookmark
     scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETBACK, 1, 0x0000FF);
     
+    // Enable rectangular selection with Alt modifier
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETRECTANGULARSELECTIONMODIFIER, SCMOD_ALT, 0);
+    
+    // Enable multiple selection and multi-paste (for column mode)
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETMULTIPLESELECTION, 1, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETMULTIPASTE, 1, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETVIRTUALSPACEOPTIONS, SCVS_RECTANGULARSELECTION, 0);
+    
     scintilla_send_message((ScintillaObject*)sci, SCI_SETTABWIDTH, 4, 0);
     g_signal_connect(sci, SCINTILLA_NOTIFY, G_CALLBACK(sci_notify_cb), app);
     return sci;

@@ -27,13 +27,20 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ UTF-8 encoding support
 
 ### Advanced Line Operations
-- ✅ Duplicate line (Ctrl+D)
+- ✅ Duplicate line (Ctrl+Alt+D)
 - ✅ Delete line (Ctrl+L)
 - ✅ Cut/Copy line (Ctrl+Shift+X/C)
 - ✅ Move line up/down (Ctrl+Shift+Up/Down)
 - ✅ Transpose lines (Ctrl+T)
 - ✅ Join lines (Ctrl+J)
 - ✅ Split lines at edge column
+
+### Multi-Cursor Editing ⭐
+- ✅ Add next occurrence (Ctrl+D)
+- ✅ Select all occurrences (Ctrl+Shift+L)
+- ✅ Type on multiple cursors simultaneously
+- ✅ Clear multiple selections (Escape)
+- ✅ Column/rectangular selection (Alt+mouse drag)
 
 ### Text Transformations
 - ✅ UPPERCASE / lowercase conversion
@@ -125,8 +132,14 @@ Or from anywhere:
 - `Ctrl+A` - Select All
 - `Ctrl+Alt+W` - Select Word
 
+### Multi-Cursor
+- `Ctrl+D` - Add next occurrence
+- `Ctrl+Shift+L` - Select all occurrences
+- `Escape` - Clear multiple selections
+- `Alt+Mouse Drag` - Rectangular selection
+
 ### Line Operations
-- `Ctrl+D` - Duplicate line
+- `Ctrl+Alt+D` - Duplicate line
 - `Ctrl+L` - Delete line
 - `Ctrl+Shift+X` - Cut line
 - `Ctrl+Shift+C` - Copy line
@@ -179,8 +192,8 @@ Or from anywhere:
 - ✅ Bookmarks: 100%
 - ✅ View controls: 100%
 - ✅ Syntax highlighting: 100%
-- 🔄 Multi-cursor editing: 0%
-- 🔄 Column mode: 0%
+- ✅ Multi-cursor editing: 100%
+- ✅ Column mode: 100%
 - 🔄 Split view: 0%
 
 See [PORTING_STATUS.md](PORTING_STATUS.md) for detailed feature tracking.
@@ -189,7 +202,7 @@ See [PORTING_STATUS.md](PORTING_STATUS.md) for detailed feature tracking.
 
 ```
 linux-gtk-prototype/
-├── main_gui.cxx        # Main application (1,500+ lines)
+├── main_gui.cxx        # Main application (1,700+ lines)
 ├── CMakeLists.txt      # Build configuration
 └── build/              # Build output directory
     └── gtk-proto       # Compiled binary (~6 MB)
@@ -239,8 +252,8 @@ gdb ./gtk-proto
 ## 📋 Roadmap
 
 ### High Priority
-- [ ] Multi-cursor editing (Ctrl+D for next occurrence)
-- [ ] Column (rectangular) selection mode
+- [x] ~~Multi-cursor editing (Ctrl+D for next occurrence)~~ ✅ DONE
+- [x] ~~Column (rectangular) selection mode~~ ✅ DONE
 - [ ] Split view (horizontal/vertical)
 - [ ] Preferences dialog
 - [ ] Session management (save/restore tabs)
@@ -263,8 +276,7 @@ gdb ./gtk-proto
 This is a passion project to bring Notepad++ to Linux. Contributions welcome!
 
 **Priority Areas:**
-- Multi-cursor implementation
-- Split view support
+- Split view implementation
 - Performance optimization
 - Bug fixes
 

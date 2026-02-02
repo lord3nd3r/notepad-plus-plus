@@ -46,6 +46,9 @@ struct AppState {
     bool is_split = false;
     bool is_horizontal_split = true;
     bool is_fullscreen = false;
+    bool is_recording_macro = false;
+    std::vector<string> current_macro;
+    std::vector<std::vector<string>> saved_macros;
 };
 
 struct Preferences {
@@ -65,6 +68,7 @@ struct Preferences {
 };
 
 // Forward declarations
+static void record_macro_action(AppState *app, const string &action);
 static void update_recent_menu(AppState *app);
 static void add_recent_file(AppState *app, const string &filename);
 static void session_save(AppState *app);
@@ -350,43 +354,64 @@ static void cmd_saveas(GtkWidget *w, gpointer data) {
 static void cmd_undo(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_UNDO, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_UNDO, 0, 0);
+        record_macro_action(app, "UNDO");
+    }
 }
 
 static void cmd_redo(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_REDO, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_REDO, 0, 0);
+        record_macro_action(app, "REDO");
+    }
 }
 
 static void cmd_cut(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_CUT, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_CUT, 0, 0);
+        record_macro_action(app, "CUT");
+    }
 }
 
 static void cmd_copy(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_COPY, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_COPY, 0, 0);
+        record_macro_action(app, "COPY");
+    }
 }
 
 static void cmd_paste(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_PASTE, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_PASTE, 0, 0);
+        record_macro_action(app, "PASTE");
+    }
 }
 
 static void cmd_delete(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_CLEAR, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_CLEAR, 0, 0);
+        record_macro_action(app, "DELETE");
+    }
 }
 
 static void cmd_selectall(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
-    if (td) scintilla_send_message((ScintillaObject*)td->sci, SCI_SELECTALL, 0, 0);
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SELECTALL, 0, 0);
+        record_macro_action(app, "SELECTALL");
+    }
 }
 
 static void cmd_find(GtkWidget *w, gpointer data) {
@@ -920,6 +945,180 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
     gtk_widget_destroy(dialog);
 }
 
+// Macro functionality
+static void record_macro_action(AppState *app, const string &action) {
+    if (app->is_recording_macro) {
+        app->current_macro.push_back(action);
+    }
+}
+
+static void cmd_start_macro_recording(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (app->is_recording_macro) {
+        // Already recording, show message
+        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+            GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+            "Macro recording is already in progress.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        return;
+    }
+    
+    app->is_recording_macro = true;
+    app->current_macro.clear();
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Recording macro...");
+}
+
+static void cmd_stop_macro_recording(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (!app->is_recording_macro) {
+        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+            GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+            "No macro recording in progress.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        return;
+    }
+    
+    app->is_recording_macro = false;
+    if (!app->current_macro.empty()) {
+        app->saved_macros.push_back(app->current_macro);
+        
+        // Save to file
+        string config_dir = string(g_get_home_dir()) + "/.config/notepad-plus-plus-gtk/macros";
+        g_mkdir_with_parents(config_dir.c_str(), 0755);
+        string macro_file = config_dir + "/macro_" + std::to_string(app->saved_macros.size()) + ".txt";
+        
+        std::ofstream file(macro_file);
+        if (file.is_open()) {
+            for (const auto &action : app->current_macro) {
+                file << action << "\n";
+            }
+        }
+    }
+    
+    string status_msg = "Macro recorded: " + std::to_string(app->current_macro.size()) + " actions";
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, status_msg.c_str());
+}
+
+static void cmd_playback_macro(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    if (app->current_macro.empty()) {
+        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+            GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+            "No macro to playback. Record a macro first.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        return;
+    }
+    
+    // Playback recorded actions
+    for (const auto &action : app->current_macro) {
+        if (action.substr(0, 6) == "TYPE:") {
+            string text = action.substr(6);
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_ADDTEXT, text.length(), (sptr_t)text.c_str());
+        } else if (action == "BACKSPACE") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_DELETEBACK, 0, 0);
+        } else if (action == "DELETE") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_CLEAR, 0, 0);
+        } else if (action == "NEWLINE") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_NEWLINE, 0, 0);
+        } else if (action == "TAB") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_TAB, 0, 0);
+        } else if (action == "UNDO") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_UNDO, 0, 0);
+        } else if (action == "REDO") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_REDO, 0, 0);
+        } else if (action == "CUT") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_CUT, 0, 0);
+        } else if (action == "COPY") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_COPY, 0, 0);
+        } else if (action == "PASTE") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_PASTE, 0, 0);
+        } else if (action == "SELECTALL") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SELECTALL, 0, 0);
+        } else if (action == "DUPLICATE_LINE") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEDUPLICATE, 0, 0);
+        } else if (action == "DELETE_LINE") {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEDELETE, 0, 0);
+        }
+    }
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Macro played back");
+}
+
+static void cmd_save_macro(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    
+    if (app->current_macro.empty()) {
+        GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+            GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+            "No macro to save. Record a macro first.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        return;
+    }
+    
+    GtkWidget *dialog = gtk_file_chooser_dialog_new("Save Macro", GTK_WINDOW(app->window),
+                                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+                                                     "_Cancel", GTK_RESPONSE_CANCEL,
+                                                     "_Save", GTK_RESPONSE_ACCEPT, NULL);
+    
+    string config_dir = string(g_get_home_dir()) + "/.config/notepad-plus-plus-gtk/macros";
+    g_mkdir_with_parents(config_dir.c_str(), 0755);
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), config_dir.c_str());
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), "macro.txt");
+    
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            for (const auto &action : app->current_macro) {
+                file << action << "\n";
+            }
+            string status_msg = string("Macro saved to: ") + filename;
+            gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, status_msg.c_str());
+        }
+        g_free(filename);
+    }
+    
+    gtk_widget_destroy(dialog);
+}
+
+static void cmd_load_macro(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    
+    GtkWidget *dialog = gtk_file_chooser_dialog_new("Load Macro", GTK_WINDOW(app->window),
+                                                     GTK_FILE_CHOOSER_ACTION_OPEN,
+                                                     "_Cancel", GTK_RESPONSE_CANCEL,
+                                                     "_Open", GTK_RESPONSE_ACCEPT, NULL);
+    
+    string config_dir = string(g_get_home_dir()) + "/.config/notepad-plus-plus-gtk/macros";
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), config_dir.c_str());
+    
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        std::ifstream file(filename);
+        if (file.is_open()) {
+            app->current_macro.clear();
+            string line;
+            while (std::getline(file, line)) {
+                if (!line.empty()) {
+                    app->current_macro.push_back(line);
+                }
+            }
+            string status_msg = "Macro loaded: " + std::to_string(app->current_macro.size()) + " actions";
+            gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, status_msg.c_str());
+        }
+        g_free(filename);
+    }
+    
+    gtk_widget_destroy(dialog);
+}
+
 // View menu commands
 static void apply_view_settings(AppState *app) {
     TabData *td = get_current_tabdata(app);
@@ -1156,6 +1355,7 @@ static void cmd_line_duplicate(GtkWidget *w, gpointer data) {
     TabData *td = get_current_tabdata(app);
     if (!td) return;
     scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEDUPLICATE, 0, 0);
+    record_macro_action(app, "DUPLICATE_LINE");
 }
 
 static void cmd_line_delete(GtkWidget *w, gpointer data) {
@@ -1163,6 +1363,7 @@ static void cmd_line_delete(GtkWidget *w, gpointer data) {
     TabData *td = get_current_tabdata(app);
     if (!td) return;
     scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEDELETE, 0, 0);
+    record_macro_action(app, "DELETE_LINE");
 }
 
 static void cmd_line_move_up(GtkWidget *w, gpointer data) {
@@ -2312,6 +2513,24 @@ int main(int argc, char **argv) {
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(settings_item), settings_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), settings_item);
     
+    // Macro menu
+    GtkWidget *macro_menu = gtk_menu_new();
+    GtkWidget *macro_item = gtk_menu_item_new_with_mnemonic("_Macro");
+    GtkWidget *macro_start = gtk_menu_item_new_with_mnemonic("_Start Recording");
+    GtkWidget *macro_stop = gtk_menu_item_new_with_mnemonic("St_op Recording");
+    GtkWidget *macro_playback = gtk_menu_item_new_with_mnemonic("_Playback");
+    GtkWidget *macro_save = gtk_menu_item_new_with_mnemonic("Sa_ve Macro...");
+    GtkWidget *macro_load = gtk_menu_item_new_with_mnemonic("_Load Macro...");
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), macro_start);
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), macro_stop);
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), macro_playback);
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), macro_save);
+    gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), macro_load);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(macro_item), macro_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), macro_item);
+    
     // Help menu
     GtkWidget *help_menu = gtk_menu_new();
     GtkWidget *help_item = gtk_menu_item_new_with_mnemonic("_Help");
@@ -2425,6 +2644,15 @@ int main(int argc, char **argv) {
     
     g_signal_connect(settings_preferences, "activate", G_CALLBACK(cmd_preferences), &app);
     gtk_widget_add_accelerator(settings_preferences, "activate", app.accel_group, GDK_KEY_comma, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    
+    g_signal_connect(macro_start, "activate", G_CALLBACK(cmd_start_macro_recording), &app);
+    gtk_widget_add_accelerator(macro_start, "activate", app.accel_group, GDK_KEY_F9, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
+    g_signal_connect(macro_stop, "activate", G_CALLBACK(cmd_stop_macro_recording), &app);
+    gtk_widget_add_accelerator(macro_stop, "activate", app.accel_group, GDK_KEY_F9, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
+    g_signal_connect(macro_playback, "activate", G_CALLBACK(cmd_playback_macro), &app);
+    gtk_widget_add_accelerator(macro_playback, "activate", app.accel_group, GDK_KEY_F10, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
+    g_signal_connect(macro_save, "activate", G_CALLBACK(cmd_save_macro), &app);
+    g_signal_connect(macro_load, "activate", G_CALLBACK(cmd_load_macro), &app);
     
     g_signal_connect(help_about, "activate", G_CALLBACK(cmd_about), &app);
     

@@ -62,9 +62,13 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 
 ### Search Menu
 - **Find** (Ctrl+F): Search for text with case-sensitive option
+  - **Regular Expression** ⭐ NEW: Enable regex pattern matching
+  - Examples: `\d+` (numbers), `[A-Z]+` (uppercase), `(foo|bar)` (alternation)
 - **Find Next** (F3): Find next occurrence
 - **Find Previous** (Shift+F3): Find previous occurrence
 - **Replace** (Ctrl+H): Find and replace with Replace/Replace All options
+  - **Regular Expression** ⭐ NEW: Enable regex pattern matching
+  - Supports regex capture groups: `$1`, `$2`, etc.
 - **Find in Files** (Ctrl+Shift+F) ⭐ NEW:
   - Search across multiple files in directory
   - Recursive subdirectory search

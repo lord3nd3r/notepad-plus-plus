@@ -32,7 +32,7 @@
 - [x] Find in Files ✅ COMPLETE
 - [x] Bookmark functionality (F2, Shift+F2, Ctrl+F2)
 - [x] Visual bookmark indicators
-- [ ] Regex support
+- [x] Regex support ✅ COMPLETE
 - [ ] Incremental search
 
 ## Phase 4: View & Display

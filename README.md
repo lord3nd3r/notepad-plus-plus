@@ -53,6 +53,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 ### Search & Replace
 - ✅ Find dialog (Ctrl+F)
 - ✅ Replace dialog (Ctrl+H)
+- ✅ **Regular expression support** - Find/Replace with regex patterns (std::regex)
 - ✅ Find Next/Previous (F3/Shift+F3)
 - ✅ Case-sensitive search option
 - ✅ Go to line (Ctrl+G)

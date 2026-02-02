@@ -10,8 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~2,200 lines (main_gui.cxx)
-- **Latest Commit**: 0f38fc4c5 - Command-line arguments
+- **Source Code**: ~2,280 lines (main_gui.cxx)
+- **Latest Commit**: d7f362de8 - Regex support
 
 ## Completed Features ✅
 
@@ -63,6 +63,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 ### Search & Navigation
 - [x] Find Dialog (Ctrl+F)
 - [x] Replace Dialog (Ctrl+H)
+- [x] **Regular Expression Support** - Find/Replace with regex patterns ⭐ NEW
 - [x] Find Next (F3)
 - [x] Find Previous (Shift+F3)
 - [x] Go to Line (Ctrl+G)

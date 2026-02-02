@@ -847,6 +847,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: \
  /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
+ /usr/include/fnmatch.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Scintilla.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Sci_Position.h \
  /usr/include/c++/15/cstdint \

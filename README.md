@@ -56,6 +56,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Find Next/Previous (F3/Shift+F3)
 - ✅ Case-sensitive search option
 - ✅ Go to line (Ctrl+G)
+- ✅ Find in Files (Ctrl+Shift+F) - Recursive directory search
 
 ### Bookmarks
 - ✅ Toggle bookmark (F2)

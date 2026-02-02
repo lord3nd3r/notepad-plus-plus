@@ -339,6 +339,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/errno.h \
   /usr/include/features-time64.h \
   /usr/include/features.h \
+  /usr/include/fnmatch.h \
   /usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf-animation.h \
   /usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf-autocleanups.h \
   /usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf-core.h \
@@ -1979,6 +1980,10 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/gtk-3.0/gdk/gdkevents.h:
 
+/usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
+
+/usr/include/gtk-3.0/gdk/gdkdisplaymanager.h:
+
 /usr/include/gtk-3.0/gtk/gtkadjustment.h:
 
 /usr/include/cairo/cairo-features.h:
@@ -2110,10 +2115,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/atk-1.0/atk/atknoopobject.h:
 
 /usr/include/glib-2.0/gio/gresource.h:
-
-/usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
-
-/usr/include/gtk-3.0/gdk/gdkdisplaymanager.h:
 
 /usr/include/atk-1.0/atk/atkhypertext.h:
 
@@ -2893,8 +2894,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
-/usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf-enum-types.h:
-
 /usr/include/glib-2.0/gobject/gsignalgroup.h:
 
 /usr/include/gtk-3.0/gtk/gtklistbox.h:
@@ -2914,6 +2913,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/x86_64-linux-gnu/sys/select.h:
 
 /usr/include/glib-2.0/gio/gnetworkservice.h:
+
+/usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf-enum-types.h:
 
 /usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf-io.h:
 
@@ -2980,6 +2981,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/gtk-3.0/gtk/gtkappchooserbutton.h:
 
 /usr/include/glib-2.0/gmodule/gmodule-visibility.h:
+
+/usr/include/fnmatch.h:
 
 /usr/include/glib-2.0/gio/gfile.h:
 

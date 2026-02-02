@@ -61,6 +61,12 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Find Next** (F3): Find next occurrence
 - **Find Previous** (Shift+F3): Find previous occurrence
 - **Replace** (Ctrl+H): Find and replace with Replace/Replace All options
+- **Find in Files** (Ctrl+Shift+F) ⭐ NEW:
+  - Search across multiple files in directory
+  - Recursive subdirectory search
+  - File pattern filtering (*.cpp, *.txt, etc.)
+  - Case-sensitive option
+  - Results window with filename:line:text format
 - **Go to Line** (Ctrl+G): Jump to specific line number
 
 ### Bookmarks

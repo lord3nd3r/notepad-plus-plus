@@ -29,7 +29,7 @@
 - [x] Find dialog with case sensitivity
 - [x] Replace dialog
 - [x] Find Next/Previous (F3/Shift+F3)
-- [ ] Find in Files
+- [x] Find in Files ✅ COMPLETE
 - [x] Bookmark functionality (F2, Shift+F2, Ctrl+F2)
 - [x] Visual bookmark indicators
 - [ ] Regex support
@@ -77,10 +77,10 @@
 ## Current Status
 **Phase 1**: ✅ Complete
 **Phase 2**: ✅ 80% Complete (multi-cursor, column mode, line ops, transformations)
-**Phase 3**: ✅ 70% Complete (find/replace, bookmarks)
+**Phase 3**: ✅ 85% Complete (find/replace, bookmarks, Find in Files) ✅
 **Phase 4**: ✅ 100% Complete (zoom, wrap, show symbols, split view, code folding) ✅
 **Phase 7**: ✅ Session management complete
 
-**Current Priority**: Preferences dialog, Find in Files, macro recording
-**Features Completed**: 80+ keyboard shortcuts, ~2,000 lines of code
-**Latest Features**: Code folding, session management, split view, multi-cursor editing
+**Current Priority**: Preferences dialog, regex support, macro recording
+**Features Completed**: 80+ keyboard shortcuts, ~2,100 lines of code
+**Latest Features**: Find in Files, code folding, session management, split view

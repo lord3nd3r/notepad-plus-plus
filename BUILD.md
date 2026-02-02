@@ -86,6 +86,7 @@ The Linux GTK port includes:
 - Code folding with visual markers
 - Syntax highlighting for 20+ languages
 - Find/Replace with Find Next/Previous
+- Find in Files with recursive search
 - Bookmarks with visual indicators
 - Line operations, text transformations
 - Recent files menu

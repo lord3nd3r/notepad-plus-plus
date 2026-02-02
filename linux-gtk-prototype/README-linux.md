@@ -14,6 +14,7 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - **Column/rectangular selection** (Alt+mouse drag)
 - **Bookmarks** with visual indicators (F2, Shift+F2, Ctrl+F2)
 - **Find/Replace** with Find Next/Previous (F3/Shift+F3)
+- **Find in Files** - Recursive directory search
 - **Recent files menu** (last 10 files)
 - **Session management** - Auto-save/restore tabs
 - **Split view** - Horizontal and vertical split

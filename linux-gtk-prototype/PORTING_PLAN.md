@@ -13,14 +13,14 @@
 - [x] Save As functionality
 - [x] Recent files list
 
-## Phase 2: Advanced Editing (CURRENT)
+## Phase 2: Advanced Editing
 - [x] Multi-selection/Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - [x] Column mode editing (Alt+mouse drag)
 - [x] Block comment/uncomment (Ctrl+/, Ctrl+Shift+/)
 - [x] Line operations (duplicate, delete, move up/down, split, join)
 - [x] Text transformations (uppercase, lowercase, etc.)
 - [x] Trim operations
-- [ ] Tab<->Space conversion
+- [x] Tab<->Space conversion ✅ COMPLETE
 - [ ] Sort lines
 - [ ] Auto-completion
 - [ ] Function call tips

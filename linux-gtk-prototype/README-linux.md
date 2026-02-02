@@ -21,7 +21,7 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - **Session management** - Auto-save/restore tabs
 - **Split view** - Horizontal and vertical split
 - **Line operations** (duplicate, delete, move, transpose, join, split)
-- **Text transformations** (case conversion, indent, trim)
+- **Text transformations** (case conversion, indent, trim, tab/space conversion)
 - **Block comment/uncomment** (Ctrl+/, Ctrl+Shift+/)
 - **View controls** (zoom, wrap, show whitespace/EOL/line numbers)
 - **Preferences dialog** (Ctrl+,) - Editor and display settings

@@ -83,6 +83,7 @@ The Linux GTK port includes:
 - Preferences dialog with editor and display settings
 - Macro recording and playback system
 - Incremental search with real-time highlighting
+- Tab/space conversion commands
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
 - Session management (auto-save/restore tabs)

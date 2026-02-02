@@ -10,8 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~2,905 lines (main_gui.cxx)
-- **Latest Commit**: d144dd968 - Incremental search
+- **Source Code**: ~2,980 lines (main_gui.cxx)
+- **Latest Commit**: 93565b5d0 - Tab/space conversion
 
 ## Completed Features ✅
 
@@ -59,6 +59,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] Increase Indent (Tab)
 - [x] Decrease Indent (Shift+Tab)
 - [x] Trim Trailing Space
+- [x] **Convert Tabs to Spaces** - Converts all tabs to spaces ⭐ NEW
+- [x] **Convert Spaces to Tabs** - Converts leading spaces to tabs ⭐ NEW
 
 ### Search & Navigation
 - [x] Find Dialog (Ctrl+F)

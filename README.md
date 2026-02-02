@@ -49,6 +49,8 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Block comment/uncomment (Ctrl+/, Ctrl+Shift+/)
 - ✅ Increase/decrease indent
 - ✅ Trim trailing whitespace
+- ✅ **Convert tabs to spaces** - Converts all tabs to spaces based on tab width ⭐
+- ✅ **Convert spaces to tabs** - Converts leading spaces to tabs based on tab width ⭐
 
 ### Search & Replace
 - ✅ Find dialog (Ctrl+F)

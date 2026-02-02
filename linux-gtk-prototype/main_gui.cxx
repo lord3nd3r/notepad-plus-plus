@@ -55,6 +55,7 @@ struct AppState {
     GtkWidget *incremental_search_bar = nullptr;
     GtkWidget *incremental_search_entry = nullptr;
     bool incremental_search_active = false;
+    guint auto_save_timer_id = 0;
 };
 
 struct Preferences {
@@ -67,6 +68,8 @@ struct Preferences {
     string font_name = "Monospace";
     int edge_column = 80;
     bool show_edge_line = false;
+    bool auto_save_enabled = true;
+    int auto_save_interval = 300;  // seconds (5 minutes default)
     
     void load();
     void save();
@@ -355,6 +358,57 @@ static void cmd_saveas(GtkWidget *w, gpointer data) {
         g_free(filename);
     }
     gtk_widget_destroy(dialog);
+}
+
+// Auto-save functionality
+static gboolean auto_save_timer_callback(gpointer data) {
+    AppState *app = (AppState*)data;
+    
+    // Save all modified files with filenames
+    int num_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook));
+    int saved_count = 0;
+    
+    for (int i = 0; i < num_pages; i++) {
+        GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), i);
+        TabData *td = (TabData*)g_object_get_data(G_OBJECT(page), "tabdata");
+        
+        if (td && td->modified && !td->filename.empty()) {
+            int len = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+            std::string buf(len+1, '\0');
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXT, len+1, (sptr_t)&buf[0]);
+            std::ofstream out(td->filename, std::ios::binary);
+            out << buf;
+            td->modified = false;
+            
+            GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(page), "labelfwd");
+            gtk_label_set_text(GTK_LABEL(label), td->filename.c_str());
+            saved_count++;
+        }
+    }
+    
+    if (saved_count > 0) {
+        string msg = "Auto-saved " + std::to_string(saved_count) + " file(s)";
+        gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, msg.c_str());
+    }
+    
+    return TRUE;  // Continue timer
+}
+
+static void start_auto_save_timer(AppState *app, Preferences *prefs) {
+    if (prefs->auto_save_enabled && prefs->auto_save_interval > 0) {
+        if (app->auto_save_timer_id > 0) {
+            g_source_remove(app->auto_save_timer_id);
+        }
+        app->auto_save_timer_id = g_timeout_add_seconds(prefs->auto_save_interval, 
+                                                         auto_save_timer_callback, app);
+    }
+}
+
+static void stop_auto_save_timer(AppState *app) {
+    if (app->auto_save_timer_id > 0) {
+        g_source_remove(app->auto_save_timer_id);
+        app->auto_save_timer_id = 0;
+    }
 }
 
 static void cmd_undo(GtkWidget *w, gpointer data) {
@@ -779,6 +833,8 @@ void Preferences::load() {
         else if (key == "font_name") font_name = value;
         else if (key == "edge_column") edge_column = std::stoi(value);
         else if (key == "show_edge_line") show_edge_line = (value == "true" || value == "1");
+        else if (key == "auto_save_enabled") auto_save_enabled = (value == "true" || value == "1");
+        else if (key == "auto_save_interval") auto_save_interval = std::stoi(value);
     }
 }
 
@@ -800,6 +856,8 @@ void Preferences::save() {
     file << "font_name=" << font_name << "\n";
     file << "edge_column=" << edge_column << "\n";
     file << "show_edge_line=" << (show_edge_line ? "true" : "false") << "\n";
+    file << "auto_save_enabled=" << (auto_save_enabled ? "true" : "false") << "\n";
+    file << "auto_save_interval=" << auto_save_interval << "\n";
 }
 
 void Preferences::apply_to_scintilla(GtkWidget *sci) {
@@ -903,6 +961,27 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
     
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), display_box, gtk_label_new("Display"));
     
+    // Auto-Save Tab
+    GtkWidget *autosave_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_set_border_width(GTK_CONTAINER(autosave_box), 10);
+    
+    GtkWidget *auto_save_check = gtk_check_button_new_with_label("Enable auto-save");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auto_save_check), prefs.auto_save_enabled);
+    gtk_box_pack_start(GTK_BOX(autosave_box), auto_save_check, FALSE, FALSE, 0);
+    
+    GtkWidget *interval_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_pack_start(GTK_BOX(interval_box), gtk_label_new("Auto-save interval (seconds):"), FALSE, FALSE, 0);
+    GtkWidget *interval_spin = gtk_spin_button_new_with_range(60, 3600, 30);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(interval_spin), prefs.auto_save_interval);
+    gtk_box_pack_start(GTK_BOX(interval_box), interval_spin, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(autosave_box), interval_box, FALSE, FALSE, 0);
+    
+    GtkWidget *info_label = gtk_label_new("Auto-save will save all modified files with filenames.\nUnsaved new files are not auto-saved.");
+    gtk_label_set_line_wrap(GTK_LABEL(info_label), TRUE);
+    gtk_box_pack_start(GTK_BOX(autosave_box), info_label, FALSE, FALSE, 10);
+    
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), autosave_box, gtk_label_new("Auto-Save"));
+    
     gtk_widget_show_all(content);
     
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
@@ -914,6 +993,9 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
         prefs.edge_column = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(edge_spin));
         prefs.show_edge_line = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_edge_check));
         prefs.highlight_current_line = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(highlight_line_check));
+        
+        prefs.auto_save_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_save_check));
+        prefs.auto_save_interval = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(interval_spin));
         
         const char *font_name_full = gtk_font_button_get_font_name(GTK_FONT_BUTTON(font_button));
         PangoFontDescription *font_desc = pango_font_description_from_string(font_name_full);
@@ -946,6 +1028,10 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
                 }
             }
         }
+        
+        // Restart auto-save timer with new settings
+        stop_auto_save_timer(app);
+        start_auto_save_timer(app, &prefs);
     }
     
     gtk_widget_destroy(dialog);
@@ -3170,6 +3256,16 @@ int main(int argc, char **argv) {
     }
 
     gtk_widget_show_all(app.window);
+    
+    // Load preferences and start auto-save timer
+    static Preferences prefs;
+    prefs.load();
+    start_auto_save_timer(&app, &prefs);
+    
     gtk_main();
+    
+    // Cleanup: stop auto-save timer
+    stop_auto_save_timer(&app);
+    
     return 0;
 }

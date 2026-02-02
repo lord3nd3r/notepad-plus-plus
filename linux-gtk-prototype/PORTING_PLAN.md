@@ -71,7 +71,7 @@
 - [ ] Memory management
 - [x] File watching/auto-reload ✅ COMPLETE
 - [x] Theme support (Dark, Monokai, Solarized) ✅ COMPLETE
-- [ ] Multi-instance support
+- [x] Multi-instance support
 - [x] Command line argument handling ✅ COMPLETE
 - [ ] Packaging (AppImage, DEB, Flatpak)
 
@@ -82,8 +82,8 @@
 **Phase 4**: ✅ 100% Complete (zoom, wrap, symbols, split view, folding, full screen, distraction-free) ✅
 **Phase 5**: ✅ EOL conversion complete
 **Phase 7**: ✅ Session management and backup complete
-**Phase 8**: ✅ File watching/auto-reload and theme support complete
+**Phase 8**: ✅ File watching/auto-reload, theme support, and multi-instance support complete
 
-**Current Priority**: Packaging, file watching, multi-instance support
+**Current Priority**: Packaging (AppImage, DEB, Flatpak)
 **Features Completed**: 95+ keyboard shortcuts, ~3,270 lines of code
-**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode, auto-save, auto-completion
+**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode, auto-save, auto-completion, multi-instance support

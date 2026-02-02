@@ -91,7 +91,7 @@ void init_app_state(AppState *app);
 GtkWidget* create_main_window();
 GtkWidget* create_menu_bar(AppState *app);
 GtkWidget* create_toolbar(AppState *app);
-GtkWidget* create_tab(GtkNotebook *notebook, const std::string &filename);
+GtkWidget* create_tab(AppState *app, const std::string &filename);
 TabData* get_current_tabdata(GtkNotebook *notebook);
 void update_statusbar_for_scintilla(GtkWidget *sci, AppState *app);
 void apply_lexer_for_file(GtkWidget *sci, const std::string &filename);

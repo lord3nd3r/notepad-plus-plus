@@ -193,6 +193,171 @@ static void apply_theme_to_scintilla(GtkWidget *sci, const ThemeColors* theme) {
     scintilla_send_message((ScintillaObject*)sci, SCI_STYLECLEARALL, 0, 0);
 }
 
+// Multi-instance support using D-Bus
+static const char* DBUS_NAME = "org.notepadplusplus.gtk";
+static const char* DBUS_PATH = "/org/notepadplusplus/gtk";
+static const char* DBUS_INTERFACE = "org.notepadplusplus.gtk";
+
+static GDBusNodeInfo *introspection_data = NULL;
+static GDBusConnection *dbus_connection = NULL;
+static guint dbus_registration_id = 0;
+
+// D-Bus introspection XML
+static const gchar introspection_xml[] =
+  "<node>"
+  "  <interface name='org.notepadplusplus.gtk'>"
+  "    <method name='OpenFiles'>"
+  "      <arg type='as' name='files' direction='in'/>"
+  "    </method>"
+  "  </interface>"
+  "</node>";
+
+// Handle D-Bus method calls
+static void handle_method_call(GDBusConnection *connection,
+                              const gchar *sender,
+                              const gchar *object_path,
+                              const gchar *interface_name,
+                              const gchar *method_name,
+                              GVariant *parameters,
+                              GDBusMethodInvocation *invocation,
+                              gpointer user_data) {
+    AppState *app = (AppState*)user_data;
+    
+    if (g_strcmp0(method_name, "OpenFiles") == 0) {
+        GVariantIter *iter;
+        const gchar *file_path;
+        
+        g_variant_get(parameters, "(as)", &iter);
+        while (g_variant_iter_next(iter, "&s", &file_path)) {
+            // Open file in existing instance
+            std::ifstream t(file_path, std::ios::binary);
+            if (t.is_open()) {
+                std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+                GtkWidget *tab = create_tab(app, file_path);
+                TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+                if (td) {
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)str.c_str());
+                    td->fileModTime = get_file_modification_time(td->filename);
+                }
+            }
+        }
+        g_variant_iter_free(iter);
+        
+        // Present the window
+        gtk_window_present(GTK_WINDOW(app->window));
+        
+        g_dbus_method_invocation_return_value(invocation, NULL);
+    }
+}
+
+// D-Bus interface vtable
+static const GDBusInterfaceVTable dbus_vtable = {
+    handle_method_call,
+    NULL,
+    NULL
+};
+
+// Try to send files to existing instance, return true if successful
+static bool send_files_to_existing_instance(int argc, char **argv) {
+    GError *error = NULL;
+    
+    // Try to get D-Bus connection
+    GDBusConnection *connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+    if (!connection) {
+        g_error_free(error);
+        return false;
+    }
+    
+    // Check if our service is already running
+    GDBusProxy *proxy = g_dbus_proxy_new_sync(connection,
+                                             G_DBUS_PROXY_FLAGS_NONE,
+                                             NULL,
+                                             DBUS_NAME,
+                                             DBUS_PATH,
+                                             DBUS_INTERFACE,
+                                             NULL,
+                                             &error);
+    if (!proxy) {
+        g_object_unref(connection);
+        g_error_free(error);
+        return false;
+    }
+    
+    // Prepare file list
+    GVariantBuilder builder;
+    g_variant_builder_init(&builder, G_VARIANT_TYPE_ARRAY);
+    
+    for (int i = 1; i < argc; i++) {
+        g_variant_builder_add(&builder, "s", argv[i]);
+    }
+    
+    GVariant *parameters = g_variant_new("(as)", &builder);
+    
+    // Call the OpenFiles method
+    GVariant *result = g_dbus_proxy_call_sync(proxy,
+                                             "OpenFiles",
+                                             parameters,
+                                             G_DBUS_CALL_FLAGS_NONE,
+                                             -1,
+                                             NULL,
+                                             &error);
+    
+    g_object_unref(proxy);
+    g_object_unref(connection);
+    
+    if (result) {
+        g_variant_unref(result);
+        return true; // Successfully sent files to existing instance
+    } else {
+        g_error_free(error);
+        return false;
+    }
+}
+
+// Setup D-Bus for this instance
+static bool setup_dbus(AppState *app) {
+    GError *error = NULL;
+    
+    // Setup introspection data
+    introspection_data = g_dbus_node_info_new_for_xml(introspection_xml, &error);
+    if (!introspection_data) {
+        g_error_free(error);
+        return false;
+    }
+    
+    // Get D-Bus connection
+    dbus_connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+    if (!dbus_connection) {
+        g_error_free(error);
+        return false;
+    }
+    
+    // Register object
+    dbus_registration_id = g_dbus_connection_register_object(dbus_connection,
+                                                            DBUS_PATH,
+                                                            introspection_data->interfaces[0],
+                                                            &dbus_vtable,
+                                                            app,
+                                                            NULL,
+                                                            &error);
+    if (dbus_registration_id == 0) {
+        g_error_free(error);
+        return false;
+    }
+    
+    // Try to own the name
+    g_bus_own_name(G_BUS_TYPE_SESSION,
+                   DBUS_NAME,
+                   G_BUS_NAME_OWNER_FLAGS_NONE,
+                   NULL,  // bus_acquired_handler
+                   NULL,  // name_acquired_handler
+                   NULL,  // name_lost_handler
+                   NULL,  // user_data
+                   NULL); // user_data_free_func
+    
+    return true;
+}
+
 // Forward declarations
 static void record_macro_action(AppState *app, const string &action);
 static void update_recent_menu(AppState *app);
@@ -344,7 +509,7 @@ static GtkWidget* create_scintilla_widget(AppState *app) {
     return sci;
 }
 
-static GtkWidget* create_tab(AppState *app, const string &filename="") {
+GtkWidget* create_tab(AppState *app, const string &filename="") {
     GtkWidget *scrolled = gtk_scrolled_window_new(NULL, NULL);
     GtkWidget *sci = create_scintilla_widget(app);
     gtk_container_add(GTK_CONTAINER(scrolled), sci);
@@ -2888,7 +3053,7 @@ static void session_save(AppState *app) {
 
 static void session_restore(AppState *app);  // Forward declare for use in session_restore
 
-static GtkWidget* create_tab(AppState *app, const string &filename);  // Forward declare without default arg
+GtkWidget* create_tab(AppState *app, const string &filename);  // Forward declare without default arg
 
 static void session_restore(AppState *app) {
     string session_file = get_config_dir() + "/session.txt";
@@ -2941,11 +3106,22 @@ static void session_restore(AppState *app) {
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
 
+    // Multi-instance support: check if another instance is running
+    if (argc > 1 && send_files_to_existing_instance(argc, argv)) {
+        // Files were sent to existing instance, exit
+        return 0;
+    }
+
     AppState app = {0}; // Initialize all fields to 0/null
     app.file_watch_timer_id = 0;
     app.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(app.window), 1000, 700);
     gtk_window_set_title(GTK_WINDOW(app.window), "Notepad++");
+    
+    // Setup D-Bus for this instance
+    if (!setup_dbus(&app)) {
+        g_warning("Failed to setup D-Bus, multi-instance support may not work");
+    }
     
     // Set Notepad++ icon - try multiple paths
     /*

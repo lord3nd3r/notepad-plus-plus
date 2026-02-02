@@ -27,6 +27,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ UTF-8 encoding support
 - ✅ Session management (auto-save/restore tabs)
 - ✅ Save/Load session manually
+- ✅ **Multi-instance support** - Files open in existing instance when launched multiple times ⭐
 
 ### Advanced Line Operations
 - ✅ Duplicate line (Ctrl+Alt+D)
@@ -138,7 +139,7 @@ cmake --build . -j$(nproc)
 ./gtk-proto [file1] [file2] ...
 ```
 
-Open files directly from command line or run without arguments to restore last session.
+Open files directly from command line or run without arguments to restore last session. **Multi-instance support** - If an instance is already running, new files will open in the existing instance.
 
 Or from anywhere:
 ```bash

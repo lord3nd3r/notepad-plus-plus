@@ -7,6 +7,8 @@
 #include <cstring>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
+#include <fnmatch.h>
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 #include "ILexer.h"
@@ -466,6 +468,160 @@ static void cmd_goto(GtkWidget *w, gpointer data) {
         int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_POSITIONFROMLINE, line, 0);
         scintilla_send_message((ScintillaObject*)td->sci, SCI_GOTOPOS, pos, 0);
     }
+    gtk_widget_destroy(dialog);
+}
+
+// Find in Files structures and functions
+struct FindInFilesResult {
+    string filename;
+    int line_number;
+    string line_text;
+};
+
+static std::vector<FindInFilesResult> find_in_files_results;
+
+static void search_in_file(const string &filepath, const string &search_text, bool case_sensitive) {
+    std::ifstream file(filepath);
+    if (!file.is_open()) return;
+    
+    string line;
+    int line_num = 1;
+    while (std::getline(file, line)) {
+        string search_in = line;
+        string search_for = search_text;
+        
+        if (!case_sensitive) {
+            std::transform(search_in.begin(), search_in.end(), search_in.begin(), ::tolower);
+            std::transform(search_for.begin(), search_for.end(), search_for.begin(), ::tolower);
+        }
+        
+        if (search_in.find(search_for) != string::npos) {
+            FindInFilesResult result;
+            result.filename = filepath;
+            result.line_number = line_num;
+            result.line_text = line;
+            find_in_files_results.push_back(result);
+        }
+        line_num++;
+    }
+    file.close();
+}
+
+static void search_directory(const string &dir_path, const string &pattern, 
+                             const string &search_text, bool case_sensitive, bool recursive) {
+    DIR *dir = opendir(dir_path.c_str());
+    if (!dir) return;
+    
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        string name = entry->d_name;
+        if (name == "." || name == "..") continue;
+        
+        string full_path = dir_path + "/" + name;
+        struct stat st;
+        if (stat(full_path.c_str(), &st) != 0) continue;
+        
+        if (S_ISDIR(st.st_mode)) {
+            if (recursive) {
+                search_directory(full_path, pattern, search_text, case_sensitive, recursive);
+            }
+        } else if (S_ISREG(st.st_mode)) {
+            // Check if filename matches pattern
+            if (fnmatch(pattern.c_str(), name.c_str(), 0) == 0) {
+                search_in_file(full_path, search_text, case_sensitive);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+static void show_find_in_files_results(AppState *app) {
+    GtkWidget *results_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(results_window), "Find in Files Results");
+    gtk_window_set_default_size(GTK_WINDOW(results_window), 800, 400);
+    gtk_window_set_transient_for(GTK_WINDOW(results_window), GTK_WINDOW(app->window));
+    
+    GtkWidget *scrolled = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(results_window), scrolled);
+    
+    GtkWidget *text_view = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), FALSE);
+    gtk_text_view_set_monospace(GTK_TEXT_VIEW(text_view), TRUE);
+    gtk_container_add(GTK_CONTAINER(scrolled), text_view);
+    
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+    
+    string results_text = "Find in Files Results\n";
+    results_text += "=====================\n\n";
+    results_text += "Found " + std::to_string(find_in_files_results.size()) + " matches\n\n";
+    
+    for (const auto &result : find_in_files_results) {
+        results_text += result.filename + ":" + std::to_string(result.line_number) + ": " + result.line_text + "\n";
+    }
+    
+    gtk_text_buffer_set_text(buffer, results_text.c_str(), -1);
+    gtk_widget_show_all(results_window);
+}
+
+static void cmd_find_in_files(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Find in Files",
+        GTK_WINDOW(app->window),
+        GTK_DIALOG_MODAL,
+        "_Find", GTK_RESPONSE_OK,
+        "_Cancel", GTK_RESPONSE_CANCEL,
+        NULL);
+    
+    GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    gtk_box_set_spacing(GTK_BOX(content), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(content), 10);
+    
+    // Search text
+    GtkWidget *search_label = gtk_label_new("Find what:");
+    GtkWidget *search_entry = gtk_entry_new();
+    gtk_widget_set_size_request(search_entry, 400, -1);
+    
+    // Directory
+    GtkWidget *dir_label = gtk_label_new("Directory:");
+    GtkWidget *dir_entry = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(dir_entry), ".");
+    
+    // File pattern
+    GtkWidget *pattern_label = gtk_label_new("File pattern:");
+    GtkWidget *pattern_entry = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(pattern_entry), "*.*");
+    
+    // Options
+    GtkWidget *case_check = gtk_check_button_new_with_label("Case sensitive");
+    GtkWidget *recursive_check = gtk_check_button_new_with_label("Search in subdirectories");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(recursive_check), TRUE);
+    
+    gtk_box_pack_start(GTK_BOX(content), search_label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), search_entry, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), dir_label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), dir_entry, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), pattern_label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), pattern_entry, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), case_check, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(content), recursive_check, FALSE, FALSE, 0);
+    
+    gtk_widget_show_all(content);
+    
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        const char *search_text = gtk_entry_get_text(GTK_ENTRY(search_entry));
+        const char *dir_path = gtk_entry_get_text(GTK_ENTRY(dir_entry));
+        const char *pattern = gtk_entry_get_text(GTK_ENTRY(pattern_entry));
+        bool case_sensitive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_check));
+        bool recursive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(recursive_check));
+        
+        if (strlen(search_text) > 0) {
+            find_in_files_results.clear();
+            search_directory(dir_path, pattern, search_text, case_sensitive, recursive);
+            show_find_in_files_results(app);
+        }
+    }
+    
     gtk_widget_destroy(dialog);
 }
 
@@ -1714,6 +1870,7 @@ int main(int argc, char **argv) {
     GtkWidget *search_find_next = gtk_menu_item_new_with_mnemonic("Find _Next");
     GtkWidget *search_find_prev = gtk_menu_item_new_with_mnemonic("Find _Previous");
     GtkWidget *search_replace = gtk_menu_item_new_with_mnemonic("_Replace...");
+    GtkWidget *search_find_in_files = gtk_menu_item_new_with_mnemonic("Find in F_iles...");
     GtkWidget *search_goto = gtk_menu_item_new_with_mnemonic("_Go to Line...");
     
     // Bookmarks submenu
@@ -1728,6 +1885,7 @@ int main(int argc, char **argv) {
     gtk_widget_add_accelerator(search_find_next, "activate", app.accel_group, GDK_KEY_F3, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(search_find_prev, "activate", app.accel_group, GDK_KEY_F3, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(search_replace, "activate", app.accel_group, GDK_KEY_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(search_find_in_files, "activate", app.accel_group, GDK_KEY_f, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(search_goto, "activate", app.accel_group, GDK_KEY_g, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(bookmark_toggle, "activate", app.accel_group, GDK_KEY_F2, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(bookmark_next, "activate", app.accel_group, GDK_KEY_F2, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
@@ -1744,6 +1902,8 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_find_next);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_find_prev);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_replace);
+    gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_find_in_files);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_goto);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), gtk_separator_menu_item_new());
@@ -1924,6 +2084,7 @@ int main(int argc, char **argv) {
     g_signal_connect(search_find_next, "activate", G_CALLBACK(cmd_find_next), &app);
     g_signal_connect(search_find_prev, "activate", G_CALLBACK(cmd_find_previous), &app);
     g_signal_connect(search_replace, "activate", G_CALLBACK(cmd_replace), &app);
+    g_signal_connect(search_find_in_files, "activate", G_CALLBACK(cmd_find_in_files), &app);
     g_signal_connect(search_goto, "activate", G_CALLBACK(cmd_goto), &app);
     
     g_signal_connect(bookmark_toggle, "activate", G_CALLBACK(cmd_toggle_bookmark), &app);

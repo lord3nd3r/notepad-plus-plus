@@ -44,6 +44,7 @@ struct AppState {
     GtkWidget *recent_menu = nullptr;
     bool is_split = false;
     bool is_horizontal_split = true;
+    bool is_fullscreen = false;
 };
 
 // Forward declarations
@@ -853,6 +854,17 @@ static void cmd_toggle_fold(GtkWidget *w, gpointer data) {
     int line = scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEFROMPOSITION,
                                       scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0), 0);
     scintilla_send_message((ScintillaObject*)td->sci, SCI_TOGGLEFOLD, line, 0);
+}
+
+static void cmd_toggle_fullscreen(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (app->is_fullscreen) {
+        gtk_window_unfullscreen(GTK_WINDOW(app->window));
+        app->is_fullscreen = false;
+    } else {
+        gtk_window_fullscreen(GTK_WINDOW(app->window));
+        app->is_fullscreen = true;
+    }
 }
 
 // Line operations
@@ -1960,6 +1972,12 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_unfold_all);
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_toggle_fold);
     
+    // Full screen
+    GtkWidget *view_fullscreen = gtk_menu_item_new_with_mnemonic("_Full Screen");
+    gtk_widget_add_accelerator(view_fullscreen, "activate", app.accel_group, GDK_KEY_F11, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_fullscreen);
+    
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view_item);
     
@@ -2107,6 +2125,7 @@ int main(int argc, char **argv) {
     g_signal_connect(view_fold_all, "activate", G_CALLBACK(cmd_fold_all), &app);
     g_signal_connect(view_unfold_all, "activate", G_CALLBACK(cmd_unfold_all), &app);
     g_signal_connect(view_toggle_fold, "activate", G_CALLBACK(cmd_toggle_fold), &app);
+    g_signal_connect(view_fullscreen, "activate", G_CALLBACK(cmd_toggle_fullscreen), &app);
     
     g_signal_connect(eol_windows, "activate", G_CALLBACK(cmd_set_eol_windows), &app);
     g_signal_connect(eol_unix, "activate", G_CALLBACK(cmd_set_eol_unix), &app);

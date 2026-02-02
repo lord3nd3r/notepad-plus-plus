@@ -1860,6 +1860,34 @@ static void cmd_convert_eol(GtkWidget *w, gpointer data) {
     scintilla_send_message((ScintillaObject*)td->sci, SCI_CONVERTEOLS, mode, 0);
 }
 
+// EOL conversion commands (set mode and convert)
+static void cmd_convert_to_windows(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETEOLMODE, SC_EOL_CRLF, 0);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_CONVERTEOLS, SC_EOL_CRLF, 0);
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Converted to Windows format (CRLF)");
+}
+
+static void cmd_convert_to_unix(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETEOLMODE, SC_EOL_LF, 0);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_CONVERTEOLS, SC_EOL_LF, 0);
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Converted to Unix format (LF)");
+}
+
+static void cmd_convert_to_mac(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETEOLMODE, SC_EOL_CR, 0);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_CONVERTEOLS, SC_EOL_CR, 0);
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Converted to Mac format (CR)");
+}
+
 // Find Next/Previous
 static void cmd_find_next(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
@@ -2863,6 +2891,13 @@ int main(int argc, char **argv) {
     GtkWidget *eol_mac = gtk_radio_menu_item_new_with_label(eol_group, "Mac (CR)");
     GtkWidget *eol_convert = gtk_menu_item_new_with_label("Convert EOL");
     
+    // EOL conversion submenu
+    GtkWidget *eol_convert_submenu = gtk_menu_new();
+    GtkWidget *eol_convert_item = gtk_menu_item_new_with_mnemonic("_Convert EOL to");
+    GtkWidget *eol_convert_windows = gtk_menu_item_new_with_mnemonic("Convert to _Windows (CRLF)");
+    GtkWidget *eol_convert_unix = gtk_menu_item_new_with_mnemonic("Convert to _Unix (LF)");
+    GtkWidget *eol_convert_mac = gtk_menu_item_new_with_mnemonic("Convert to _Mac (CR)");
+    
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(eol_unix), TRUE);
     
     gtk_menu_shell_append(GTK_MENU_SHELL(eol_submenu), eol_windows);
@@ -2870,6 +2905,14 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(eol_submenu), eol_mac);
     gtk_menu_shell_append(GTK_MENU_SHELL(eol_submenu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(eol_submenu), eol_convert);
+    
+    // Add conversion submenu
+    gtk_menu_shell_append(GTK_MENU_SHELL(eol_convert_submenu), eol_convert_windows);
+    gtk_menu_shell_append(GTK_MENU_SHELL(eol_convert_submenu), eol_convert_unix);
+    gtk_menu_shell_append(GTK_MENU_SHELL(eol_convert_submenu), eol_convert_mac);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(eol_convert_item), eol_convert_submenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(eol_submenu), eol_convert_item);
+    
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(eol_item), eol_submenu);
     
     gtk_menu_shell_append(GTK_MENU_SHELL(encoding_menu), eol_item);
@@ -3023,6 +3066,9 @@ int main(int argc, char **argv) {
     g_signal_connect(eol_unix, "activate", G_CALLBACK(cmd_set_eol_unix), &app);
     g_signal_connect(eol_mac, "activate", G_CALLBACK(cmd_set_eol_mac), &app);
     g_signal_connect(eol_convert, "activate", G_CALLBACK(cmd_convert_eol), &app);
+    g_signal_connect(eol_convert_windows, "activate", G_CALLBACK(cmd_convert_to_windows), &app);
+    g_signal_connect(eol_convert_unix, "activate", G_CALLBACK(cmd_convert_to_unix), &app);
+    g_signal_connect(eol_convert_mac, "activate", G_CALLBACK(cmd_convert_to_mac), &app);
     
     g_signal_connect(settings_preferences, "activate", G_CALLBACK(cmd_preferences), &app);
     gtk_widget_add_accelerator(settings_preferences, "activate", app.accel_group, GDK_KEY_comma, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);

@@ -48,6 +48,22 @@ struct AppState {
     bool is_fullscreen = false;
 };
 
+struct Preferences {
+    int tab_width = 4;
+    int font_size = 10;
+    bool use_tabs = false;  // false = use spaces
+    bool auto_indent = true;
+    bool show_indent_guides = false;
+    bool highlight_current_line = true;
+    string font_name = "Monospace";
+    int edge_column = 80;
+    bool show_edge_line = false;
+    
+    void load();
+    void save();
+    void apply_to_scintilla(GtkWidget *sci);
+};
+
 // Forward declarations
 static void update_recent_menu(AppState *app);
 static void add_recent_file(AppState *app, const string &filename);
@@ -703,6 +719,204 @@ static void cmd_about(GtkWidget *w, gpointer data) {
     gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "A GTK port of Notepad++");
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(app->window));
     gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
+// Preferences implementation
+void Preferences::load() {
+    string config_dir = string(g_get_home_dir()) + "/.config/notepad-plus-plus-gtk";
+    string pref_file = config_dir + "/preferences.ini";
+    
+    std::ifstream file(pref_file);
+    if (!file.is_open()) return;
+    
+    string line;
+    while (std::getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        size_t eq = line.find('=');
+        if (eq == string::npos) continue;
+        
+        string key = line.substr(0, eq);
+        string value = line.substr(eq + 1);
+        
+        if (key == "tab_width") tab_width = std::stoi(value);
+        else if (key == "font_size") font_size = std::stoi(value);
+        else if (key == "use_tabs") use_tabs = (value == "true" || value == "1");
+        else if (key == "auto_indent") auto_indent = (value == "true" || value == "1");
+        else if (key == "show_indent_guides") show_indent_guides = (value == "true" || value == "1");
+        else if (key == "highlight_current_line") highlight_current_line = (value == "true" || value == "1");
+        else if (key == "font_name") font_name = value;
+        else if (key == "edge_column") edge_column = std::stoi(value);
+        else if (key == "show_edge_line") show_edge_line = (value == "true" || value == "1");
+    }
+}
+
+void Preferences::save() {
+    string config_dir = string(g_get_home_dir()) + "/.config/notepad-plus-plus-gtk";
+    g_mkdir_with_parents(config_dir.c_str(), 0755);
+    
+    string pref_file = config_dir + "/preferences.ini";
+    std::ofstream file(pref_file);
+    if (!file.is_open()) return;
+    
+    file << "# Notepad++ GTK Preferences\n";
+    file << "tab_width=" << tab_width << "\n";
+    file << "font_size=" << font_size << "\n";
+    file << "use_tabs=" << (use_tabs ? "true" : "false") << "\n";
+    file << "auto_indent=" << (auto_indent ? "true" : "false") << "\n";
+    file << "show_indent_guides=" << (show_indent_guides ? "true" : "false") << "\n";
+    file << "highlight_current_line=" << (highlight_current_line ? "true" : "false") << "\n";
+    file << "font_name=" << font_name << "\n";
+    file << "edge_column=" << edge_column << "\n";
+    file << "show_edge_line=" << (show_edge_line ? "true" : "false") << "\n";
+}
+
+void Preferences::apply_to_scintilla(GtkWidget *sci) {
+    // Tab settings
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETTABWIDTH, tab_width, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETUSETABS, use_tabs ? 1 : 0, 0);
+    
+    // Indentation
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETINDENT, tab_width, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETINDENTATIONGUIDES, 
+                          show_indent_guides ? SC_IV_LOOKBOTH : SC_IV_NONE, 0);
+    
+    // Current line highlighting
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETCARETLINEVISIBLE, highlight_current_line ? 1 : 0, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETCARETLINEBACK, 0xE8E8FF, 0);
+    
+    // Edge column
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETEDGEMODE, 
+                          show_edge_line ? EDGE_LINE : EDGE_NONE, 0);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETEDGECOLUMN, edge_column, 0);
+    
+    // Font
+    string font_spec = font_name + " " + std::to_string(font_size);
+    PangoFontDescription *font_desc = pango_font_description_from_string(font_spec.c_str());
+    if (font_desc) {
+        scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFONT, STYLE_DEFAULT, 
+                              (sptr_t)pango_font_description_get_family(font_desc));
+        scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETSIZE, STYLE_DEFAULT, 
+                              pango_font_description_get_size(font_desc) / PANGO_SCALE);
+        scintilla_send_message((ScintillaObject*)sci, SCI_STYLECLEARALL, 0, 0);
+        pango_font_description_free(font_desc);
+    }
+}
+
+static void cmd_preferences(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    static Preferences prefs;
+    prefs.load();
+    
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Preferences", GTK_WINDOW(app->window),
+                                                     GTK_DIALOG_MODAL,
+                                                     "_OK", GTK_RESPONSE_OK,
+                                                     "_Cancel", GTK_RESPONSE_CANCEL, NULL);
+    gtk_window_set_default_size(GTK_WINDOW(dialog), 500, 400);
+    
+    GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *notebook = gtk_notebook_new();
+    gtk_box_pack_start(GTK_BOX(content), notebook, TRUE, TRUE, 0);
+    
+    // Editor Settings Tab
+    GtkWidget *editor_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_set_border_width(GTK_CONTAINER(editor_box), 10);
+    
+    GtkWidget *tab_width_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_pack_start(GTK_BOX(tab_width_box), gtk_label_new("Tab Width:"), FALSE, FALSE, 0);
+    GtkWidget *tab_width_spin = gtk_spin_button_new_with_range(1, 16, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(tab_width_spin), prefs.tab_width);
+    gtk_box_pack_start(GTK_BOX(tab_width_box), tab_width_spin, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(editor_box), tab_width_box, FALSE, FALSE, 0);
+    
+    GtkWidget *use_tabs_check = gtk_check_button_new_with_label("Use tabs (instead of spaces)");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(use_tabs_check), prefs.use_tabs);
+    gtk_box_pack_start(GTK_BOX(editor_box), use_tabs_check, FALSE, FALSE, 0);
+    
+    GtkWidget *auto_indent_check = gtk_check_button_new_with_label("Auto-indent");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auto_indent_check), prefs.auto_indent);
+    gtk_box_pack_start(GTK_BOX(editor_box), auto_indent_check, FALSE, FALSE, 0);
+    
+    GtkWidget *indent_guides_check = gtk_check_button_new_with_label("Show indent guides");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(indent_guides_check), prefs.show_indent_guides);
+    gtk_box_pack_start(GTK_BOX(editor_box), indent_guides_check, FALSE, FALSE, 0);
+    
+    GtkWidget *edge_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_pack_start(GTK_BOX(edge_box), gtk_label_new("Edge Column:"), FALSE, FALSE, 0);
+    GtkWidget *edge_spin = gtk_spin_button_new_with_range(40, 200, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(edge_spin), prefs.edge_column);
+    gtk_box_pack_start(GTK_BOX(edge_box), edge_spin, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(editor_box), edge_box, FALSE, FALSE, 0);
+    
+    GtkWidget *show_edge_check = gtk_check_button_new_with_label("Show edge line");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(show_edge_check), prefs.show_edge_line);
+    gtk_box_pack_start(GTK_BOX(editor_box), show_edge_check, FALSE, FALSE, 0);
+    
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), editor_box, gtk_label_new("Editor"));
+    
+    // Display Settings Tab
+    GtkWidget *display_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_set_border_width(GTK_CONTAINER(display_box), 10);
+    
+    GtkWidget *font_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_pack_start(GTK_BOX(font_box), gtk_label_new("Font:"), FALSE, FALSE, 0);
+    GtkWidget *font_button = gtk_font_button_new();
+    string font_spec = prefs.font_name + " " + std::to_string(prefs.font_size);
+    gtk_font_button_set_font_name(GTK_FONT_BUTTON(font_button), font_spec.c_str());
+    gtk_box_pack_start(GTK_BOX(font_box), font_button, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(display_box), font_box, FALSE, FALSE, 0);
+    
+    GtkWidget *highlight_line_check = gtk_check_button_new_with_label("Highlight current line");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(highlight_line_check), prefs.highlight_current_line);
+    gtk_box_pack_start(GTK_BOX(display_box), highlight_line_check, FALSE, FALSE, 0);
+    
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), display_box, gtk_label_new("Display"));
+    
+    gtk_widget_show_all(content);
+    
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        // Save preferences
+        prefs.tab_width = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(tab_width_spin));
+        prefs.use_tabs = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(use_tabs_check));
+        prefs.auto_indent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_indent_check));
+        prefs.show_indent_guides = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(indent_guides_check));
+        prefs.edge_column = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(edge_spin));
+        prefs.show_edge_line = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_edge_check));
+        prefs.highlight_current_line = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(highlight_line_check));
+        
+        const char *font_name_full = gtk_font_button_get_font_name(GTK_FONT_BUTTON(font_button));
+        PangoFontDescription *font_desc = pango_font_description_from_string(font_name_full);
+        if (font_desc) {
+            prefs.font_name = pango_font_description_get_family(font_desc);
+            prefs.font_size = pango_font_description_get_size(font_desc) / PANGO_SCALE;
+            pango_font_description_free(font_desc);
+        }
+        
+        prefs.save();
+        
+        // Apply to all open tabs
+        int n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook));
+        for (int i = 0; i < n_pages; i++) {
+            GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), i);
+            TabData *td = (TabData*)g_object_get_data(G_OBJECT(page), "tabdata");
+            if (td) {
+                prefs.apply_to_scintilla(td->sci);
+            }
+        }
+        
+        // Apply to second notebook if split
+        if (app->is_split && app->notebook2) {
+            n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook2));
+            for (int i = 0; i < n_pages; i++) {
+                GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook2), i);
+                TabData *td = (TabData*)g_object_get_data(G_OBJECT(page), "tabdata");
+                if (td) {
+                    prefs.apply_to_scintilla(td->sci);
+                }
+            }
+        }
+    }
+    
     gtk_widget_destroy(dialog);
 }
 
@@ -2090,6 +2304,14 @@ int main(int argc, char **argv) {
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(encoding_item), encoding_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), encoding_item);
     
+    // Settings menu
+    GtkWidget *settings_menu = gtk_menu_new();
+    GtkWidget *settings_item = gtk_menu_item_new_with_mnemonic("Se_ttings");
+    GtkWidget *settings_preferences = gtk_menu_item_new_with_mnemonic("_Preferences");
+    gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), settings_preferences);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(settings_item), settings_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), settings_item);
+    
     // Help menu
     GtkWidget *help_menu = gtk_menu_new();
     GtkWidget *help_item = gtk_menu_item_new_with_mnemonic("_Help");
@@ -2200,6 +2422,9 @@ int main(int argc, char **argv) {
     g_signal_connect(eol_unix, "activate", G_CALLBACK(cmd_set_eol_unix), &app);
     g_signal_connect(eol_mac, "activate", G_CALLBACK(cmd_set_eol_mac), &app);
     g_signal_connect(eol_convert, "activate", G_CALLBACK(cmd_convert_eol), &app);
+    
+    g_signal_connect(settings_preferences, "activate", G_CALLBACK(cmd_preferences), &app);
+    gtk_widget_add_accelerator(settings_preferences, "activate", app.accel_group, GDK_KEY_comma, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     
     g_signal_connect(help_about, "activate", G_CALLBACK(cmd_about), &app);
     

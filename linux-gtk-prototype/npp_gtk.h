@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <ctime>
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 #include "ILexer.h"
@@ -48,6 +49,7 @@ struct TabData {
     bool modified;
     int encoding;
     int eolFormat; // 0=Windows, 1=Unix, 2=Mac
+    time_t fileModTime; // Last modification time of the file on disk
 };
 
 struct AppState {
@@ -57,9 +59,31 @@ struct AppState {
     GtkWidget *toolbar;
     GtkWidget *menubar;
     guint status_context;
-    std::vector<std::string> recentFiles;
-    bool wordWrap;
+    std::vector<std::string> recent_files;
+    bool word_wrap;
     bool alwaysOnTop;
+    guint file_watch_timer_id;
+    GtkAccelGroup *accel_group;
+    GtkWidget *recent_menu;
+    bool show_whitespace;
+    bool show_eol;
+    bool show_line_numbers;
+    bool is_split;
+    GtkWidget *notebook2;
+    GtkWidget *paned;
+    bool is_horizontal_split;
+    bool is_fullscreen;
+    bool is_distraction_free;
+    std::string last_search;
+    bool find_case_sensitive;
+    int last_find_pos;
+    bool is_recording_macro;
+    std::vector<std::string> current_macro;
+    std::vector<std::vector<std::string>> saved_macros;
+    GtkWidget *incremental_search_bar;
+    GtkWidget *incremental_search_entry;
+    bool incremental_search_active;
+    guint auto_save_timer_id;
 };
 
 // Function declarations
@@ -101,4 +125,9 @@ void cmd_search_gotoline(AppState *app);
 
 void cmd_view_wordwrap(AppState *app);
 void cmd_view_zoomin(AppState *app);
+
+// File watching functions
+time_t get_file_modification_time(const std::string &filename);
+void check_file_changes(AppState *app);
+gboolean file_watch_timer(gpointer data);
 void cmd_view_zoomout(AppState *app);

@@ -14,51 +14,13 @@
 #include <fnmatch.h>
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
+#include "SciLexer.h"
 #include "ILexer.h"
 #include "Lexilla.h"
 #include "LexillaAccess.h"
+#include "npp_gtk.h"
 
 using std::string;
-
-struct TabData {
-    GtkWidget *sci;
-    string filename;
-    bool modified;
-};
-
-struct AppState {
-    GtkWidget *window;
-    GtkWidget *notebook;
-    GtkWidget *notebook2;  // Second notebook for split view
-    GtkWidget *paned;      // Paned widget for split view
-    GtkWidget *statusbar;
-    guint status_context;
-    GtkAccelGroup *accel_group;
-    GtkWidget *find_entry;
-    GtkWidget *replace_entry;
-    string last_search;
-    bool word_wrap = false;
-    bool show_whitespace = false;
-    bool show_eol = false;
-    bool show_line_numbers = true;
-    bool find_case_sensitive = false;
-    int last_find_pos = -1;
-    std::vector<string> recent_files;
-    GtkWidget *recent_menu = nullptr;
-    bool is_split = false;
-    bool is_horizontal_split = true;
-    bool is_fullscreen = false;
-    bool is_distraction_free = false;
-    GtkWidget *menubar = nullptr;
-    GtkWidget *toolbar = nullptr;
-    bool is_recording_macro = false;
-    std::vector<string> current_macro;
-    std::vector<std::vector<string>> saved_macros;
-    GtkWidget *incremental_search_bar = nullptr;
-    GtkWidget *incremental_search_entry = nullptr;
-    bool incremental_search_active = false;
-    guint auto_save_timer_id = 0;
-};
 
 struct Preferences {
     int tab_width = 4;
@@ -72,11 +34,164 @@ struct Preferences {
     bool show_edge_line = false;
     bool auto_save_enabled = true;
     int auto_save_interval = 300;  // seconds (5 minutes default)
+    string theme_name = "Default";  // Theme name
     
     void load();
     void save();
     void apply_to_scintilla(GtkWidget *sci);
 };
+
+// Theme structure
+struct ThemeColors {
+    string name;
+    unsigned int background;
+    unsigned int foreground;
+    unsigned int selection_bg;
+    unsigned int selection_fg;
+    unsigned int line_number_bg;
+    unsigned int line_number_fg;
+    unsigned int caret_line_bg;
+    unsigned int fold_margin_bg;
+    unsigned int fold_margin_fg;
+    unsigned int comment_color;
+    unsigned int keyword_color;
+    unsigned int string_color;
+    unsigned int number_color;
+    unsigned int operator_color;
+    unsigned int preprocessor_color;
+    unsigned int function_color;
+    unsigned int variable_color;
+};
+
+// Available themes
+static const ThemeColors themes[] = {
+    {
+        "Default",
+        0xFFFFFF,  // background
+        0x000000,  // foreground
+        0x3399FF,  // selection_bg
+        0xFFFFFF,  // selection_fg
+        0xF0F0F0,  // line_number_bg
+        0x808080,  // line_number_fg
+        0xE8E8FF,  // caret_line_bg
+        0xF0F0F0,  // fold_margin_bg
+        0x808080,  // fold_margin_fg
+        0x008000,  // comment_color
+        0x0000FF,  // keyword_color
+        0x008000,  // string_color
+        0xFF8000,  // number_color
+        0x000000,  // operator_color
+        0x800080,  // preprocessor_color
+        0x000080,  // function_color
+        0x000000   // variable_color
+    },
+    {
+        "Dark",
+        0x1E1E1E,  // background
+        0xD4D4D4,  // foreground
+        0x264F78,  // selection_bg
+        0xFFFFFF,  // selection_fg
+        0x2D2D30,  // line_number_bg
+        0x858585,  // line_number_fg
+        0x2A2D2E,  // caret_line_bg
+        0x2D2D30,  // fold_margin_bg
+        0x858585,  // fold_margin_fg
+        0x6A9955,  // comment_color
+        0x569CD6,  // keyword_color
+        0xCE9178,  // string_color
+        0xB5CEA8,  // number_color
+        0xD4D4D4,  // operator_color
+        0xC586C0,  // preprocessor_color
+        0xDCDCAA,  // function_color
+        0x9CDCFE   // variable_color
+    },
+    {
+        "Monokai",
+        0x272822,  // background
+        0xF8F8F2,  // foreground
+        0x49483E,  // selection_bg
+        0xF8F8F2,  // selection_fg
+        0x3E3D32,  // line_number_bg
+        0x90908A,  // line_number_fg
+        0x3E3D32,  // caret_line_bg
+        0x3E3D32,  // fold_margin_bg
+        0x90908A,  // fold_margin_fg
+        0x75715E,  // comment_color
+        0xF92672,  // keyword_color
+        0xE6DB74,  // string_color
+        0xAE81FF,  // number_color
+        0xF8F8F2,  // operator_color
+        0xA6E22E,  // preprocessor_color
+        0xA6E22E,  // function_color
+        0xF8F8F2   // variable_color
+    },
+    {
+        "Solarized Dark",
+        0x002B36,  // background
+        0x839496,  // foreground
+        0x073642,  // selection_bg
+        0x93A1A1,  // selection_fg
+        0x073642,  // line_number_bg
+        0x586E75,  // line_number_fg
+        0x073642,  // caret_line_bg
+        0x073642,  // fold_margin_bg
+        0x586E75,  // fold_margin_fg
+        0x586E75,  // comment_color
+        0x859900,  // keyword_color
+        0x2AA198,  // string_color
+        0xD33682,  // number_color
+        0x839496,  // operator_color
+        0xCB4B16,  // preprocessor_color
+        0x268BD2,  // function_color
+        0xB58900   // variable_color
+    }
+};
+
+static const int num_themes = sizeof(themes) / sizeof(themes[0]);
+
+// Function to get theme by name
+static const ThemeColors* get_theme_by_name(const string& name) {
+    for (int i = 0; i < num_themes; i++) {
+        if (themes[i].name == name) {
+            return &themes[i];
+        }
+    }
+    return &themes[0]; // Default fallback
+}
+
+// Function to apply theme to Scintilla
+static void apply_theme_to_scintilla(GtkWidget *sci, const ThemeColors* theme) {
+    // Set editor colors
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETBACK, STYLE_DEFAULT, theme->background);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, STYLE_DEFAULT, theme->foreground);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETSELBACK, 1, theme->selection_bg);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETSELFORE, 1, theme->selection_fg);
+    
+    // Caret line
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETCARETLINEBACK, theme->caret_line_bg, 0);
+    
+    // Line numbers
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETBACK, STYLE_LINENUMBER, theme->line_number_bg);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, STYLE_LINENUMBER, theme->line_number_fg);
+    
+    // Fold margin
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETFOLDMARGINCOLOUR, 1, theme->fold_margin_bg);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETFOLDMARGINHICOLOUR, 1, theme->fold_margin_bg);
+    
+    // Syntax highlighting colors
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_COMMENT, theme->comment_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_COMMENTLINE, theme->comment_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_COMMENTDOC, theme->comment_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_WORD, theme->keyword_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_STRING, theme->string_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_CHARACTER, theme->string_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_NUMBER, theme->number_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_OPERATOR, theme->operator_color);
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLESETFORE, SCE_C_PREPROCESSOR, theme->preprocessor_color);
+    
+    // Apply to all styles
+    scintilla_send_message((ScintillaObject*)sci, SCI_STYLECLEARALL, 0, 0);
+}
 
 // Forward declarations
 static void record_macro_action(AppState *app, const string &action);
@@ -239,7 +354,13 @@ static GtkWidget* create_tab(AppState *app, const string &filename="") {
     gtk_box_pack_start(GTK_BOX(tab), label, FALSE, FALSE, 0);
     gtk_widget_show_all(tab);
 
-    TabData *td = new TabData{sci, filename, false};
+    TabData *td = new TabData();
+    td->sci = sci;
+    td->filename = filename;
+    td->modified = false;
+    td->encoding = 0;
+    td->eolFormat = 0;
+    td->fileModTime = 0;
     g_object_set_data(G_OBJECT(scrolled), "tabdata", td);
     g_object_set_data(G_OBJECT(scrolled), "labelfwd", label);
 
@@ -258,6 +379,12 @@ static GtkWidget* create_tab(AppState *app, const string &filename="") {
 
     gtk_notebook_append_page(GTK_NOTEBOOK(app->notebook), scrolled, tab);
     gtk_widget_show_all(scrolled);
+    
+    // Apply preferences to the new tab
+    static Preferences prefs;
+    prefs.load();
+    prefs.apply_to_scintilla(sci);
+    
     return scrolled;
 }
 
@@ -284,6 +411,7 @@ static void cmd_open(GtkWidget *w, gpointer data) {
         if (td) {
             scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)str.c_str());
             td->modified = false;
+            td->fileModTime = get_file_modification_time(td->filename);
             GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
             gtk_label_set_text(GTK_LABEL(label), filename);
             add_recent_file(app, filename);
@@ -323,6 +451,7 @@ static void cmd_save(GtkWidget *w, gpointer data) {
     std::ofstream out(td->filename, std::ios::binary);
     out << buf;
     td->modified = false;
+    td->fileModTime = get_file_modification_time(td->filename);
     gint page = gtk_notebook_get_current_page(GTK_NOTEBOOK(app->notebook));
     GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), page);
     GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
@@ -352,6 +481,7 @@ static void cmd_saveas(GtkWidget *w, gpointer data) {
         out << buf;
         td->filename = filename;
         td->modified = false;
+        td->fileModTime = get_file_modification_time(td->filename);
         gint page = gtk_notebook_get_current_page(GTK_NOTEBOOK(app->notebook));
         GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), page);
         GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
@@ -411,6 +541,73 @@ static void stop_auto_save_timer(AppState *app) {
         g_source_remove(app->auto_save_timer_id);
         app->auto_save_timer_id = 0;
     }
+}
+
+// File watching functions
+time_t get_file_modification_time(const std::string &filename) {
+    if (filename.empty()) return 0;
+    struct stat st;
+    if (stat(filename.c_str(), &st) == 0) {
+        return st.st_mtime;
+    }
+    return 0;
+}
+
+static void show_file_changed_dialog(AppState *app, TabData *td, int page_num) {
+    GtkWidget *dialog = gtk_message_dialog_new(GTK_WINDOW(app->window),
+                                               GTK_DIALOG_MODAL,
+                                               GTK_MESSAGE_QUESTION,
+                                               GTK_BUTTONS_NONE,
+                                               "File Changed Externally");
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                                             "The file '%s' has been modified by another program.\n"
+                                             "Do you want to reload it?",
+                                             td->filename.c_str());
+    
+    gtk_dialog_add_button(GTK_DIALOG(dialog), "_Reload", GTK_RESPONSE_YES);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), "_Keep Current", GTK_RESPONSE_NO);
+    
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    
+    if (response == GTK_RESPONSE_YES) {
+        // Reload the file
+        std::ifstream t(td->filename, std::ios::binary);
+        if (t.is_open()) {
+            std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)str.c_str());
+            td->modified = false;
+            td->fileModTime = get_file_modification_time(td->filename);
+            
+            // Update tab label
+            GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), page_num);
+            GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
+            gtk_label_set_text(GTK_LABEL(label), td->filename.c_str());
+        }
+    } else {
+        // Update modification time to avoid repeated prompts
+        td->fileModTime = get_file_modification_time(td->filename);
+    }
+}
+
+void check_file_changes(AppState *app) {
+    int num_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook));
+    for (int i = 0; i < num_pages; i++) {
+        GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), i);
+        TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+        if (td && !td->filename.empty() && !td->modified) {
+            time_t current_mod_time = get_file_modification_time(td->filename);
+            if (current_mod_time != 0 && current_mod_time != td->fileModTime) {
+                show_file_changed_dialog(app, td, i);
+            }
+        }
+    }
+}
+
+gboolean file_watch_timer(gpointer data) {
+    AppState *app = (AppState*)data;
+    check_file_changes(app);
+    return TRUE; // Continue timer
 }
 
 static void cmd_undo(GtkWidget *w, gpointer data) {
@@ -837,6 +1034,7 @@ void Preferences::load() {
         else if (key == "show_edge_line") show_edge_line = (value == "true" || value == "1");
         else if (key == "auto_save_enabled") auto_save_enabled = (value == "true" || value == "1");
         else if (key == "auto_save_interval") auto_save_interval = std::stoi(value);
+        else if (key == "theme_name") theme_name = value;
     }
 }
 
@@ -860,9 +1058,14 @@ void Preferences::save() {
     file << "show_edge_line=" << (show_edge_line ? "true" : "false") << "\n";
     file << "auto_save_enabled=" << (auto_save_enabled ? "true" : "false") << "\n";
     file << "auto_save_interval=" << auto_save_interval << "\n";
+    file << "theme_name=" << theme_name << "\n";
 }
 
 void Preferences::apply_to_scintilla(GtkWidget *sci) {
+    // Apply theme first
+    const ThemeColors* theme = get_theme_by_name(theme_name);
+    apply_theme_to_scintilla(sci, theme);
+    
     // Tab settings
     scintilla_send_message((ScintillaObject*)sci, SCI_SETTABWIDTH, tab_width, 0);
     scintilla_send_message((ScintillaObject*)sci, SCI_SETUSETABS, use_tabs ? 1 : 0, 0);
@@ -874,7 +1077,7 @@ void Preferences::apply_to_scintilla(GtkWidget *sci) {
     
     // Current line highlighting
     scintilla_send_message((ScintillaObject*)sci, SCI_SETCARETLINEVISIBLE, highlight_current_line ? 1 : 0, 0);
-    scintilla_send_message((ScintillaObject*)sci, SCI_SETCARETLINEBACK, 0xE8E8FF, 0);
+    // Use theme's caret line color instead of hardcoded one
     
     // Edge column
     scintilla_send_message((ScintillaObject*)sci, SCI_SETEDGEMODE, 
@@ -957,6 +1160,21 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
     gtk_box_pack_start(GTK_BOX(font_box), font_button, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(display_box), font_box, FALSE, FALSE, 0);
     
+    GtkWidget *theme_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_pack_start(GTK_BOX(theme_box), gtk_label_new("Theme:"), FALSE, FALSE, 0);
+    GtkWidget *theme_combo = gtk_combo_box_text_new();
+    for (int i = 0; i < num_themes; i++) {
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(theme_combo), themes[i].name.c_str());
+        if (themes[i].name == prefs.theme_name) {
+            gtk_combo_box_set_active(GTK_COMBO_BOX(theme_combo), i);
+        }
+    }
+    if (gtk_combo_box_get_active(GTK_COMBO_BOX(theme_combo)) == -1) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(theme_combo), 0); // Default to first theme
+    }
+    gtk_box_pack_start(GTK_BOX(theme_box), theme_combo, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(display_box), theme_box, FALSE, FALSE, 0);
+    
     GtkWidget *highlight_line_check = gtk_check_button_new_with_label("Highlight current line");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(highlight_line_check), prefs.highlight_current_line);
     gtk_box_pack_start(GTK_BOX(display_box), highlight_line_check, FALSE, FALSE, 0);
@@ -995,6 +1213,12 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
         prefs.edge_column = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(edge_spin));
         prefs.show_edge_line = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_edge_check));
         prefs.highlight_current_line = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(highlight_line_check));
+        
+        // Get selected theme
+        int theme_index = gtk_combo_box_get_active(GTK_COMBO_BOX(theme_combo));
+        if (theme_index >= 0 && theme_index < num_themes) {
+            prefs.theme_name = themes[theme_index].name;
+        }
         
         prefs.auto_save_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_save_check));
         prefs.auto_save_interval = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(interval_spin));
@@ -2594,6 +2818,7 @@ static void update_recent_menu(AppState *app) {
                 if (td) {
                     scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)str.c_str());
                     td->modified = false;
+                    td->fileModTime = get_file_modification_time(td->filename);
                     GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
                     if (label) gtk_label_set_text(GTK_LABEL(label), filename);
                     update_statusbar(app, td->sci);
@@ -2692,6 +2917,7 @@ static void session_restore(AppState *app) {
                     scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)content.c_str());
                     td->filename = line;
                     td->modified = false;
+                    td->fileModTime = get_file_modification_time(td->filename);
                     
                     // Update tab label
                     size_t pos = line.find_last_of("/\\");
@@ -2715,12 +2941,14 @@ static void session_restore(AppState *app) {
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
 
-    AppState app;
+    AppState app = {0}; // Initialize all fields to 0/null
+    app.file_watch_timer_id = 0;
     app.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(app.window), 1000, 700);
     gtk_window_set_title(GTK_WINDOW(app.window), "Notepad++");
     
     // Set Notepad++ icon - try multiple paths
+    /*
     GError *error = nullptr;
     const char *icon_paths[] = {
         "npp.ico",           // Current directory
@@ -2743,6 +2971,7 @@ int main(int argc, char **argv) {
     if (!icon_loaded) {
         g_message("Icon not loaded (npp.ico not found in current or parent directory)");
     }
+    */
 
     app.accel_group = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(app.window), app.accel_group);
@@ -3321,6 +3550,7 @@ int main(int argc, char **argv) {
                         scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)content.c_str());
                         td->filename = filepath;
                         td->modified = false;
+                        td->fileModTime = get_file_modification_time(td->filename);
                         
                         // Update tab label
                         size_t pos = filepath.find_last_of("/\\");
@@ -3347,10 +3577,16 @@ int main(int argc, char **argv) {
     prefs.load();
     start_auto_save_timer(&app, &prefs);
     
+    // Start file watching timer (check every 2 seconds)
+    app.file_watch_timer_id = g_timeout_add_seconds(2, file_watch_timer, &app);
+    
     gtk_main();
     
-    // Cleanup: stop auto-save timer
+    // Cleanup: stop timers
     stop_auto_save_timer(&app);
+    if (app.file_watch_timer_id > 0) {
+        g_source_remove(app.file_watch_timer_id);
+    }
     
     return 0;
 }

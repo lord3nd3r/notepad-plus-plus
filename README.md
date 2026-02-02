@@ -99,6 +99,8 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ **Auto-save system** - Configurable automatic background saving ⭐
 - ✅ Interval settings (60-3600 seconds, default 5 minutes)
 - ✅ Enable/disable in preferences
+- ✅ **File watching/auto-reload** - Detects external file changes and prompts to reload ⭐
+- ✅ **Theme support** - Multiple color schemes (Default, Dark, Monokai, Solarized Dark) ⭐
 
 ### Auto-Completion ⭐
 - ✅ **Word completion** - Auto-complete words from current document ⭐

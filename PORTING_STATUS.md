@@ -120,6 +120,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] **Auto-save system** - Configurable automatic saving of modified files ⭐ NEW
 - [x] **Auto-save preferences** - Enable/disable and interval settings (60-3600s) ⭐ NEW
 - [x] Background timer saves all modified files with filenames
+- [x] **File watching/auto-reload** - Detects external file changes and prompts to reload ⭐ NEW
+- [x] **Theme support** - Multiple color schemes (Default, Dark, Monokai, Solarized Dark) ⭐ NEW
 
 ### Tab Management
 - [x] Multiple tabs (notebook interface)
@@ -166,7 +168,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [ ] Print support
 
 ### Quality of Life
-- [ ] File change detection
+- [x] File change detection ⭐ NEW
 - [ ] Backup files
 - [ ] Recent closed files
 - [ ] Tab context menu

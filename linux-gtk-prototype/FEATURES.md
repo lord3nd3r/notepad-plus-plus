@@ -85,6 +85,12 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Show Line Numbers**: Toggle line number margin (enabled by default)
 - **Show Whitespace**: Display space and tab characters
 - **Show EOL**: Display end-of-line markers
+- **Code Folding** ⭐ NEW:
+  - **Fold All**: Collapse all foldable code blocks
+  - **Unfold All**: Expand all folded code blocks
+  - **Toggle Current Fold** (Ctrl+Shift+F): Toggle fold at cursor
+  - Visual fold markers (+/-) in margin
+  - Automatic folding for functions, loops, conditionals
 - **Zoom In** (Ctrl++): Increase font size
 - **Zoom Out** (Ctrl+-): Decrease font size
 - **Restore Default Zoom** (Ctrl+0): Reset zoom to default

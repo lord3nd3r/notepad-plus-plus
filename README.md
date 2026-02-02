@@ -71,6 +71,9 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Show/hide line numbers
 - ✅ Split view (horizontal/vertical)
 - ✅ Unsplit view
+- ✅ Code folding with +/- icons
+- ✅ Fold/unfold all
+- ✅ Toggle fold (Ctrl+Shift+F)
 
 ### Syntax Highlighting
 **20+ programming languages supported:**

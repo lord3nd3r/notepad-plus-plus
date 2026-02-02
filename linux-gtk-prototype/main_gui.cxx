@@ -1056,6 +1056,147 @@ static void cmd_select_word(GtkWidget *w, gpointer data) {
     scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, start, end);
 }
 
+// Multi-cursor editing
+static void cmd_add_next_occurrence(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    ScintillaObject *sci = (ScintillaObject*)td->sci;
+    
+    // Enable multiple selection if not already enabled
+    scintilla_send_message(sci, SCI_SETMULTIPLESELECTION, 1, 0);
+    scintilla_send_message(sci, SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
+    scintilla_send_message(sci, SCI_SETMULTIPASTE, 1, 0);
+    scintilla_send_message(sci, SCI_SETVIRTUALSPACEOPTIONS, SCVS_RECTANGULARSELECTION, 0);
+    
+    int num_selections = scintilla_send_message(sci, SCI_GETSELECTIONS, 0, 0);
+    
+    // Get the last selection (most recent)
+    int main_sel = scintilla_send_message(sci, SCI_GETMAINSELECTION, 0, 0);
+    int sel_start = scintilla_send_message(sci, SCI_GETSELECTIONNSTART, main_sel, 0);
+    int sel_end = scintilla_send_message(sci, SCI_GETSELECTIONNEND, main_sel, 0);
+    
+    // If no selection, select the word under cursor
+    if (sel_start == sel_end) {
+        int pos = scintilla_send_message(sci, SCI_GETCURRENTPOS, 0, 0);
+        sel_start = scintilla_send_message(sci, SCI_WORDSTARTPOSITION, pos, true);
+        sel_end = scintilla_send_message(sci, SCI_WORDENDPOSITION, pos, true);
+        scintilla_send_message(sci, SCI_SETSELECTION, sel_start, sel_end);
+        return;
+    }
+    
+    // Get the selected text
+    int len = sel_end - sel_start;
+    char *text = new char[len + 1];
+    Sci_TextRangeFull tr;
+    tr.chrg.cpMin = sel_start;
+    tr.chrg.cpMax = sel_end;
+    tr.lpstrText = text;
+    scintilla_send_message(sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+    
+    // Search for next occurrence after the current selection
+    scintilla_send_message(sci, SCI_SETTARGETSTART, sel_end, 0);
+    scintilla_send_message(sci, SCI_SETTARGETEND, scintilla_send_message(sci, SCI_GETLENGTH, 0, 0), 0);
+    scintilla_send_message(sci, SCI_SETSEARCHFLAGS, SCFIND_MATCHCASE, 0);
+    
+    int found_pos = scintilla_send_message(sci, SCI_SEARCHINTARGET, len, (sptr_t)text);
+    
+    if (found_pos >= 0) {
+        int found_end = scintilla_send_message(sci, SCI_GETTARGETEND, 0, 0);
+        // Add additional selection
+        scintilla_send_message(sci, SCI_ADDSELECTION, found_end, found_pos);
+        scintilla_send_message(sci, SCI_SETMAINSELECTION, num_selections, 0);
+        // Scroll to show the new selection
+        scintilla_send_message(sci, SCI_SCROLLRANGE, found_pos, found_end);
+    }
+    
+    delete[] text;
+}
+
+static void cmd_select_all_occurrences(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    ScintillaObject *sci = (ScintillaObject*)td->sci;
+    
+    int sel_start = scintilla_send_message(sci, SCI_GETSELECTIONSTART, 0, 0);
+    int sel_end = scintilla_send_message(sci, SCI_GETSELECTIONEND, 0, 0);
+    
+    // If no selection, select the word under cursor
+    if (sel_start == sel_end) {
+        int pos = scintilla_send_message(sci, SCI_GETCURRENTPOS, 0, 0);
+        sel_start = scintilla_send_message(sci, SCI_WORDSTARTPOSITION, pos, true);
+        sel_end = scintilla_send_message(sci, SCI_WORDENDPOSITION, pos, true);
+        if (sel_start == sel_end) return;
+    }
+    
+    // Enable multiple selection
+    scintilla_send_message(sci, SCI_SETMULTIPLESELECTION, 1, 0);
+    scintilla_send_message(sci, SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
+    scintilla_send_message(sci, SCI_SETMULTIPASTE, 1, 0);
+    
+    // Get the selected text
+    int len = sel_end - sel_start;
+    char *text = new char[len + 1];
+    Sci_TextRangeFull tr;
+    tr.chrg.cpMin = sel_start;
+    tr.chrg.cpMax = sel_end;
+    tr.lpstrText = text;
+    scintilla_send_message(sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+    
+    // Clear existing selections and set the first one
+    scintilla_send_message(sci, SCI_CLEARSELECTIONS, 0, 0);
+    scintilla_send_message(sci, SCI_SETSELECTION, sel_start, sel_end);
+    
+    // Find all occurrences
+    int doc_length = scintilla_send_message(sci, SCI_GETLENGTH, 0, 0);
+    int search_pos = sel_end;
+    int count = 1;
+    
+    while (search_pos < doc_length) {
+        scintilla_send_message(sci, SCI_SETTARGETSTART, search_pos, 0);
+        scintilla_send_message(sci, SCI_SETTARGETEND, doc_length, 0);
+        scintilla_send_message(sci, SCI_SETSEARCHFLAGS, SCFIND_MATCHCASE, 0);
+        
+        int found_pos = scintilla_send_message(sci, SCI_SEARCHINTARGET, len, (sptr_t)text);
+        
+        if (found_pos < 0) break;
+        
+        int found_end = scintilla_send_message(sci, SCI_GETTARGETEND, 0, 0);
+        scintilla_send_message(sci, SCI_ADDSELECTION, found_end, found_pos);
+        count++;
+        search_pos = found_end;
+    }
+    
+    delete[] text;
+    
+    // Show message in status bar
+    char msg[256];
+    snprintf(msg, sizeof(msg), "Selected %d occurrence(s)", count);
+    gtk_statusbar_pop(GTK_STATUSBAR(app->statusbar), app->status_context);
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, msg);
+}
+
+static void cmd_clear_multiple_selections(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    ScintillaObject *sci = (ScintillaObject*)td->sci;
+    
+    // Keep only main selection
+    int main_sel = scintilla_send_message(sci, SCI_GETMAINSELECTION, 0, 0);
+    int start = scintilla_send_message(sci, SCI_GETSELECTIONNSTART, main_sel, 0);
+    int end = scintilla_send_message(sci, SCI_GETSELECTIONNEND, main_sel, 0);
+    
+    scintilla_send_message(sci, SCI_CLEARSELECTIONS, 0, 0);
+    scintilla_send_message(sci, SCI_SETSELECTION, start, end);
+    
+    update_statusbar(app, td->sci);
+}
+
 static void update_recent_menu(AppState *app) {
     if (!app->recent_menu) return;
     
@@ -1191,7 +1332,7 @@ int main(int argc, char **argv) {
     GtkWidget *edit_line_join = gtk_menu_item_new_with_mnemonic("_Join Lines");
     GtkWidget *edit_line_split = gtk_menu_item_new_with_mnemonic("_Split Lines");
     
-    gtk_widget_add_accelerator(edit_line_duplicate, "activate", app.accel_group, GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(edit_line_duplicate, "activate", app.accel_group, GDK_KEY_d, (GdkModifierType)(GDK_CONTROL_MASK|GDK_MOD1_MASK), GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_delete, "activate", app.accel_group, GDK_KEY_l, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_move_up, "activate", app.accel_group, GDK_KEY_Up, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_move_down, "activate", app.accel_group, GDK_KEY_Down, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
@@ -1243,6 +1384,15 @@ int main(int argc, char **argv) {
     GtkWidget *edit_selectword = gtk_menu_item_new_with_mnemonic("Select _Word");
     gtk_widget_add_accelerator(edit_selectword, "activate", app.accel_group, GDK_KEY_w, (GdkModifierType)(GDK_CONTROL_MASK|GDK_MOD1_MASK), GTK_ACCEL_VISIBLE);
     
+    // Multi-cursor items
+    GtkWidget *edit_add_next = gtk_menu_item_new_with_mnemonic("Add _Next Occurrence");
+    GtkWidget *edit_select_all_occ = gtk_menu_item_new_with_mnemonic("Select All O_ccurrences");
+    GtkWidget *edit_clear_selections = gtk_menu_item_new_with_mnemonic("C_lear Multiple Selections");
+    
+    gtk_widget_add_accelerator(edit_add_next, "activate", app.accel_group, GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(edit_select_all_occ, "activate", app.accel_group, GDK_KEY_l, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(edit_clear_selections, "activate", app.accel_group, GDK_KEY_Escape, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
+    
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_undo);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_redo);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
@@ -1253,6 +1403,10 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_selectall);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_selectword);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_add_next);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_select_all_occ);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_clear_selections);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_line);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_case);
@@ -1437,6 +1591,10 @@ int main(int argc, char **argv) {
     g_signal_connect(edit_delete, "activate", G_CALLBACK(cmd_delete), &app);
     g_signal_connect(edit_selectall, "activate", G_CALLBACK(cmd_selectall), &app);
     g_signal_connect(edit_selectword, "activate", G_CALLBACK(cmd_select_word), &app);
+    
+    g_signal_connect(edit_add_next, "activate", G_CALLBACK(cmd_add_next_occurrence), &app);
+    g_signal_connect(edit_select_all_occ, "activate", G_CALLBACK(cmd_select_all_occurrences), &app);
+    g_signal_connect(edit_clear_selections, "activate", G_CALLBACK(cmd_clear_multiple_selections), &app);
     
     g_signal_connect(edit_line_duplicate, "activate", G_CALLBACK(cmd_line_duplicate), &app);
     g_signal_connect(edit_line_delete, "activate", G_CALLBACK(cmd_line_delete), &app);

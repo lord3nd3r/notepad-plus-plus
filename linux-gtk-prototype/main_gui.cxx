@@ -19,6 +19,7 @@
 #include "Lexilla.h"
 #include "LexillaAccess.h"
 #include "npp_gtk.h"
+#include "npp_icon.xpm"
 
 using std::string;
 
@@ -378,7 +379,34 @@ static void update_statusbar(AppState *app, GtkWidget *sci) {
     gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, buf);
 }
 
-static TabData* get_current_tabdata(AppState *app) {
+static void update_window_title(AppState *app) {
+    TabData *td = get_current_tabdata(app);
+    if (!td) {
+        gtk_window_set_title(GTK_WINDOW(app->window), "Notepad++");
+        return;
+    }
+    
+    // Get just the filename (not full path)
+    const char *filename = td->filename.empty() ? "new 1" : td->filename.c_str();
+    std::string basename;
+    const char *last_slash = strrchr(filename, '/');
+    if (last_slash) {
+        basename = last_slash + 1;
+    } else {
+        basename = filename;
+    }
+    
+    // Format: "filename - Notepad++" (add * if modified)
+    char title[512];
+    if (td->modified) {
+        snprintf(title, sizeof(title), "*%s - Notepad++", basename.c_str());
+    } else {
+        snprintf(title, sizeof(title), "%s - Notepad++", basename.c_str());
+    }
+    gtk_window_set_title(GTK_WINDOW(app->window), title);
+}
+
+TabData* get_current_tabdata(AppState *app) {
     gint page = gtk_notebook_get_current_page(GTK_NOTEBOOK(app->notebook));
     if (page < 0) return nullptr;
     GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), page);
@@ -394,6 +422,7 @@ static void sci_notify_cb(GtkWidget *widget, gint code, gpointer notification, g
         update_statusbar(app, td->sci);
     } else if (code == SCN_MODIFIED) {
         td->modified = true;
+        update_window_title(app);
         gint page = gtk_notebook_get_current_page(GTK_NOTEBOOK(app->notebook));
         GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), page);
         GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
@@ -514,10 +543,28 @@ GtkWidget* create_tab(AppState *app, const string &filename="") {
     GtkWidget *sci = create_scintilla_widget(app);
     gtk_container_add(GTK_CONTAINER(scrolled), sci);
 
+    // Create tab label with close button
+    GtkWidget *tab_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     GtkWidget *label = gtk_label_new(filename.empty() ? "new 1" : filename.c_str());
-    GtkWidget *tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_box_pack_start(GTK_BOX(tab), label, FALSE, FALSE, 0);
-    gtk_widget_show_all(tab);
+    gtk_box_pack_start(GTK_BOX(tab_box), label, FALSE, FALSE, 0);
+    
+    GtkWidget *close_button = gtk_button_new();
+    GtkWidget *close_icon = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
+    gtk_button_set_image(GTK_BUTTON(close_button), close_icon);
+    gtk_button_set_relief(GTK_BUTTON(close_button), GTK_RELIEF_NONE);
+    gtk_widget_set_focus_on_click(GTK_WIDGET(close_button), FALSE);
+    
+    // Connect close button
+    g_signal_connect(close_button, "clicked", G_CALLBACK(+[](GtkWidget*, gpointer data) {
+        AppState *app = (AppState*)data;
+        gint page = gtk_notebook_get_current_page(GTK_NOTEBOOK(app->notebook));
+        if (page >= 0) {
+            gtk_notebook_remove_page(GTK_NOTEBOOK(app->notebook), page);
+        }
+    }), app);
+    
+    gtk_box_pack_start(GTK_BOX(tab_box), close_button, FALSE, FALSE, 0);
+    gtk_widget_show_all(tab_box);
 
     TabData *td = new TabData();
     td->sci = sci;
@@ -542,7 +589,7 @@ GtkWidget* create_tab(AppState *app, const string &filename="") {
     scintilla_send_message((ScintillaObject*)sci, SCI_SETMARGINWIDTHN, 0, 
                           app->show_line_numbers ? 40 : 0);
 
-    gtk_notebook_append_page(GTK_NOTEBOOK(app->notebook), scrolled, tab);
+    gtk_notebook_append_page(GTK_NOTEBOOK(app->notebook), scrolled, tab_box);
     gtk_widget_show_all(scrolled);
     
     // Apply preferences to the new tab
@@ -621,6 +668,7 @@ static void cmd_save(GtkWidget *w, gpointer data) {
     GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), page);
     GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
     gtk_label_set_text(GTK_LABEL(label), td->filename.c_str());
+    update_window_title(app);
 }
 
 static void cmd_saveas(GtkWidget *w, gpointer data) {
@@ -3123,31 +3171,12 @@ int main(int argc, char **argv) {
         g_warning("Failed to setup D-Bus, multi-instance support may not work");
     }
     
-    // Set Notepad++ icon - try multiple paths
-    /*
-    GError *error = nullptr;
-    const char *icon_paths[] = {
-        "npp.ico",           // Current directory
-        "../npp.ico",        // Parent directory (when running from build/)
-        nullptr
-    };
-    
-    bool icon_loaded = false;
-    for (int i = 0; icon_paths[i] != nullptr; i++) {
-        if (gtk_window_set_icon_from_file(GTK_WINDOW(app.window), icon_paths[i], &error)) {
-            icon_loaded = true;
-            break;
-        }
-        if (error) {
-            g_error_free(error);
-            error = nullptr;
-        }
+    // Set Notepad++ icon
+    GdkPixbuf *icon = gdk_pixbuf_new_from_xpm_data(notepad_plus_plus_xpm);
+    if (icon) {
+        gtk_window_set_icon(GTK_WINDOW(app.window), icon);
+        g_object_unref(icon);
     }
-    
-    if (!icon_loaded) {
-        g_message("Icon not loaded (npp.ico not found in current or parent directory)");
-    }
-    */
 
     app.accel_group = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(app.window), app.accel_group);
@@ -3562,17 +3591,69 @@ int main(int argc, char **argv) {
     GtkWidget *toolbar = gtk_toolbar_new();
     app.toolbar = toolbar;  // Store for distraction-free mode
     gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
-    GtkToolItem *tb_new = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
-    GtkToolItem *tb_open = gtk_tool_button_new_from_stock(GTK_STOCK_OPEN);
-    GtkToolItem *tb_save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
+    
+    // Create toolbar buttons with icon names
+    GtkToolItem *tb_new = gtk_tool_button_new(gtk_image_new_from_icon_name("document-new", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_new, "New");
+    
+    GtkToolItem *tb_open = gtk_tool_button_new(gtk_image_new_from_icon_name("document-open", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_open, "Open");
+    
+    GtkToolItem *tb_save = gtk_tool_button_new(gtk_image_new_from_icon_name("document-save", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_save, "Save");
+    
+    GtkToolItem *tb_sep1 = gtk_separator_tool_item_new();
+    
+    GtkToolItem *tb_cut = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-cut", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_cut, "Cut");
+    
+    GtkToolItem *tb_copy = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-copy", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_copy, "Copy");
+    
+    GtkToolItem *tb_paste = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-paste", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_paste, "Paste");
+    
+    GtkToolItem *tb_sep2 = gtk_separator_tool_item_new();
+    
+    GtkToolItem *tb_undo = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-undo", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_undo, "Undo");
+    
+    GtkToolItem *tb_redo = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-redo", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_redo, "Redo");
+    
+    GtkToolItem *tb_sep3 = gtk_separator_tool_item_new();
+    
+    GtkToolItem *tb_find = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-find", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_find, "Find");
+    
+    GtkToolItem *tb_replace = gtk_tool_button_new(gtk_image_new_from_icon_name("edit-find-replace", GTK_ICON_SIZE_LARGE_TOOLBAR), NULL);
+    gtk_tool_item_set_tooltip_text(tb_replace, "Replace");
+    
+    // Add buttons to toolbar
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_new, -1);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_open, -1);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_save, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_sep1, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_cut, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_copy, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_paste, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_sep2, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_undo, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_redo, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_sep3, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_find, -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_replace, -1);
+    
     gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
 
     // Notebook
     app.notebook = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX(vbox), app.notebook, TRUE, TRUE, 0);
+    
+    // Connect notebook switch-page signal to update window title
+    g_signal_connect(app.notebook, "switch-page", G_CALLBACK(+[](GtkNotebook*, GtkWidget*, guint, gpointer data) {
+        update_window_title((AppState*)data);
+    }), &app);
 
     // Incremental search bar (initially hidden)
     cmd_incremental_search(nullptr, &app);  // Create the search bar
@@ -3598,6 +3679,18 @@ int main(int argc, char **argv) {
         session_restore((AppState*)data);
     }), &app);
     g_signal_connect(file_quit, "activate", G_CALLBACK(gtk_main_quit), NULL);
+    
+    // Toolbar button signals
+    g_signal_connect(tb_new, "clicked", G_CALLBACK(cmd_new), &app);
+    g_signal_connect(tb_open, "clicked", G_CALLBACK(cmd_open), &app);
+    g_signal_connect(tb_save, "clicked", G_CALLBACK(cmd_save), &app);
+    g_signal_connect(tb_cut, "clicked", G_CALLBACK(cmd_cut), &app);
+    g_signal_connect(tb_copy, "clicked", G_CALLBACK(cmd_copy), &app);
+    g_signal_connect(tb_paste, "clicked", G_CALLBACK(cmd_paste), &app);
+    g_signal_connect(tb_undo, "clicked", G_CALLBACK(cmd_undo), &app);
+    g_signal_connect(tb_redo, "clicked", G_CALLBACK(cmd_redo), &app);
+    g_signal_connect(tb_find, "clicked", G_CALLBACK(cmd_find), &app);
+    g_signal_connect(tb_replace, "clicked", G_CALLBACK(cmd_replace), &app);
     
     g_signal_connect(edit_undo, "activate", G_CALLBACK(cmd_undo), &app);
     g_signal_connect(edit_redo, "activate", G_CALLBACK(cmd_redo), &app);

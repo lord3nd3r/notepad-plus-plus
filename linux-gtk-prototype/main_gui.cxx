@@ -2324,6 +2324,15 @@ int main(int argc, char **argv) {
     app.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(app.window), 1000, 700);
     gtk_window_set_title(GTK_WINDOW(app.window), "Notepad++");
+    
+    // Set Notepad++ icon
+    GError *error = nullptr;
+    if (!gtk_window_set_icon_from_file(GTK_WINDOW(app.window), "npp.ico", &error)) {
+        if (error) {
+            g_warning("Failed to load icon: %s", error->message);
+            g_error_free(error);
+        }
+    }
 
     app.accel_group = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(app.window), app.accel_group);

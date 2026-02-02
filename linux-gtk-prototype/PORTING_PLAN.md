@@ -71,7 +71,7 @@
 - [ ] Memory management
 - [ ] File watching/auto-reload
 - [ ] Multi-instance support
-- [ ] Command line argument handling
+- [x] Command line argument handling ✅ COMPLETE
 - [ ] Packaging (AppImage, DEB, Flatpak)
 
 ## Current Status
@@ -80,7 +80,8 @@
 **Phase 3**: ✅ 85% Complete (find/replace, bookmarks, Find in Files) ✅
 **Phase 4**: ✅ 100% Complete (zoom, wrap, symbols, split view, folding, full screen) ✅
 **Phase 7**: ✅ Session management complete
+**Phase 8**: ✅ Command-line args complete
 
 **Current Priority**: Preferences dialog, regex support, macro recording
-**Features Completed**: 85+ keyboard shortcuts, ~2,150 lines of code
-**Latest Features**: Full screen mode, Find in Files, code folding, session management
+**Features Completed**: 85+ keyboard shortcuts, ~2,200 lines of code
+**Latest Features**: Command-line args, full screen, Find in Files, code folding

@@ -56,8 +56,15 @@ Both build methods automatically build Scintilla and Lexilla libraries from the 
 
 ```bash
 cd linux-gtk-prototype
+
+# Without arguments (restores last session)
 ./build/gtk-proto    # for CMake build
 # or
+./gtk-proto          # for Make build
+
+# With files to open
+./build/gtk-proto file1.txt file2.cpp file3.py
+```
 ./gtk-proto          # for Make build
 ```
 

@@ -115,8 +115,10 @@ cmake --build . -j$(nproc)
 
 ### Run
 ```bash
-./gtk-proto
+./gtk-proto [file1] [file2] ...
 ```
+
+Open files directly from command line or run without arguments to restore last session.
 
 Or from anywhere:
 ```bash

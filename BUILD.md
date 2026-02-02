@@ -78,13 +78,14 @@ cmake --build build -j$(nproc)
 
 The Linux GTK port includes:
 - Native GTK3 interface with tabbed editing
-- 80+ keyboard shortcuts
+- 85+ keyboard shortcuts
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
 - Session management (auto-save/restore tabs)
 - Split view (horizontal and vertical)
 - Code folding with visual markers
 - Full screen mode (F11)
+- Command-line argument support
 - Syntax highlighting for 20+ languages
 - Find/Replace with Find Next/Previous
 - Find in Files with recursive search

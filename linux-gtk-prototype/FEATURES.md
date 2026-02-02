@@ -13,6 +13,10 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Close** (Ctrl+W): Close current tab
 - **Save Session**: Manually save all open tabs to session file
 - **Load Session**: Manually restore tabs from session file
+- **Command-line Arguments** ⭐ NEW: Open files directly from terminal
+  - Usage: `./gtk-proto file1.txt file2.cpp file3.py`
+  - Opens multiple files in separate tabs
+  - Falls back to session restore if no arguments provided
 - **Quit** (Ctrl+Q): Exit application
 
 ### Edit Menu

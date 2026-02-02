@@ -95,6 +95,11 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - SQL, Lua, Markdown, LaTeX
 - And more...
 
+### Auto-Save & Backup
+- ✅ **Auto-save system** - Configurable automatic background saving ⭐
+- ✅ Interval settings (60-3600 seconds, default 5 minutes)
+- ✅ Enable/disable in preferences
+
 ### Encoding & EOL
 - ✅ Windows (CRLF), Unix (LF), Mac (CR) EOL formats
 - ✅ **Convert between EOL formats** - Windows/Unix/Mac line ending conversion ⭐

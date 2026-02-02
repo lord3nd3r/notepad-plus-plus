@@ -87,6 +87,7 @@ The Linux GTK port includes:
 - Sort lines (ascending/descending)
 - EOL conversion (Windows/Unix/Mac)
 - Distraction-free mode (F12)
+- Auto-save system with configurable interval
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
 - Session management (auto-save/restore tabs)

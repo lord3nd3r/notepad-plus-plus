@@ -36,6 +36,7 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 - EOL format control (Windows/Unix/Mac)
 - **EOL conversion** - Convert between CRLF, LF, and CR formats ⭐ NEW
 - **Recent files menu** (last 10 files)
+- **Auto-save system** - Automatic periodic saving of modified files ⭐ NEW
 - Bookmarks with visual indicators (F2, Shift+F2, Ctrl+F2)
 
 ### 🔎 Search Features

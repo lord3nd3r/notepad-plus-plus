@@ -19,6 +19,7 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - **Find in Files** - Recursive directory search
 - **Recent files menu** (last 10 files)
 - **Session management** - Auto-save/restore tabs
+- **Auto-save** - Configurable automatic file saving
 - **Split view** - Horizontal and vertical split
 - **Line operations** (duplicate, delete, move, transpose, join, split)
 - **Text transformations** (case conversion, indent, trim, tab/space conversion, sort lines)

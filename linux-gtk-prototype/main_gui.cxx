@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <cstring>
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
@@ -33,7 +34,13 @@ struct AppState {
     bool show_line_numbers = true;
     bool find_case_sensitive = false;
     int last_find_pos = -1;
+    std::vector<string> recent_files;
+    GtkWidget *recent_menu = nullptr;
 };
+
+// Forward declarations
+static void update_recent_menu(AppState *app);
+static void add_recent_file(AppState *app, const string &filename);
 
 static void update_statusbar(AppState *app, GtkWidget *sci) {
     int len = scintilla_send_message((ScintillaObject*)sci, SCI_GETTEXTLENGTH, 0, 0);
@@ -199,6 +206,7 @@ static void cmd_open(GtkWidget *w, gpointer data) {
             td->modified = false;
             GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
             gtk_label_set_text(GTK_LABEL(label), filename);
+            add_recent_file(app, filename);
         }
         gtk_notebook_set_current_page(GTK_NOTEBOOK(app->notebook), 
                                       gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook))-1);
@@ -944,6 +952,162 @@ static void cmd_prev_tab(GtkWidget *w, gpointer data) {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(app->notebook), (current - 1 + n_pages) % n_pages);
 }
 
+// Additional line operations
+static void cmd_join_lines(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+    int line = scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEFROMPOSITION, pos, 0);
+    int line_count = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINECOUNT, 0, 0);
+    
+    if (line < line_count - 1) {
+        int line_end = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINEENDPOSITION, line, 0);
+        int next_line_start = scintilla_send_message((ScintillaObject*)td->sci, SCI_POSITIONFROMLINE, line + 1, 0);
+        
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, line_end, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, next_line_start, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_REPLACETARGET, 1, (sptr_t)" ");
+    }
+}
+
+static void cmd_split_lines(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int start = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETSELECTIONSTART, 0, 0);
+    int end = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETSELECTIONEND, 0, 0);
+    
+    if (start == end) {
+        // No selection, split at edge distance
+        int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+        int line = scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEFROMPOSITION, pos, 0);
+        int line_start = scintilla_send_message((ScintillaObject*)td->sci, SCI_POSITIONFROMLINE, line, 0);
+        int edge = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETEDGECOLUMN, 0, 0);
+        if (edge <= 0) edge = 80;
+        
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, 0, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, line_start, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, line_start + edge, 0);
+        
+        // Find last space before edge
+        for (int i = line_start + edge; i > line_start; i--) {
+            char c = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCHARAT, i, 0);
+            if (c == ' ' || c == '\t') {
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_INSERTTEXT, i, (sptr_t)"\n");
+                break;
+            }
+        }
+    }
+}
+
+// Recent files management
+static void update_recent_menu(AppState *app);
+
+static void cmd_open_recent(GtkWidget *w, gpointer data) {
+    struct RecentData { AppState *app; string filename; };
+    RecentData *rd = (RecentData*)data;
+    
+    std::ifstream t(rd->filename, std::ios::binary);
+    if (!t.good()) return;
+    
+    std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    GtkWidget *tab = create_tab(rd->app, rd->filename);
+    TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+    if (td) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)str.c_str());
+        td->modified = false;
+        GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
+        if (label) gtk_label_set_text(GTK_LABEL(label), rd->filename.c_str());
+        update_statusbar(rd->app, td->sci);
+    }
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(rd->app->notebook), 
+                                  gtk_notebook_get_n_pages(GTK_NOTEBOOK(rd->app->notebook))-1);
+}
+
+static void add_recent_file(AppState *app, const string &filename) {
+    // Remove if already exists
+    auto it = std::find(app->recent_files.begin(), app->recent_files.end(), filename);
+    if (it != app->recent_files.end()) {
+        app->recent_files.erase(it);
+    }
+    
+    // Add to front
+    app->recent_files.insert(app->recent_files.begin(), filename);
+    
+    // Keep only 10 most recent
+    if (app->recent_files.size() > 10) {
+        app->recent_files.resize(10);
+    }
+    
+    update_recent_menu(app);
+}
+
+static void cmd_select_word(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+    int start = scintilla_send_message((ScintillaObject*)td->sci, SCI_WORDSTARTPOSITION, pos, true);
+    int end = scintilla_send_message((ScintillaObject*)td->sci, SCI_WORDENDPOSITION, pos, true);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, start, end);
+}
+
+static void update_recent_menu(AppState *app) {
+    if (!app->recent_menu) return;
+    
+    // Clear existing items
+    GList *children = gtk_container_get_children(GTK_CONTAINER(app->recent_menu));
+    for (GList *iter = children; iter != NULL; iter = g_list_next(iter)) {
+        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    }
+    g_list_free(children);
+    
+    // Add recent files
+    if (app->recent_files.empty()) {
+        GtkWidget *empty_item = gtk_menu_item_new_with_label("(No Recent Files)");
+        gtk_widget_set_sensitive(empty_item, FALSE);
+        gtk_menu_shell_append(GTK_MENU_SHELL(app->recent_menu), empty_item);
+        gtk_widget_show(empty_item);
+    } else {
+        for (size_t i = 0; i < app->recent_files.size(); i++) {
+            string label = std::to_string(i + 1) + ". " + app->recent_files[i];
+            GtkWidget *item = gtk_menu_item_new_with_label(label.c_str());
+            
+            // We need to pass the filename, so we'll use g_object_set_data
+            g_object_set_data_full(G_OBJECT(item), "filename", 
+                                  g_strdup(app->recent_files[i].c_str()), g_free);
+            g_object_set_data(G_OBJECT(item), "app", app);
+            
+            g_signal_connect(item, "activate", G_CALLBACK(+[](GtkWidget *w, gpointer data) {
+                AppState *app = (AppState*)g_object_get_data(G_OBJECT(w), "app");
+                const char *filename = (const char*)g_object_get_data(G_OBJECT(w), "filename");
+                
+                std::ifstream t(filename, std::ios::binary);
+                if (!t.good()) return;
+                
+                std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+                GtkWidget *tab = create_tab(app, filename);
+                TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+                if (td) {
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)str.c_str());
+                    td->modified = false;
+                    GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
+                    if (label) gtk_label_set_text(GTK_LABEL(label), filename);
+                    update_statusbar(app, td->sci);
+                }
+                gtk_notebook_set_current_page(GTK_NOTEBOOK(app->notebook), 
+                                              gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook))-1);
+            }), NULL);
+            
+            gtk_menu_shell_append(GTK_MENU_SHELL(app->recent_menu), item);
+            gtk_widget_show(item);
+        }
+    }
+}
 
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
@@ -987,6 +1151,15 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_save);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_saveas);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), gtk_separator_menu_item_new());
+    
+    // Recent files submenu
+    app.recent_menu = gtk_menu_new();
+    GtkWidget *file_recent = gtk_menu_item_new_with_mnemonic("Recent _Files");
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_recent), app.recent_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_recent);
+    update_recent_menu(&app);
+    
+    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_close);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_close_all);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), gtk_separator_menu_item_new());
@@ -1015,12 +1188,15 @@ int main(int argc, char **argv) {
     GtkWidget *edit_line_move_up = gtk_menu_item_new_with_mnemonic("Move Line _Up");
     GtkWidget *edit_line_move_down = gtk_menu_item_new_with_mnemonic("Move Line Do_wn");
     GtkWidget *edit_line_transpose = gtk_menu_item_new_with_mnemonic("_Transpose Lines");
+    GtkWidget *edit_line_join = gtk_menu_item_new_with_mnemonic("_Join Lines");
+    GtkWidget *edit_line_split = gtk_menu_item_new_with_mnemonic("_Split Lines");
     
     gtk_widget_add_accelerator(edit_line_duplicate, "activate", app.accel_group, GDK_KEY_d, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_delete, "activate", app.accel_group, GDK_KEY_l, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_move_up, "activate", app.accel_group, GDK_KEY_Up, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_move_down, "activate", app.accel_group, GDK_KEY_Down, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_line_transpose, "activate", app.accel_group, GDK_KEY_t, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(edit_line_join, "activate", app.accel_group, GDK_KEY_j, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), edit_line_duplicate);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), edit_line_delete);
@@ -1031,6 +1207,8 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), edit_line_move_down);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), edit_line_transpose);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), edit_line_join);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_line_menu), edit_line_split);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(edit_line), edit_line_menu);
     
     // Text case submenu
@@ -1061,6 +1239,10 @@ int main(int argc, char **argv) {
     gtk_widget_add_accelerator(edit_paste, "activate", app.accel_group, GDK_KEY_v, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_selectall, "activate", app.accel_group, GDK_KEY_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     
+    // Select Word item
+    GtkWidget *edit_selectword = gtk_menu_item_new_with_mnemonic("Select _Word");
+    gtk_widget_add_accelerator(edit_selectword, "activate", app.accel_group, GDK_KEY_w, (GdkModifierType)(GDK_CONTROL_MASK|GDK_MOD1_MASK), GTK_ACCEL_VISIBLE);
+    
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_undo);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_redo);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
@@ -1070,6 +1252,7 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_delete);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_selectall);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_selectword);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_line);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_case);
@@ -1253,6 +1436,7 @@ int main(int argc, char **argv) {
     g_signal_connect(edit_paste, "activate", G_CALLBACK(cmd_paste), &app);
     g_signal_connect(edit_delete, "activate", G_CALLBACK(cmd_delete), &app);
     g_signal_connect(edit_selectall, "activate", G_CALLBACK(cmd_selectall), &app);
+    g_signal_connect(edit_selectword, "activate", G_CALLBACK(cmd_select_word), &app);
     
     g_signal_connect(edit_line_duplicate, "activate", G_CALLBACK(cmd_line_duplicate), &app);
     g_signal_connect(edit_line_delete, "activate", G_CALLBACK(cmd_line_delete), &app);
@@ -1261,6 +1445,8 @@ int main(int argc, char **argv) {
     g_signal_connect(edit_line_move_up, "activate", G_CALLBACK(cmd_line_move_up), &app);
     g_signal_connect(edit_line_move_down, "activate", G_CALLBACK(cmd_line_move_down), &app);
     g_signal_connect(edit_line_transpose, "activate", G_CALLBACK(cmd_line_transpose), &app);
+    g_signal_connect(edit_line_join, "activate", G_CALLBACK(cmd_join_lines), &app);
+    g_signal_connect(edit_line_split, "activate", G_CALLBACK(cmd_split_lines), &app);
     
     g_signal_connect(edit_uppercase, "activate", G_CALLBACK(cmd_uppercase), &app);
     g_signal_connect(edit_lowercase, "activate", G_CALLBACK(cmd_lowercase), &app);

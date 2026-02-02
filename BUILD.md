@@ -84,6 +84,7 @@ The Linux GTK port includes:
 - Session management (auto-save/restore tabs)
 - Split view (horizontal and vertical)
 - Code folding with visual markers
+- Full screen mode (F11)
 - Syntax highlighting for 20+ languages
 - Find/Replace with Find Next/Previous
 - Find in Files with recursive search

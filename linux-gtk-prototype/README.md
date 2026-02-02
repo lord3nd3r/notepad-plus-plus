@@ -50,8 +50,9 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 - Show/hide EOL markers
 - Show/hide line numbers
 - **Split view (horizontal/vertical)**
-- **Code folding** - Fold/unfold code blocks ⭐ NEW
+- **Code folding** - Fold/unfold code blocks
 - Toggle fold (Ctrl+Shift+F)
+- **Full screen mode** (F11) ⭐ NEW
 
 ### 🌈 Language Support
 Automatic syntax highlighting for:

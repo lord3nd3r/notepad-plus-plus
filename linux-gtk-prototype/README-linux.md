@@ -23,6 +23,7 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - **Block comment/uncomment** (Ctrl+/, Ctrl+Shift+/)
 - **View controls** (zoom, wrap, show whitespace/EOL/line numbers)
 - **Code folding** - Fold/unfold code blocks with visual markers
+- **Full screen mode** (F11)
 
 ## Dependencies
 - g++ (C++17)

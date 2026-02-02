@@ -10,8 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~2,100 lines (main_gui.cxx)
-- **Latest Commit**: 7d40152b4 - Find in Files
+- **Source Code**: ~2,150 lines (main_gui.cxx)
+- **Latest Commit**: 7a056fa96 - Full screen mode
 
 ## Completed Features ✅
 
@@ -87,9 +87,10 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] Show End of Line toggle
 - [x] Show Line Numbers toggle
 - [x] **Split View** - Horizontal and Vertical
-- [x] **Code Folding** - Fold/unfold code blocks ⭐ NEW
+- [x] **Code Folding** - Fold/unfold code blocks
 - [x] Toggle fold (Ctrl+Shift+F)
 - [x] Fold/Unfold All commands
+- [x] **Full Screen Mode** (F11) ⭐ NEW
 
 ### Language Support
 - [x] 20+ programming languages with syntax highlighting

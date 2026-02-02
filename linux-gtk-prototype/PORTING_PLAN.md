@@ -22,7 +22,7 @@
 - [x] Trim operations
 - [x] Tab<->Space conversion ✅ COMPLETE
 - [x] Sort lines ✅ COMPLETE
-- [ ] Auto-completion
+- [x] Auto-completion ✅ COMPLETE
 - [ ] Function call tips
 
 ## Phase 3: Search & Replace
@@ -76,13 +76,13 @@
 
 ## Current Status
 **Phase 1**: ✅ Complete
-**Phase 2**: ✅ 90% Complete (multi-cursor, column mode, line ops, transformations, sort)
+**Phase 2**: ✅ 95% Complete (multi-cursor, column mode, line ops, transformations, sort, auto-completion)
 **Phase 3**: ✅ 100% Complete (find/replace, bookmarks, Find in Files, regex, incremental search) ✅
 **Phase 4**: ✅ 100% Complete (zoom, wrap, symbols, split view, folding, full screen, distraction-free) ✅
 **Phase 5**: ✅ EOL conversion complete
 **Phase 7**: ✅ Session management and backup complete
 **Phase 8**: ✅ Auto-save system complete
 
-**Current Priority**: Auto-completion, packaging
+**Current Priority**: Packaging, file watching, multi-instance support
 **Features Completed**: 95+ keyboard shortcuts, ~3,270 lines of code
-**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode, auto-save
+**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode, auto-save, auto-completion

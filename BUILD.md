@@ -88,6 +88,7 @@ The Linux GTK port includes:
 - EOL conversion (Windows/Unix/Mac)
 - Distraction-free mode (F12)
 - Auto-save system with configurable interval
+- Auto-completion (word completion from current document)
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
 - Session management (auto-save/restore tabs)

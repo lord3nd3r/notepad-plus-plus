@@ -10,8 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~3,271 lines (main_gui.cxx)
-- **Latest Commit**: Auto-save system implementation complete
+- **Source Code**: ~3,272 lines (main_gui.cxx)
+- **Latest Commit**: Auto-completion implementation complete
 
 ## Completed Features ✅
 
@@ -153,12 +153,12 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [ ] Session management (save/restore open files)
 - [ ] Preferences/Settings dialog
 - [ ] Drag and drop file support
-- [ ] Auto-save
+- [x] Auto-save ⭐ NEW
 - [ ] Code folding
 
 ### Advanced Features
 - [ ] Macro recording and playback
-- [ ] Auto-completion
+- [x] Auto-completion ⭐ NEW
 - [ ] Function list
 - [ ] Document map
 - [ ] Plugin architecture

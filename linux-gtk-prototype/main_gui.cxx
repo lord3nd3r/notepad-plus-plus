@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cstring>
 #include <regex>
+#include <set>
+#include <cctype>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -2335,6 +2337,83 @@ static void cmd_select_word(GtkWidget *w, gpointer data) {
     scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, start, end);
 }
 
+static void cmd_autocomplete(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    // Get current word at cursor
+    int pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+    int wordStart = scintilla_send_message((ScintillaObject*)td->sci, SCI_WORDSTARTPOSITION, pos, true);
+    int wordEnd = scintilla_send_message((ScintillaObject*)td->sci, SCI_WORDENDPOSITION, pos, true);
+    
+    // Get the word prefix
+    char wordBuf[256];
+    int wordLen = wordEnd - wordStart;
+    if (wordLen >= sizeof(wordBuf)) wordLen = sizeof(wordBuf) - 1;
+    
+    if (wordLen > 0) {
+        Sci_TextRangeFull tr;
+        tr.chrg.cpMin = wordStart;
+        tr.chrg.cpMax = wordEnd;
+        tr.lpstrText = wordBuf;
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+        wordBuf[wordLen] = '\0';
+    } else {
+        wordBuf[0] = '\0';
+    }
+    
+    // Collect all words from the document
+    std::set<std::string> words;
+    int docLength = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLENGTH, 0, 0);
+    
+    int currentPos = 0;
+    while (currentPos < docLength) {
+        int wordStartPos = scintilla_send_message((ScintillaObject*)td->sci, SCI_WORDSTARTPOSITION, currentPos, true);
+        int wordEndPos = scintilla_send_message((ScintillaObject*)td->sci, SCI_WORDENDPOSITION, currentPos, true);
+        
+        if (wordEndPos > wordStartPos) {
+            char buf[256];
+            int len = wordEndPos - wordStartPos;
+            if (len >= sizeof(buf)) len = sizeof(buf) - 1;
+            
+            Sci_TextRangeFull tr;
+            tr.chrg.cpMin = wordStartPos;
+            tr.chrg.cpMax = wordEndPos;
+            tr.lpstrText = buf;
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+            buf[len] = '\0';
+            
+            // Only add words that are alphanumeric/underscore and at least 3 chars
+            bool valid = true;
+            for (int i = 0; buf[i]; i++) {
+                if (!isalnum(buf[i]) && buf[i] != '_') {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid && strlen(buf) >= 3) {
+                words.insert(buf);
+            }
+        }
+        
+        currentPos = wordEndPos + 1;
+    }
+    
+    // Build completion list
+    std::string completionList;
+    for (const auto& word : words) {
+        if (wordBuf[0] == '\0' || word.find(wordBuf) == 0) {
+            if (!completionList.empty()) completionList += " ";
+            completionList += word;
+        }
+    }
+    
+    if (!completionList.empty()) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_AUTOCSHOW, strlen(wordBuf), (sptr_t)completionList.c_str());
+    }
+}
+
 // Multi-cursor editing
 static void cmd_add_next_occurrence(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
@@ -2815,6 +2894,10 @@ int main(int argc, char **argv) {
     gtk_widget_add_accelerator(edit_select_all_occ, "activate", app.accel_group, GDK_KEY_l, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(edit_clear_selections, "activate", app.accel_group, GDK_KEY_Escape, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
     
+    // Auto-completion item
+    GtkWidget *edit_autocomplete = gtk_menu_item_new_with_mnemonic("_Word Completion");
+    gtk_widget_add_accelerator(edit_autocomplete, "activate", app.accel_group, GDK_KEY_space, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_undo);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_redo);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
@@ -2829,6 +2912,7 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_add_next);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_select_all_occ);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_clear_selections);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_autocomplete);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_line);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_case);
@@ -3122,6 +3206,7 @@ int main(int argc, char **argv) {
     g_signal_connect(edit_add_next, "activate", G_CALLBACK(cmd_add_next_occurrence), &app);
     g_signal_connect(edit_select_all_occ, "activate", G_CALLBACK(cmd_select_all_occurrences), &app);
     g_signal_connect(edit_clear_selections, "activate", G_CALLBACK(cmd_clear_multiple_selections), &app);
+    g_signal_connect(edit_autocomplete, "activate", G_CALLBACK(cmd_autocomplete), &app);
     
     g_signal_connect(edit_line_duplicate, "activate", G_CALLBACK(cmd_line_duplicate), &app);
     g_signal_connect(edit_line_delete, "activate", G_CALLBACK(cmd_line_delete), &app);

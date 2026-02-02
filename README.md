@@ -100,6 +100,11 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Interval settings (60-3600 seconds, default 5 minutes)
 - ✅ Enable/disable in preferences
 
+### Auto-Completion ⭐
+- ✅ **Word completion** - Auto-complete words from current document ⭐
+- ✅ Trigger with Ctrl+Space or Edit menu
+- ✅ Smart prefix matching and deduplication
+
 ### Encoding & EOL
 - ✅ Windows (CRLF), Unix (LF), Mac (CR) EOL formats
 - ✅ **Convert between EOL formats** - Windows/Unix/Mac line ending conversion ⭐

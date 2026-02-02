@@ -107,6 +107,14 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Safe Operation**: Only saves files that have been saved at least once (ignores untitled files)
 - **Non-Intrusive**: Doesn't change file modification status - preserves user's save state
 
+### Auto-Completion ⭐ NEW
+- **Word Completion** (Ctrl+Space): Show completion list with words from current document
+- **Smart Word Detection**: Extracts words using Scintilla's word boundary detection
+- **Prefix Matching**: Filters completion list based on text before cursor
+- **Deduplication**: Removes duplicate words from completion list
+- **Menu Access**: Available via Edit → Word Completion menu item
+- **Keyboard Shortcut**: Ctrl+Space triggers completion anywhere in document
+
 ### View Menu
 - **Word Wrap**: Toggle word wrapping
 - **Show Line Numbers**: Toggle line number margin (enabled by default)

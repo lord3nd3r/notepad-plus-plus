@@ -46,6 +46,9 @@ struct AppState {
     bool is_split = false;
     bool is_horizontal_split = true;
     bool is_fullscreen = false;
+    bool is_distraction_free = false;
+    GtkWidget *menubar = nullptr;
+    GtkWidget *toolbar = nullptr;
     bool is_recording_macro = false;
     std::vector<string> current_macro;
     std::vector<std::vector<string>> saved_macros;
@@ -1494,6 +1497,24 @@ static void cmd_toggle_fullscreen(GtkWidget *w, gpointer data) {
     }
 }
 
+static void cmd_toggle_distraction_free(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (app->is_distraction_free) {
+        // Exit distraction-free mode
+        if (app->menubar) gtk_widget_show(app->menubar);
+        if (app->toolbar) gtk_widget_show(app->toolbar);
+        gtk_widget_show(app->statusbar);
+        app->is_distraction_free = false;
+        gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Distraction-free mode: OFF");
+    } else {
+        // Enter distraction-free mode
+        if (app->menubar) gtk_widget_hide(app->menubar);
+        if (app->toolbar) gtk_widget_hide(app->toolbar);
+        gtk_widget_hide(app->statusbar);
+        app->is_distraction_free = true;
+    }
+}
+
 // Line operations
 static void cmd_line_duplicate(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
@@ -2566,6 +2587,7 @@ int main(int argc, char **argv) {
 
     // Menu bar
     GtkWidget *menubar = gtk_menu_bar_new();
+    app.menubar = menubar;  // Store for distraction-free mode
     
     // File menu
     GtkWidget *file_menu = gtk_menu_new();
@@ -2858,8 +2880,14 @@ int main(int argc, char **argv) {
     // Full screen
     GtkWidget *view_fullscreen = gtk_menu_item_new_with_mnemonic("_Full Screen");
     gtk_widget_add_accelerator(view_fullscreen, "activate", app.accel_group, GDK_KEY_F11, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
+    
+    // Distraction-free mode
+    GtkWidget *view_distraction_free = gtk_menu_item_new_with_mnemonic("_Distraction Free Mode");
+    gtk_widget_add_accelerator(view_distraction_free, "activate", app.accel_group, GDK_KEY_F12, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
+    
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_fullscreen);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_distraction_free);
     
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view_item);
@@ -2957,6 +2985,7 @@ int main(int argc, char **argv) {
 
     // Toolbar
     GtkWidget *toolbar = gtk_toolbar_new();
+    app.toolbar = toolbar;  // Store for distraction-free mode
     gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
     GtkToolItem *tb_new = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
     GtkToolItem *tb_open = gtk_tool_button_new_from_stock(GTK_STOCK_OPEN);
@@ -3061,6 +3090,7 @@ int main(int argc, char **argv) {
     g_signal_connect(view_unfold_all, "activate", G_CALLBACK(cmd_unfold_all), &app);
     g_signal_connect(view_toggle_fold, "activate", G_CALLBACK(cmd_toggle_fold), &app);
     g_signal_connect(view_fullscreen, "activate", G_CALLBACK(cmd_toggle_fullscreen), &app);
+    g_signal_connect(view_distraction_free, "activate", G_CALLBACK(cmd_toggle_distraction_free), &app);
     
     g_signal_connect(eol_windows, "activate", G_CALLBACK(cmd_set_eol_windows), &app);
     g_signal_connect(eol_unix, "activate", G_CALLBACK(cmd_set_eol_unix), &app);

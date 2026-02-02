@@ -22,6 +22,8 @@ struct TabData {
 struct AppState {
     GtkWidget *window;
     GtkWidget *notebook;
+    GtkWidget *notebook2;  // Second notebook for split view
+    GtkWidget *paned;      // Paned widget for split view
     GtkWidget *statusbar;
     guint status_context;
     GtkAccelGroup *accel_group;
@@ -36,6 +38,8 @@ struct AppState {
     int last_find_pos = -1;
     std::vector<string> recent_files;
     GtkWidget *recent_menu = nullptr;
+    bool is_split = false;
+    bool is_horizontal_split = true;
 };
 
 // Forward declarations
@@ -540,6 +544,84 @@ static void cmd_zoom_restore(GtkWidget *w, gpointer data) {
     TabData *td = get_current_tabdata(app);
     if (!td) return;
     scintilla_send_message((ScintillaObject*)td->sci, SCI_SETZOOM, 0, 0);
+}
+
+// Split view operations
+static void cmd_split_horizontal(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (app->is_split) return;  // Already split
+    
+    // Create second notebook
+    app->notebook2 = gtk_notebook_new();
+    gtk_widget_show(app->notebook2);
+    
+    // Remove notebook from its current parent
+    GtkWidget *parent = gtk_widget_get_parent(app->notebook);
+    g_object_ref(app->notebook);
+    gtk_container_remove(GTK_CONTAINER(parent), app->notebook);
+    
+    // Create horizontal paned widget
+    app->paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+    gtk_paned_pack1(GTK_PANED(app->paned), app->notebook, TRUE, TRUE);
+    gtk_paned_pack2(GTK_PANED(app->paned), app->notebook2, TRUE, TRUE);
+    gtk_paned_set_position(GTK_PANED(app->paned), 350);  // Split in middle
+    
+    // Add paned to parent
+    gtk_box_pack_start(GTK_BOX(parent), app->paned, TRUE, TRUE, 0);
+    gtk_widget_show(app->paned);
+    g_object_unref(app->notebook);
+    
+    app->is_split = true;
+    app->is_horizontal_split = true;
+}
+
+static void cmd_split_vertical(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (app->is_split) return;  // Already split
+    
+    // Create second notebook
+    app->notebook2 = gtk_notebook_new();
+    gtk_widget_show(app->notebook2);
+    
+    // Remove notebook from its current parent
+    GtkWidget *parent = gtk_widget_get_parent(app->notebook);
+    g_object_ref(app->notebook);
+    gtk_container_remove(GTK_CONTAINER(parent), app->notebook);
+    
+    // Create vertical paned widget
+    app->paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_paned_pack1(GTK_PANED(app->paned), app->notebook, TRUE, TRUE);
+    gtk_paned_pack2(GTK_PANED(app->paned), app->notebook2, TRUE, TRUE);
+    gtk_paned_set_position(GTK_PANED(app->paned), 500);  // Split in middle
+    
+    // Add paned to parent
+    gtk_box_pack_start(GTK_BOX(parent), app->paned, TRUE, TRUE, 0);
+    gtk_widget_show(app->paned);
+    g_object_unref(app->notebook);
+    
+    app->is_split = true;
+    app->is_horizontal_split = false;
+}
+
+static void cmd_unsplit(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    if (!app->is_split) return;  // Not split
+    
+    // Get parent of paned
+    GtkWidget *parent = gtk_widget_get_parent(app->paned);
+    
+    // Remove paned and destroy second notebook
+    g_object_ref(app->notebook);
+    gtk_container_remove(GTK_CONTAINER(app->paned), app->notebook);
+    gtk_widget_destroy(app->paned);
+    
+    // Add notebook back to parent
+    gtk_box_pack_start(GTK_BOX(parent), app->notebook, TRUE, TRUE, 0);
+    g_object_unref(app->notebook);
+    
+    app->is_split = false;
+    app->notebook2 = nullptr;
+    app->paned = nullptr;
 }
 
 // Line operations
@@ -1511,6 +1593,17 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_zoom_in);
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_zoom_out);
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_zoom_restore);
+    
+    // Split view items
+    GtkWidget *view_split_h = gtk_menu_item_new_with_mnemonic("Split _Horizontal");
+    GtkWidget *view_split_v = gtk_menu_item_new_with_mnemonic("Split _Vertical");
+    GtkWidget *view_unsplit = gtk_menu_item_new_with_mnemonic("_Unsplit");
+    
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_split_h);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_split_v);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_unsplit);
+    
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view_item);
     
@@ -1643,6 +1736,10 @@ int main(int argc, char **argv) {
     g_signal_connect(view_zoom_in, "activate", G_CALLBACK(cmd_zoom_in), &app);
     g_signal_connect(view_zoom_out, "activate", G_CALLBACK(cmd_zoom_out), &app);
     g_signal_connect(view_zoom_restore, "activate", G_CALLBACK(cmd_zoom_restore), &app);
+    
+    g_signal_connect(view_split_h, "activate", G_CALLBACK(cmd_split_horizontal), &app);
+    g_signal_connect(view_split_v, "activate", G_CALLBACK(cmd_split_vertical), &app);
+    g_signal_connect(view_unsplit, "activate", G_CALLBACK(cmd_unsplit), &app);
     
     g_signal_connect(eol_windows, "activate", G_CALLBACK(cmd_set_eol_windows), &app);
     g_signal_connect(eol_unix, "activate", G_CALLBACK(cmd_set_eol_unix), &app);

@@ -85,6 +85,7 @@ The Linux GTK port includes:
 - Incremental search with real-time highlighting
 - Tab/space conversion commands
 - Sort lines (ascending/descending)
+- EOL conversion (Windows/Unix/Mac)
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
 - Session management (auto-save/restore tabs)

@@ -49,7 +49,7 @@
 ## Phase 5: Language & Encoding
 - [ ] Language menu (all lexers)
 - [ ] Encoding conversion
-- [ ] EOL conversion (Windows/Unix/Mac)
+- [x] EOL conversion (Windows/Unix/Mac) ✅ COMPLETE
 - [ ] BOM handling
 
 ## Phase 6: Settings & Preferences

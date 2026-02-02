@@ -10,8 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~3,085 lines (main_gui.cxx)
-- **Latest Commit**: 8aae92a62 - Sort lines
+- **Source Code**: ~3,143 lines (main_gui.cxx)
+- **Latest Commit**: bd133e6d5 - EOL conversion
 
 ## Completed Features ✅
 
@@ -111,9 +111,9 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 
 ### Encoding & EOL
 - [x] EOL Format selection (Windows/Unix/Mac)
-- [x] Convert to Windows (CRLF)
-- [x] Convert to Unix (LF)
-- [x] Convert to Mac (CR)
+- [x] **Convert to Windows (CRLF)** - Converts all line endings to Windows format ⭐ NEW
+- [x] **Convert to Unix (LF)** - Converts all line endings to Unix format ⭐ NEW
+- [x] **Convert to Mac (CR)** - Converts all line endings to Mac format ⭐ NEW
 - [x] UTF-8 support
 
 ### Tab Management

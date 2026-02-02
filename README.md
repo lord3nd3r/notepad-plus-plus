@@ -96,7 +96,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 
 ### Encoding & EOL
 - ✅ Windows (CRLF), Unix (LF), Mac (CR) EOL formats
-- ✅ Convert between EOL formats
+- ✅ **Convert between EOL formats** - Windows/Unix/Mac line ending conversion ⭐
 - ✅ UTF-8 encoding
 
 ## 🚀 Quick Start

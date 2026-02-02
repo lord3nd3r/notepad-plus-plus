@@ -81,6 +81,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Fold/unfold all
 - ✅ Toggle fold (Ctrl+Shift+F)
 - ✅ Full screen mode (F11)
+- ✅ **Distraction-free mode** (F12) - Minimal UI for focused writing ⭐
 - ✅ **Preferences Dialog** (Ctrl+,) - Editor and display settings
 - ✅ **Macro Recording** - Record, save, and playback repetitive tasks (F9/Shift+F9/F10)
 

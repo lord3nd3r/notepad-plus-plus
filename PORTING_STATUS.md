@@ -10,8 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~3,143 lines (main_gui.cxx)
-- **Latest Commit**: bd133e6d5 - EOL conversion
+- **Source Code**: ~3,176 lines (main_gui.cxx)
+- **Latest Commit**: fe2d1de8a - Distraction-free mode
 
 ## Completed Features ✅
 

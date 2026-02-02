@@ -29,6 +29,7 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - **Macro recording** (F9/Shift+F9/F10) - Automate repetitive tasks
 - **Code folding** - Fold/unfold code blocks with visual markers
 - **Full screen mode** (F11)
+- **Distraction-free mode** (F12) - Hides all UI elements
 
 ## Dependencies
 - g++ (C++17)

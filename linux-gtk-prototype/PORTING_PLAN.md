@@ -44,7 +44,7 @@
 - [x] Show/hide line numbers
 - [x] Code folding ✅ COMPLETE
 - [x] Full screen mode (F11) ✅ COMPLETE
-- [ ] Distraction free mode
+- [x] Distraction free mode ✅ COMPLETE
 
 ## Phase 5: Language & Encoding
 - [ ] Language menu (all lexers)
@@ -76,12 +76,13 @@
 
 ## Current Status
 **Phase 1**: ✅ Complete
-**Phase 2**: ✅ 80% Complete (multi-cursor, column mode, line ops, transformations)
-**Phase 3**: ✅ 85% Complete (find/replace, bookmarks, Find in Files) ✅
-**Phase 4**: ✅ 100% Complete (zoom, wrap, symbols, split view, folding, full screen) ✅
+**Phase 2**: ✅ 90% Complete (multi-cursor, column mode, line ops, transformations, sort)
+**Phase 3**: ✅ 100% Complete (find/replace, bookmarks, Find in Files, regex, incremental search) ✅
+**Phase 4**: ✅ 100% Complete (zoom, wrap, symbols, split view, folding, full screen, distraction-free) ✅
+**Phase 5**: ✅ EOL conversion complete
 **Phase 7**: ✅ Session management complete
 **Phase 8**: ✅ Command-line args complete
 
-**Current Priority**: Tab/space conversion, sort lines, auto-completion
-**Features Completed**: 90+ keyboard shortcuts, ~2,905 lines of code
-**Latest Features**: Incremental search, macro recording, preferences dialog
+**Current Priority**: Auto-completion, packaging
+**Features Completed**: 95+ keyboard shortcuts, ~3,176 lines of code
+**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode

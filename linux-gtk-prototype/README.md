@@ -28,6 +28,7 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 - Line operations (duplicate, delete, move, transpose, join, split)
 - Text transformations (case conversion, trim whitespace)
 - **Tab/Space conversion** - Convert tabs to spaces or spaces to tabs ⭐ NEW
+- **Sort lines** - Ascending or descending alphabetical sort ⭐ NEW
 - Block comment/uncomment (Ctrl+/, Ctrl+Shift+/)
 - Smart indentation
 - Word wrap toggle

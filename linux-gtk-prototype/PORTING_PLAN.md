@@ -21,7 +21,7 @@
 - [x] Text transformations (uppercase, lowercase, etc.)
 - [x] Trim operations
 - [x] Tab<->Space conversion ✅ COMPLETE
-- [ ] Sort lines
+- [x] Sort lines ✅ COMPLETE
 - [ ] Auto-completion
 - [ ] Function call tips
 

@@ -51,6 +51,7 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Trim trailing whitespace
 - ✅ **Convert tabs to spaces** - Converts all tabs to spaces based on tab width ⭐
 - ✅ **Convert spaces to tabs** - Converts leading spaces to tabs based on tab width ⭐
+- ✅ **Sort lines** - Alphabetically sort lines ascending (A-Z) or descending (Z-A) ⭐
 
 ### Search & Replace
 - ✅ Find dialog (Ctrl+F)

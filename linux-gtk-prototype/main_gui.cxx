@@ -1687,6 +1687,98 @@ static void cmd_spaces_to_tabs(GtkWidget *w, gpointer data) {
     gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Converted leading spaces to tabs");
 }
 
+static void cmd_sort_lines_ascending(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int lines = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINECOUNT, 0, 0);
+    
+    // Collect all lines
+    std::vector<string> line_list;
+    for (int i = 0; i < lines; i++) {
+        int lineStart = scintilla_send_message((ScintillaObject*)td->sci, SCI_POSITIONFROMLINE, i, 0);
+        int lineEnd = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINEENDPOSITION, i, 0);
+        int length = lineEnd - lineStart;
+        
+        if (length > 0) {
+            char *line = new char[length + 1];
+            Sci_TextRangeFull tr;
+            tr.chrg.cpMin = lineStart;
+            tr.chrg.cpMax = lineEnd;
+            tr.lpstrText = line;
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+            line_list.push_back(string(line));
+            delete[] line;
+        } else {
+            line_list.push_back("");
+        }
+    }
+    
+    // Sort lines
+    std::sort(line_list.begin(), line_list.end());
+    
+    // Rebuild document
+    string new_text;
+    for (size_t i = 0; i < line_list.size(); i++) {
+        new_text += line_list[i];
+        if (i < line_list.size() - 1) {
+            new_text += '\n';
+        }
+    }
+    
+    // Replace document
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)new_text.c_str());
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Sorted lines (ascending)");
+}
+
+static void cmd_sort_lines_descending(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int lines = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINECOUNT, 0, 0);
+    
+    // Collect all lines
+    std::vector<string> line_list;
+    for (int i = 0; i < lines; i++) {
+        int lineStart = scintilla_send_message((ScintillaObject*)td->sci, SCI_POSITIONFROMLINE, i, 0);
+        int lineEnd = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINEENDPOSITION, i, 0);
+        int length = lineEnd - lineStart;
+        
+        if (length > 0) {
+            char *line = new char[length + 1];
+            Sci_TextRangeFull tr;
+            tr.chrg.cpMin = lineStart;
+            tr.chrg.cpMax = lineEnd;
+            tr.lpstrText = line;
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+            line_list.push_back(string(line));
+            delete[] line;
+        } else {
+            line_list.push_back("");
+        }
+    }
+    
+    // Sort lines in descending order
+    std::sort(line_list.begin(), line_list.end(), std::greater<string>());
+    
+    // Rebuild document
+    string new_text;
+    for (size_t i = 0; i < line_list.size(); i++) {
+        new_text += line_list[i];
+        if (i < line_list.size() - 1) {
+            new_text += '\n';
+        }
+    }
+    
+    // Replace document
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)new_text.c_str());
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Sorted lines (descending)");
+}
+
 static void cmd_indent(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
@@ -2539,6 +2631,13 @@ int main(int argc, char **argv) {
     GtkWidget *edit_trim = gtk_menu_item_new_with_mnemonic("_Trim Trailing Space");
     GtkWidget *edit_tabs_to_spaces = gtk_menu_item_new_with_mnemonic("Convert _Tabs to Spaces");
     GtkWidget *edit_spaces_to_tabs = gtk_menu_item_new_with_mnemonic("Convert _Spaces to Tabs");
+    
+    // Sort submenu
+    GtkWidget *edit_sort = gtk_menu_item_new_with_mnemonic("S_ort Lines");
+    GtkWidget *edit_sort_menu = gtk_menu_new();
+    GtkWidget *edit_sort_asc = gtk_menu_item_new_with_mnemonic("Sort Lines _Ascending");
+    GtkWidget *edit_sort_desc = gtk_menu_item_new_with_mnemonic("Sort Lines _Descending");
+    
     GtkWidget *edit_indent = gtk_menu_item_new_with_mnemonic("_Indent");
     GtkWidget *edit_unindent = gtk_menu_item_new_with_mnemonic("U_nindent");
     
@@ -2604,6 +2703,12 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_trim);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_tabs_to_spaces);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_spaces_to_tabs);
+    
+    // Add sort submenu
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_sort_menu), edit_sort_asc);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_sort_menu), edit_sort_desc);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(edit_sort), edit_sort_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_sort);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(edit_item), edit_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), edit_item);
     
@@ -2866,6 +2971,8 @@ int main(int argc, char **argv) {
     g_signal_connect(edit_trim, "activate", G_CALLBACK(cmd_trim_trailing), &app);
     g_signal_connect(edit_tabs_to_spaces, "activate", G_CALLBACK(cmd_tabs_to_spaces), &app);
     g_signal_connect(edit_spaces_to_tabs, "activate", G_CALLBACK(cmd_spaces_to_tabs), &app);
+    g_signal_connect(edit_sort_asc, "activate", G_CALLBACK(cmd_sort_lines_ascending), &app);
+    g_signal_connect(edit_sort_desc, "activate", G_CALLBACK(cmd_sort_lines_descending), &app);
     
     g_signal_connect(search_find, "activate", G_CALLBACK(cmd_find), &app);
     g_signal_connect(search_find_next, "activate", G_CALLBACK(cmd_find_next), &app);

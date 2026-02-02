@@ -19,6 +19,7 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 - ⚡ **Fast Performance** - Efficient Scintilla-based editing
 - 💾 **Smart Saving** - Auto-detect file changes and modified indicators
 - 📊 **Status Bar** - Real-time position, line count, and encoding info
+- 💼 **Session Management** - Auto-save/restore tabs on exit/startup ⭐ NEW
 
 ### 📝 Editing Features
 - Complete undo/redo

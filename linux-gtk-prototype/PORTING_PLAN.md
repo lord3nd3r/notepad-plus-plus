@@ -61,7 +61,7 @@
 ## Phase 7: Advanced Features
 - [ ] Macro recording/playback
 - [ ] Plugin system architecture
-- [ ] Session management
+- [x] Session management (auto-save/restore tabs) ✅ COMPLETE
 - [ ] Backup system
 - [ ] Document map/Function list
 - [ ] Clipboard history
@@ -79,7 +79,8 @@
 **Phase 2**: ✅ 80% Complete (multi-cursor, column mode, line ops, transformations)
 **Phase 3**: ✅ 70% Complete (find/replace, bookmarks)
 **Phase 4**: ✅ 90% Complete (zoom, wrap, show symbols, split view)
+**Phase 7**: ✅ Session management complete
 
-**Current Priority**: Preferences dialog and session management
-**Features Completed**: 80+ keyboard shortcuts, 1,800+ lines of code
-**Latest Features**: Split view (horizontal/vertical), multi-cursor editing, column selection
+**Current Priority**: Preferences dialog, code folding, Find in Files
+**Features Completed**: 80+ keyboard shortcuts, ~1,900 lines of code
+**Latest Features**: Session management (auto-save/restore tabs), split view, multi-cursor editing

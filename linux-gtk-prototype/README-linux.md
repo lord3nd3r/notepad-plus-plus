@@ -15,6 +15,8 @@ This folder contains a GTK3 C++ prototype that embeds the Scintilla GTK widget a
 - **Bookmarks** with visual indicators (F2, Shift+F2, Ctrl+F2)
 - **Find/Replace** with Find Next/Previous (F3/Shift+F3)
 - **Recent files menu** (last 10 files)
+- **Session management** - Auto-save/restore tabs
+- **Split view** - Horizontal and vertical split
 - **Line operations** (duplicate, delete, move, transpose, join, split)
 - **Text transformations** (case conversion, indent, trim)
 - **Block comment/uncomment** (Ctrl+/, Ctrl+Shift+/)

@@ -25,6 +25,8 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Recent Files menu (last 10 files)
 - ✅ Close all tabs
 - ✅ UTF-8 encoding support
+- ✅ Session management (auto-save/restore tabs)
+- ✅ Save/Load session manually
 
 ### Advanced Line Operations
 - ✅ Duplicate line (Ctrl+Alt+D)
@@ -67,6 +69,8 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 - ✅ Show whitespace characters
 - ✅ Show end-of-line markers
 - ✅ Show/hide line numbers
+- ✅ Split view (horizontal/vertical)
+- ✅ Unsplit view
 
 ### Syntax Highlighting
 **20+ programming languages supported:**

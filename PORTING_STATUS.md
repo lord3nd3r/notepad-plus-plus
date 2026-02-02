@@ -10,7 +10,8 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - **Syntax Highlighting**: Lexilla library
 - **Build System**: CMake (with alternative Make support)
 - **Binary Size**: ~6 MB
-- **Source Code**: ~1,700 lines (main_gui.cxx)
+- **Source Code**: ~1,900 lines (main_gui.cxx)
+- **Latest Commit**: 161070ba2 - Session management
 
 ## Completed Features ✅
 
@@ -35,6 +36,9 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] Save As (Ctrl+Shift+S)
 - [x] Close All Tabs (Ctrl+Shift+W)
 - [x] Recent Files Menu (dynamic, max 10 files)
+- [x] Session Management - Auto-save/restore tabs ⭐ NEW
+- [x] Save Session - Manual session save
+- [x] Load Session - Manual session restore
 - [x] Quit (Ctrl+Q)
 
 ### Line Operations

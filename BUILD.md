@@ -81,6 +81,8 @@ The Linux GTK port includes:
 - 80+ keyboard shortcuts
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
+- Session management (auto-save/restore tabs)
+- Split view (horizontal and vertical)
 - Syntax highlighting for 20+ languages
 - Find/Replace with Find Next/Previous
 - Bookmarks with visual indicators

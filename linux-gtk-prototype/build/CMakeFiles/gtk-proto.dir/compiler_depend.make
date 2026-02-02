@@ -935,6 +935,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/linux/limits.h \
   /usr/include/linux/posix_types.h \
   /usr/include/linux/sched/types.h \
+  /usr/include/linux/stat.h \
   /usr/include/linux/stddef.h \
   /usr/include/linux/types.h \
   /usr/include/locale.h \
@@ -1026,6 +1027,9 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
   /usr/include/x86_64-linux-gnu/bits/sigthread.h \
   /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/statx.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
@@ -1033,6 +1037,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
   /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
   /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
   /usr/include/x86_64-linux-gnu/bits/time.h \
   /usr/include/x86_64-linux-gnu/bits/time64.h \
@@ -1064,6 +1069,8 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
@@ -1098,6 +1105,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
   /usr/include/x86_64-linux-gnu/sys/select.h \
   /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
+  /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
   /usr/include/x86_64-linux-gnu/sys/ucontext.h \
   /usr/lib/gcc/x86_64-linux-gnu/15/include/float.h \
@@ -1405,6 +1413,10 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_statx.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
@@ -1426,6 +1438,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/x86_64-linux-gnu/bits/timex.h:
 
 /usr/include/x86_64-linux-gnu/bits/time.h:
+
+/usr/include/x86_64-linux-gnu/bits/statx.h:
 
 /usr/include/x86_64-linux-gnu/bits/ss_flags.h:
 
@@ -2373,6 +2387,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/glib-2.0/glib/gscanner.h:
 
+/usr/include/x86_64-linux-gnu/sys/stat.h:
+
 /usr/include/c++/15/debug/assertions.h:
 
 /usr/include/c++/15/bits/postypes.h:
@@ -2527,6 +2543,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/glib-2.0/glib/gspawn.h:
 
+/usr/include/x86_64-linux-gnu/bits/stat.h:
+
 /usr/include/gtk-3.0/gtk/gtkcellrendererspinner.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
@@ -2554,6 +2572,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/glib-2.0/gio/gioerror.h:
 
 /usr/include/glib-2.0/gio/gtestdbus.h:
+
+/usr/include/x86_64-linux-gnu/bits/statx-generic.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
@@ -2854,6 +2874,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/c++/15/debug/debug.h:
 
 /usr/include/x86_64-linux-gnu/bits/errno.h:
+
+/usr/include/x86_64-linux-gnu/bits/struct_stat.h:
 
 /usr/include/signal.h:
 
@@ -3262,6 +3284,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/c++/15/stdexcept:
 
 /usr/include/gtk-3.0/gdk/gdkcairo.h:
+
+/usr/include/linux/stat.h:
 
 /usr/include/glib-2.0/gio/gfilemonitor.h:
 

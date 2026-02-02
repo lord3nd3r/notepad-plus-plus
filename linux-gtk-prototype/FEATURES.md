@@ -11,6 +11,8 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Save** (Ctrl+S): Save current document
 - **Save As** (Ctrl+Shift+S): Save with new filename
 - **Close** (Ctrl+W): Close current tab
+- **Save Session**: Manually save all open tabs to session file
+- **Load Session**: Manually restore tabs from session file
 - **Quit** (Ctrl+Q): Exit application
 
 ### Edit Menu
@@ -72,6 +74,11 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Recent Files Menu**: Quick access to last 10 opened files
 - **Modified Indicator**: Asterisk (*) in tab title for unsaved changes
 - **Multiple Tabs**: Notebook interface with tab navigation (Ctrl+PageDown/Up)
+- **Session Management** ⭐ NEW:
+  - Auto-save all open tabs on exit
+  - Auto-restore tabs on startup
+  - Session file: `~/.config/notepad-plus-plus-gtk/session.txt`
+  - Manual save/load via File menu
 
 ### View Menu
 - **Word Wrap**: Toggle word wrapping

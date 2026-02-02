@@ -840,6 +840,13 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: \
  /usr/include/c++/15/bits/stl_tempbuf.h \
  /usr/include/c++/15/pstl/glue_algorithm_defs.h \
  /usr/include/c++/15/pstl/execution_defs.h /usr/include/c++/15/cstring \
+ /usr/include/x86_64-linux-gnu/sys/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+ /usr/include/x86_64-linux-gnu/bits/statx.h /usr/include/linux/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Scintilla.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Sci_Position.h \
  /usr/include/c++/15/cstdint \

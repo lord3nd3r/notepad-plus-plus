@@ -13,6 +13,13 @@ Achieve **1:1 feature parity** with Windows Notepad++ while maintaining a native
 
 ## ✨ Features
 
+### User Interface
+- ✅ **Application icon** - Custom Notepad++ icon in window title bar
+- ✅ **Enhanced toolbar** - Full-featured toolbar with New, Open, Save, Cut, Copy, Paste, Undo, Redo, Find, Replace buttons
+- ✅ **Tab close buttons** - Individual X buttons on each tab for easy closing
+- ✅ **Window title format** - Matches Windows version ("filename - Notepad++")
+- ✅ **Modern icons** - Uses icon theme instead of deprecated GTK stock icons
+
 ### Core Editing
 - ✅ Complete undo/redo history
 - ✅ Cut, copy, paste, delete operations

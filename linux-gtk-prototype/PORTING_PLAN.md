@@ -85,5 +85,5 @@
 **Phase 8**: ✅ File watching/auto-reload, theme support, and multi-instance support complete
 
 **Current Priority**: Packaging (AppImage, DEB, Flatpak)
-**Features Completed**: 95+ keyboard shortcuts, ~3,270 lines of code
-**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode, auto-save, auto-completion, multi-instance support
+**Features Completed**: 95+ keyboard shortcuts, ~3,900 lines of code
+**Latest Features**: Tab/space conversion, sort lines, EOL conversion, distraction-free mode, auto-save, auto-completion, multi-instance support, modern UI with icons

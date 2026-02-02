@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "Scintilla.h"
 #include "ScintillaWidget.h"
 #include "ILexer.h"
@@ -45,6 +47,8 @@ struct AppState {
 // Forward declarations
 static void update_recent_menu(AppState *app);
 static void add_recent_file(AppState *app, const string &filename);
+static void session_save(AppState *app);
+static void session_restore(AppState *app);
 
 static void update_statusbar(AppState *app, GtkWidget *sci) {
     int len = scintilla_send_message((ScintillaObject*)sci, SCI_GETTEXTLENGTH, 0, 0);
@@ -1341,6 +1345,103 @@ static void update_recent_menu(AppState *app) {
     }
 }
 
+// Session management functions
+static string get_config_dir() {
+    const char *home = getenv("HOME");
+    if (!home) home = getenv("USERPROFILE"); // Windows fallback
+    if (!home) return "";
+    
+    string config_dir = string(home) + "/.config/notepad-plus-plus-gtk";
+    return config_dir;
+}
+
+static void ensure_config_dir() {
+    string config_dir = get_config_dir();
+    if (config_dir.empty()) return;
+    
+    // Create directory if it doesn't exist
+    mkdir(config_dir.c_str(), 0755);
+}
+
+static void session_save(AppState *app) {
+    ensure_config_dir();
+    string session_file = get_config_dir() + "/session.txt";
+    
+    std::ofstream ofs(session_file);
+    if (!ofs.is_open()) return;
+    
+    // Save all open tabs from both notebooks (if split)
+    auto save_notebook = [&](GtkWidget *notebook) {
+        if (!notebook) return;
+        int n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));
+        for (int i = 0; i < n_pages; i++) {
+            GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i);
+            TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+            if (td && !td->filename.empty()) {
+                ofs << td->filename << "\n";
+            }
+        }
+    };
+    
+    save_notebook(app->notebook);
+    if (app->is_split && app->notebook2) {
+        save_notebook(app->notebook2);
+    }
+    
+    ofs.close();
+}
+
+static void session_restore(AppState *app);  // Forward declare for use in session_restore
+
+static GtkWidget* create_tab(AppState *app, const string &filename);  // Forward declare without default arg
+
+static void session_restore(AppState *app) {
+    string session_file = get_config_dir() + "/session.txt";
+    std::ifstream ifs(session_file);
+    if (!ifs.is_open()) return;
+    
+    string line;
+    bool first = true;
+    while (std::getline(ifs, line)) {
+        if (line.empty()) continue;
+        
+        // Check if file exists
+        std::ifstream test(line);
+        if (test.good()) {
+            test.close();
+            if (first) {
+                // Replace the initial empty tab
+                first = false;
+                GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), 0);
+                TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+                if (td) {
+                    // Load file into existing tab
+                    std::ifstream file(line);
+                    std::string content((std::istreambuf_iterator<char>(file)),
+                                       std::istreambuf_iterator<char>());
+                    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)content.c_str());
+                    td->filename = line;
+                    td->modified = false;
+                    
+                    // Update tab label
+                    size_t pos = line.find_last_of("/\\");
+                    string basename = (pos != string::npos) ? line.substr(pos + 1) : line;
+                    GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
+                    if (label) gtk_label_set_text(GTK_LABEL(label), basename.c_str());
+                    
+                    update_statusbar(app, td->sci);
+                    add_recent_file(app, line);
+                }
+            } else {
+                // Create new tab
+                create_tab(app, line);
+                add_recent_file(app, line);
+            }
+        }
+    }
+    ifs.close();
+}
+
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
 
@@ -1367,6 +1468,8 @@ int main(int argc, char **argv) {
     GtkWidget *file_saveas = gtk_menu_item_new_with_mnemonic("Save _As...");
     GtkWidget *file_close = gtk_menu_item_new_with_mnemonic("_Close");
     GtkWidget *file_close_all = gtk_menu_item_new_with_mnemonic("Close A_ll");
+    GtkWidget *file_save_session = gtk_menu_item_new_with_mnemonic("Save Se_ssion");
+    GtkWidget *file_load_session = gtk_menu_item_new_with_mnemonic("Load S_ession");
     GtkWidget *file_quit = gtk_menu_item_new_with_mnemonic("_Quit");
     
     gtk_widget_add_accelerator(file_new, "activate", app.accel_group, GDK_KEY_n, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
@@ -1391,6 +1494,9 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_recent);
     update_recent_menu(&app);
     
+    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_save_session);
+    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_load_session);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_close);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_close_all);
@@ -1683,6 +1789,12 @@ int main(int argc, char **argv) {
     g_signal_connect(file_save, "activate", G_CALLBACK(cmd_save), &app);
     g_signal_connect(file_saveas, "activate", G_CALLBACK(cmd_saveas), &app);
     g_signal_connect(file_close_all, "activate", G_CALLBACK(cmd_close_all), &app);
+    g_signal_connect(file_save_session, "activate", G_CALLBACK(+[](GtkWidget*, gpointer data) {
+        session_save((AppState*)data);
+    }), &app);
+    g_signal_connect(file_load_session, "activate", G_CALLBACK(+[](GtkWidget*, gpointer data) {
+        session_restore((AppState*)data);
+    }), &app);
     g_signal_connect(file_quit, "activate", G_CALLBACK(gtk_main_quit), NULL);
     
     g_signal_connect(edit_undo, "activate", G_CALLBACK(cmd_undo), &app);
@@ -1752,10 +1864,17 @@ int main(int argc, char **argv) {
     g_signal_connect(tb_open, "clicked", G_CALLBACK(cmd_open), &app);
     g_signal_connect(tb_save, "clicked", G_CALLBACK(cmd_save), &app);
 
-    g_signal_connect(app.window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    // Save session on quit
+    g_signal_connect(app.window, "destroy", G_CALLBACK(+[](GtkWidget*, gpointer data) {
+        session_save((AppState*)data);
+        gtk_main_quit();
+    }), &app);
 
     // Create initial tab
     create_tab(&app, "");
+    
+    // Restore session if available
+    session_restore(&app);
 
     gtk_widget_show_all(app.window);
     gtk_main();

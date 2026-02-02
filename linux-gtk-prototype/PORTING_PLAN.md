@@ -33,7 +33,7 @@
 - [x] Bookmark functionality (F2, Shift+F2, Ctrl+F2)
 - [x] Visual bookmark indicators
 - [x] Regex support ✅ COMPLETE
-- [ ] Incremental search
+- [x] Incremental search ✅ COMPLETE
 
 ## Phase 4: View & Display
 - [x] Split view (horizontal/vertical) ✅ COMPLETE
@@ -82,6 +82,6 @@
 **Phase 7**: ✅ Session management complete
 **Phase 8**: ✅ Command-line args complete
 
-**Current Priority**: Incremental search, tab/space conversion, packaging
-**Features Completed**: 90+ keyboard shortcuts, ~2,750 lines of code
-**Latest Features**: Macro recording, preferences dialog, regex support
+**Current Priority**: Tab/space conversion, sort lines, auto-completion
+**Features Completed**: 90+ keyboard shortcuts, ~2,905 lines of code
+**Latest Features**: Incremental search, macro recording, preferences dialog

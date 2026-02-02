@@ -81,6 +81,7 @@ The Linux GTK port includes:
 - 85+ keyboard shortcuts
 - Regular expression support in Find/Replace
 - Preferences dialog with editor and display settings
+- Macro recording and playback system
 - Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - Column/rectangular selection (Alt+mouse drag)
 - Session management (auto-save/restore tabs)

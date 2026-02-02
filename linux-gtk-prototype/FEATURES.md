@@ -208,6 +208,15 @@ Quick access buttons:
   - Settings saved to: `~/.config/notepad-plus-plus-gtk/preferences.ini`
   - Applied to all open tabs immediately
 
+### Macro Menu ⭐ NEW
+- **Start Recording** (F9): Begin recording user actions
+- **Stop Recording** (Shift+F9): Stop recording and save to memory
+- **Playback** (F10): Replay recorded macro
+- **Save Macro**: Export macro to file
+- **Load Macro**: Import macro from file
+- **Recorded Actions**: undo, redo, cut, copy, paste, delete, select all, duplicate line, delete line
+- **Macro Storage**: `~/.config/notepad-plus-plus-gtk/macros/`
+
 ### Menu Bar
 Complete menu system with keyboard shortcuts and mnemonics
 

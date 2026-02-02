@@ -82,6 +82,6 @@
 **Phase 7**: ✅ Session management complete
 **Phase 8**: ✅ Command-line args complete
 
-**Current Priority**: Macro recording, incremental search, packaging
-**Features Completed**: 85+ keyboard shortcuts, ~2,505 lines of code
-**Latest Features**: Preferences dialog, regex support, command-line args
+**Current Priority**: Incremental search, tab/space conversion, packaging
+**Features Completed**: 90+ keyboard shortcuts, ~2,750 lines of code
+**Latest Features**: Macro recording, preferences dialog, regex support

@@ -1598,6 +1598,95 @@ static void cmd_trim_trailing(GtkWidget *w, gpointer data) {
     }
 }
 
+static void cmd_tabs_to_spaces(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int tab_width = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTABWIDTH, 0, 0);
+    int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+    
+    // Get entire document text
+    char *doc_text = new char[doc_length + 1];
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXT, doc_length + 1, (sptr_t)doc_text);
+    
+    // Build new text with tabs converted to spaces
+    string new_text;
+    new_text.reserve(doc_length * 2);  // Reserve enough space
+    
+    for (int i = 0; i < doc_length; i++) {
+        if (doc_text[i] == '\t') {
+            // Convert tab to spaces
+            for (int j = 0; j < tab_width; j++) {
+                new_text += ' ';
+            }
+        } else {
+            new_text += doc_text[i];
+        }
+    }
+    
+    // Replace document text
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)new_text.c_str());
+    delete[] doc_text;
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Converted tabs to spaces");
+}
+
+static void cmd_spaces_to_tabs(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int tab_width = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTABWIDTH, 0, 0);
+    int lines = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINECOUNT, 0, 0);
+    
+    // Process line by line (easier for leading spaces)
+    for (int i = 0; i < lines; i++) {
+        int lineStart = scintilla_send_message((ScintillaObject*)td->sci, SCI_POSITIONFROMLINE, i, 0);
+        int lineEnd = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINEENDPOSITION, i, 0);
+        int length = lineEnd - lineStart;
+        
+        if (length > 0) {
+            char *line = new char[length + 1];
+            Sci_TextRangeFull tr;
+            tr.chrg.cpMin = lineStart;
+            tr.chrg.cpMax = lineEnd;
+            tr.lpstrText = line;
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTRANGEFULL, 0, (sptr_t)&tr);
+            
+            // Count leading spaces
+            int space_count = 0;
+            int j = 0;
+            while (j < length && line[j] == ' ') {
+                space_count++;
+                j++;
+            }
+            
+            // Convert leading spaces to tabs
+            if (space_count >= tab_width) {
+                int num_tabs = space_count / tab_width;
+                int remaining_spaces = space_count % tab_width;
+                
+                string new_line;
+                for (int t = 0; t < num_tabs; t++) {
+                    new_line += '\t';
+                }
+                for (int s = 0; s < remaining_spaces; s++) {
+                    new_line += ' ';
+                }
+                new_line += string(line + space_count);
+                
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, lineStart, 0);
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, lineEnd, 0);
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_REPLACETARGET, new_line.length(), (sptr_t)new_line.c_str());
+            }
+            delete[] line;
+        }
+    }
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, "Converted leading spaces to tabs");
+}
+
 static void cmd_indent(GtkWidget *w, gpointer data) {
     AppState *app = (AppState*)data;
     TabData *td = get_current_tabdata(app);
@@ -2448,6 +2537,8 @@ int main(int argc, char **argv) {
     
     // Other edit operations
     GtkWidget *edit_trim = gtk_menu_item_new_with_mnemonic("_Trim Trailing Space");
+    GtkWidget *edit_tabs_to_spaces = gtk_menu_item_new_with_mnemonic("Convert _Tabs to Spaces");
+    GtkWidget *edit_spaces_to_tabs = gtk_menu_item_new_with_mnemonic("Convert _Spaces to Tabs");
     GtkWidget *edit_indent = gtk_menu_item_new_with_mnemonic("_Indent");
     GtkWidget *edit_unindent = gtk_menu_item_new_with_mnemonic("U_nindent");
     
@@ -2509,7 +2600,10 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_indent);
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_unindent);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_trim);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_tabs_to_spaces);
+    gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), edit_spaces_to_tabs);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(edit_item), edit_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), edit_item);
     
@@ -2770,6 +2864,8 @@ int main(int argc, char **argv) {
     g_signal_connect(edit_indent, "activate", G_CALLBACK(cmd_indent), &app);
     g_signal_connect(edit_unindent, "activate", G_CALLBACK(cmd_unindent), &app);
     g_signal_connect(edit_trim, "activate", G_CALLBACK(cmd_trim_trailing), &app);
+    g_signal_connect(edit_tabs_to_spaces, "activate", G_CALLBACK(cmd_tabs_to_spaces), &app);
+    g_signal_connect(edit_spaces_to_tabs, "activate", G_CALLBACK(cmd_spaces_to_tabs), &app);
     
     g_signal_connect(search_find, "activate", G_CALLBACK(cmd_find), &app);
     g_signal_connect(search_find_next, "activate", G_CALLBACK(cmd_find_next), &app);

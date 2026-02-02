@@ -2147,8 +2147,47 @@ int main(int argc, char **argv) {
     // Create initial tab
     create_tab(&app, "");
     
-    // Restore session if available
-    session_restore(&app);
+    // Restore session if available (only if no command-line files)
+    if (argc <= 1) {
+        session_restore(&app);
+    } else {
+        // Open files from command line
+        for (int i = 1; i < argc; i++) {
+            string filepath = argv[i];
+            // Check if file exists
+            std::ifstream test(filepath);
+            if (test.good()) {
+                test.close();
+                // For the first file, use the initial tab
+                if (i == 1) {
+                    GtkWidget *tab = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app.notebook), 0);
+                    TabData *td = (TabData*)g_object_get_data(G_OBJECT(tab), "tabdata");
+                    if (td) {
+                        // Load file into existing tab
+                        std::ifstream file(filepath);
+                        std::string content((std::istreambuf_iterator<char>(file)),
+                                           std::istreambuf_iterator<char>());
+                        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTEXT, 0, (sptr_t)content.c_str());
+                        td->filename = filepath;
+                        td->modified = false;
+                        
+                        // Update tab label
+                        size_t pos = filepath.find_last_of("/\\");
+                        string basename = (pos != string::npos) ? filepath.substr(pos + 1) : filepath;
+                        GtkWidget *label = (GtkWidget*)g_object_get_data(G_OBJECT(tab), "labelfwd");
+                        if (label) gtk_label_set_text(GTK_LABEL(label), basename.c_str());
+                        
+                        update_statusbar(&app, td->sci);
+                        add_recent_file(&app, filepath);
+                    }
+                } else {
+                    // Create new tab for subsequent files
+                    create_tab(&app, filepath);
+                    add_recent_file(&app, filepath);
+                }
+            }
+        }
+    }
 
     gtk_widget_show_all(app.window);
     gtk_main();

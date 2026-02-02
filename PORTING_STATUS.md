@@ -79,6 +79,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - [x] Show Whitespace toggle
 - [x] Show End of Line toggle
 - [x] Show Line Numbers toggle
+- [x] **Split View** - Horizontal and Vertical ⭐ NEW
 
 ### Language Support
 - [x] 20+ programming languages with syntax highlighting
@@ -172,7 +173,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 - ✅ Select word
 - ✅ Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
 - ✅ Column/rectangular mode (Alt+drag)
-- ⏳ Split view
+- ✅ Split view (horizontal/vertical)
 
 ## Performance
 - Fast startup time
@@ -189,7 +190,7 @@ This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is t
 
 ## Repository
 - GitHub: https://github.com/lord3nd3r/notepad-plus-plus
-- Latest Commit: 0e1f0a2ac
+- Latest Commit: 849753c6f
 - Branch: master
 
 ## Build Instructions
@@ -201,7 +202,14 @@ cmake --build .
 ```
 
 ## Recent Updates
-### Latest (Commit 0e1f0a2ac)
+### Latest (Commit 849753c6f)
+- ✨ **Split View**: Horizontal and vertical split panes with GtkPaned
+- ✨ Menu items: Split Horizontal, Split Vertical, Unsplit
+- 🔧 Added paned widget and notebook2 to AppState
+- 🔧 Store split state (is_split, is_horizontal_split)
+- ⚡ View two parts of code simultaneously
+
+### Previous (Commit 81afb42a3, 30dec8d91, 0e1f0a2ac)
 - ✨ **Multi-Cursor Editing**: Add Next Occurrence (Ctrl+D), Select All Occurrences (Ctrl+Shift+L)
 - ✨ **Column Selection**: Alt+mouse drag for rectangular selection mode
 - ✨ **Clear Selections**: Escape key to clear multiple cursors
@@ -230,7 +238,7 @@ cmake --build .
 ## Next Steps
 1. ✅ ~~Implement multi-cursor editing~~ DONE
 2. ✅ ~~Add column (rectangular) selection mode~~ DONE
-3. Implement split view (horizontal/vertical panes)
+3. ✅ ~~Implement split view (horizontal/vertical panes)~~ DONE
 4. Create preferences dialog
 5. Add session management
 6. Implement Find in Files

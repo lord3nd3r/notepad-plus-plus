@@ -81,6 +81,9 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
 - **Zoom In** (Ctrl++): Increase font size
 - **Zoom Out** (Ctrl+-): Decrease font size
 - **Restore Default Zoom** (Ctrl+0): Reset zoom to default
+- **Split Horizontal** ⭐ NEW: Split view horizontally (top/bottom panes)
+- **Split Vertical** ⭐ NEW: Split view vertically (left/right panes)
+- **Unsplit** ⭐ NEW: Return to single pane view
 
 ### Language Menu
 Manual syntax highlighting selection for:

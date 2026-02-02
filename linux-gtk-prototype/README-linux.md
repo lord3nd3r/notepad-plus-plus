@@ -63,10 +63,11 @@ LD_LIBRARY_PATH=../scintilla/bin:../lexilla/bin ./build/gtk-proto
 ```
 
 ## Notes
-- This is a **full-featured native Linux port** with 1,700+ lines of C++17 code
+- This is a **full-featured native Linux port** with 1,800+ lines of C++17 code
 - Uses the Scintilla GTK widget (`scintilla_object_new()`) and Lexilla for syntax highlighting
 - Extension-to-lexer mapping supports 20+ languages: C/C++, Python, JavaScript, Rust, Go, HTML, XML, JSON, Markdown, etc.
 - **Multi-cursor editing** works like VS Code (Ctrl+D to add next occurrence)
 - **Column mode** enabled with Alt+mouse drag for rectangular selections
+- **Split view** allows viewing two panes simultaneously (horizontal or vertical)
 - To add more lexers or customize, edit the extension mapping in `main_gui.cxx`
 - See [PORTING_STATUS.md](../PORTING_STATUS.md) for complete feature list and roadmap

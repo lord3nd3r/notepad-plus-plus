@@ -194,7 +194,7 @@ Or from anywhere:
 - ✅ Syntax highlighting: 100%
 - ✅ Multi-cursor editing: 100%
 - ✅ Column mode: 100%
-- 🔄 Split view: 0%
+- ✅ Split view: 100%
 
 See [PORTING_STATUS.md](PORTING_STATUS.md) for detailed feature tracking.
 
@@ -254,7 +254,7 @@ gdb ./gtk-proto
 ### High Priority
 - [x] ~~Multi-cursor editing (Ctrl+D for next occurrence)~~ ✅ DONE
 - [x] ~~Column (rectangular) selection mode~~ ✅ DONE
-- [ ] Split view (horizontal/vertical)
+- [x] ~~Split view (horizontal/vertical)~~ ✅ DONE
 - [ ] Preferences dialog
 - [ ] Session management (save/restore tabs)
 

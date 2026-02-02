@@ -36,7 +36,7 @@
 - [ ] Incremental search
 
 ## Phase 4: View & Display
-- [ ] Split view (horizontal/vertical) - NEXT PRIORITY
+- [x] Split view (horizontal/vertical) ✅ COMPLETE
 - [x] Zoom in/out (Ctrl++/Ctrl+-)
 - [x] Restore default zoom (Ctrl+/)
 - [x] Word wrap toggle (Ctrl+W)
@@ -78,8 +78,8 @@
 **Phase 1**: ✅ Complete
 **Phase 2**: ✅ 80% Complete (multi-cursor, column mode, line ops, transformations)
 **Phase 3**: ✅ 70% Complete (find/replace, bookmarks)
-**Phase 4**: ✅ 60% Complete (zoom, wrap, show symbols)
+**Phase 4**: ✅ 90% Complete (zoom, wrap, show symbols, split view)
 
-**Current Priority**: Split view implementation
-**Features Completed**: 80+ keyboard shortcuts, 1,700+ lines of code
-**Latest Commits**: Multi-cursor editing, column selection, recent files menu
+**Current Priority**: Preferences dialog and session management
+**Features Completed**: 80+ keyboard shortcuts, 1,800+ lines of code
+**Latest Features**: Split view (horizontal/vertical), multi-cursor editing, column selection

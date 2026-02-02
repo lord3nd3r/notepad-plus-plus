@@ -2506,13 +2506,28 @@ int main(int argc, char **argv) {
     gtk_window_set_default_size(GTK_WINDOW(app.window), 1000, 700);
     gtk_window_set_title(GTK_WINDOW(app.window), "Notepad++");
     
-    // Set Notepad++ icon
+    // Set Notepad++ icon - try multiple paths
     GError *error = nullptr;
-    if (!gtk_window_set_icon_from_file(GTK_WINDOW(app.window), "npp.ico", &error)) {
-        if (error) {
-            g_warning("Failed to load icon: %s", error->message);
-            g_error_free(error);
+    const char *icon_paths[] = {
+        "npp.ico",           // Current directory
+        "../npp.ico",        // Parent directory (when running from build/)
+        nullptr
+    };
+    
+    bool icon_loaded = false;
+    for (int i = 0; icon_paths[i] != nullptr; i++) {
+        if (gtk_window_set_icon_from_file(GTK_WINDOW(app.window), icon_paths[i], &error)) {
+            icon_loaded = true;
+            break;
         }
+        if (error) {
+            g_error_free(error);
+            error = nullptr;
+        }
+    }
+    
+    if (!icon_loaded) {
+        g_message("Icon not loaded (npp.ico not found in current or parent directory)");
     }
 
     app.accel_group = gtk_accel_group_new();

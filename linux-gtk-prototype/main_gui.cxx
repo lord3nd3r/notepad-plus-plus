@@ -49,6 +49,9 @@ struct AppState {
     bool is_recording_macro = false;
     std::vector<string> current_macro;
     std::vector<std::vector<string>> saved_macros;
+    GtkWidget *incremental_search_bar = nullptr;
+    GtkWidget *incremental_search_entry = nullptr;
+    bool incremental_search_active = false;
 };
 
 struct Preferences {
@@ -1117,6 +1120,148 @@ static void cmd_load_macro(GtkWidget *w, gpointer data) {
     }
     
     gtk_widget_destroy(dialog);
+}
+
+// Incremental search functionality
+static void on_incremental_search_changed(GtkEntry *entry, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    const char *search_text = gtk_entry_get_text(entry);
+    if (strlen(search_text) == 0) {
+        // Clear highlighting
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETINDICATORCURRENT, 0, 0);
+        int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICATORCLEARRANGE, 0, doc_length);
+        return;
+    }
+    
+    // Clear previous highlighting
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETINDICATORCURRENT, 0, 0);
+    int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICATORCLEARRANGE, 0, doc_length);
+    
+    // Setup indicator for highlighting
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICSETSTYLE, 0, INDIC_ROUNDBOX);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICSETFORE, 0, 0x00FF00);  // Green highlight
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICSETALPHA, 0, 100);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETINDICATORCURRENT, 0, 0);
+    
+    // Search and highlight all matches
+    int search_flags = 0;  // Case insensitive
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, search_flags, 0);
+    
+    int pos = 0;
+    int first_match = -1;
+    while (pos < doc_length) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, pos, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, doc_length, 0);
+        int found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, 
+                                          strlen(search_text), (sptr_t)search_text);
+        if (found < 0) break;
+        
+        if (first_match < 0) first_match = found;
+        
+        int match_end = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTARGETEND, 0, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICATORFILLRANGE, found, match_end - found);
+        pos = match_end;
+    }
+    
+    // Jump to first match
+    if (first_match >= 0) {
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, first_match, 
+                              first_match + strlen(search_text));
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SCROLLCARET, 0, 0);
+    }
+}
+
+static void on_incremental_search_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data) {
+    AppState *app = (AppState*)data;
+    
+    if (event->keyval == GDK_KEY_Escape) {
+        // Close search bar
+        if (app->incremental_search_bar) {
+            gtk_widget_hide(app->incremental_search_bar);
+            app->incremental_search_active = false;
+            
+            // Clear highlighting
+            TabData *td = get_current_tabdata(app);
+            if (td) {
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETINDICATORCURRENT, 0, 0);
+                int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_INDICATORCLEARRANGE, 0, doc_length);
+            }
+        }
+    } else if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+        // Find next
+        TabData *td = get_current_tabdata(app);
+        if (!td) return;
+        
+        const char *search_text = gtk_entry_get_text(GTK_ENTRY(app->incremental_search_entry));
+        if (strlen(search_text) == 0) return;
+        
+        int current_pos = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0);
+        int doc_length = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETTEXTLENGTH, 0, 0);
+        
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, current_pos, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, doc_length, 0);
+        scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEARCHFLAGS, 0, 0);
+        
+        int found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, 
+                                          strlen(search_text), (sptr_t)search_text);
+        if (found >= 0) {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, found, 
+                                  found + strlen(search_text));
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SCROLLCARET, 0, 0);
+        } else {
+            // Wrap to beginning
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETSTART, 0, 0);
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETTARGETEND, current_pos, 0);
+            found = scintilla_send_message((ScintillaObject*)td->sci, SCI_SEARCHINTARGET, 
+                                          strlen(search_text), (sptr_t)search_text);
+            if (found >= 0) {
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SETSEL, found, 
+                                      found + strlen(search_text));
+                scintilla_send_message((ScintillaObject*)td->sci, SCI_SCROLLCARET, 0, 0);
+            }
+        }
+    }
+}
+
+static void cmd_incremental_search(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    
+    if (!app->incremental_search_bar) {
+        // Create search bar (will be added to the main window later in init)
+        app->incremental_search_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+        gtk_container_set_border_width(GTK_CONTAINER(app->incremental_search_bar), 5);
+        
+        GtkWidget *label = gtk_label_new("Incremental Search:");
+        gtk_box_pack_start(GTK_BOX(app->incremental_search_bar), label, FALSE, FALSE, 0);
+        
+        app->incremental_search_entry = gtk_entry_new();
+        gtk_box_pack_start(GTK_BOX(app->incremental_search_bar), app->incremental_search_entry, TRUE, TRUE, 0);
+        
+        GtkWidget *close_button = gtk_button_new_with_label("Close");
+        gtk_box_pack_start(GTK_BOX(app->incremental_search_bar), close_button, FALSE, FALSE, 0);
+        
+        g_signal_connect(app->incremental_search_entry, "changed", 
+                        G_CALLBACK(on_incremental_search_changed), app);
+        g_signal_connect(app->incremental_search_entry, "key-press-event", 
+                        G_CALLBACK(on_incremental_search_key_press), app);
+        g_signal_connect_swapped(close_button, "clicked", 
+                                G_CALLBACK(gtk_widget_hide), app->incremental_search_bar);
+    }
+    
+    if (!app->incremental_search_active) {
+        gtk_widget_show_all(app->incremental_search_bar);
+        app->incremental_search_active = true;
+        gtk_widget_grab_focus(app->incremental_search_entry);
+        gtk_entry_set_text(GTK_ENTRY(app->incremental_search_entry), "");
+    } else {
+        gtk_widget_grab_focus(app->incremental_search_entry);
+    }
 }
 
 // View menu commands
@@ -2367,6 +2512,7 @@ int main(int argc, char **argv) {
     GtkWidget *search_find_prev = gtk_menu_item_new_with_mnemonic("Find _Previous");
     GtkWidget *search_replace = gtk_menu_item_new_with_mnemonic("_Replace...");
     GtkWidget *search_find_in_files = gtk_menu_item_new_with_mnemonic("Find in F_iles...");
+    GtkWidget *search_incremental = gtk_menu_item_new_with_mnemonic("_Incremental Search");
     GtkWidget *search_goto = gtk_menu_item_new_with_mnemonic("_Go to Line...");
     
     // Bookmarks submenu
@@ -2382,6 +2528,7 @@ int main(int argc, char **argv) {
     gtk_widget_add_accelerator(search_find_prev, "activate", app.accel_group, GDK_KEY_F3, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(search_replace, "activate", app.accel_group, GDK_KEY_h, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(search_find_in_files, "activate", app.accel_group, GDK_KEY_f, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(search_incremental, "activate", app.accel_group, GDK_KEY_i, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(search_goto, "activate", app.accel_group, GDK_KEY_g, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(bookmark_toggle, "activate", app.accel_group, GDK_KEY_F2, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(bookmark_next, "activate", app.accel_group, GDK_KEY_F2, GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE);
@@ -2400,6 +2547,7 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_replace);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_find_in_files);
+    gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_incremental);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), gtk_separator_menu_item_new());
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), search_goto);
     gtk_menu_shell_append(GTK_MENU_SHELL(search_menu), gtk_separator_menu_item_new());
@@ -2556,6 +2704,12 @@ int main(int argc, char **argv) {
     app.notebook = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX(vbox), app.notebook, TRUE, TRUE, 0);
 
+    // Incremental search bar (initially hidden)
+    cmd_incremental_search(nullptr, &app);  // Create the search bar
+    gtk_box_pack_start(GTK_BOX(vbox), app.incremental_search_bar, FALSE, FALSE, 0);
+    gtk_widget_hide(app.incremental_search_bar);
+    app.incremental_search_active = false;
+
     // Status bar
     app.statusbar = gtk_statusbar_new();
     app.status_context = gtk_statusbar_get_context_id(GTK_STATUSBAR(app.statusbar), "status");
@@ -2613,6 +2767,7 @@ int main(int argc, char **argv) {
     g_signal_connect(search_find_prev, "activate", G_CALLBACK(cmd_find_previous), &app);
     g_signal_connect(search_replace, "activate", G_CALLBACK(cmd_replace), &app);
     g_signal_connect(search_find_in_files, "activate", G_CALLBACK(cmd_find_in_files), &app);
+    g_signal_connect(search_incremental, "activate", G_CALLBACK(cmd_incremental_search), &app);
     g_signal_connect(search_goto, "activate", G_CALLBACK(cmd_goto), &app);
     
     g_signal_connect(bookmark_toggle, "activate", G_CALLBACK(cmd_toggle_bookmark), &app);

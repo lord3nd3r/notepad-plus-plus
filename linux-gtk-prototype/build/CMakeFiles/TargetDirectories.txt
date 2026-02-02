@@ -1,0 +1,3 @@
+/home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles/gtk-proto.dir
+/home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles/edit_cache.dir
+/home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles/rebuild_cache.dir

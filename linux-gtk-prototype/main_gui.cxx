@@ -152,6 +152,34 @@ static GtkWidget* create_scintilla_widget(AppState *app) {
     scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETFORE, 1, 0x0000FF); // Red bookmark
     scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETBACK, 1, 0x0000FF);
     
+    // Setup folding margin (margin 2)
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETMARGINWIDTHN, 2, 16);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETMARGINSENSITIVEN, 2, 1);
+    
+    // Define fold markers
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER);
+    
+    // Set fold marker colors
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETFORE, SC_MARKNUM_FOLDEROPEN, 0xFFFFFF);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETBACK, SC_MARKNUM_FOLDEROPEN, 0x808080);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETFORE, SC_MARKNUM_FOLDER, 0xFFFFFF);
+    scintilla_send_message((ScintillaObject*)sci, SCI_MARKERSETBACK, SC_MARKNUM_FOLDER, 0x808080);
+    
+    // Enable automatic folding
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETPROPERTY, (uptr_t)"fold", (sptr_t)"1");
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETPROPERTY, (uptr_t)"fold.compact", (sptr_t)"0");
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETPROPERTY, (uptr_t)"fold.comment", (sptr_t)"1");
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETPROPERTY, (uptr_t)"fold.preprocessor", (sptr_t)"1");
+    scintilla_send_message((ScintillaObject*)sci, SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW | SC_AUTOMATICFOLD_CLICK, 0);
+    
     // Enable rectangular selection with Alt modifier
     scintilla_send_message((ScintillaObject*)sci, SCI_SETRECTANGULARSELECTIONMODIFIER, SCMOD_ALT, 0);
     
@@ -626,6 +654,49 @@ static void cmd_unsplit(GtkWidget *w, gpointer data) {
     app->is_split = false;
     app->notebook2 = nullptr;
     app->paned = nullptr;
+}
+
+// Folding commands
+static void cmd_fold_all(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int maxLine = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINECOUNT, 0, 0);
+    for (int line = 0; line < maxLine; line++) {
+        int level = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETFOLDLEVEL, line, 0);
+        if (level & SC_FOLDLEVELHEADERFLAG) {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETFOLDEXPANDED, line, 0);
+        }
+    }
+    // Refresh display
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_COLOURISE, 0, -1);
+}
+
+static void cmd_unfold_all(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int maxLine = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETLINECOUNT, 0, 0);
+    for (int line = 0; line < maxLine; line++) {
+        int level = scintilla_send_message((ScintillaObject*)td->sci, SCI_GETFOLDLEVEL, line, 0);
+        if (level & SC_FOLDLEVELHEADERFLAG) {
+            scintilla_send_message((ScintillaObject*)td->sci, SCI_SETFOLDEXPANDED, line, 1);
+        }
+    }
+    // Refresh display
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_COLOURISE, 0, -1);
+}
+
+static void cmd_toggle_fold(GtkWidget *w, gpointer data) {
+    AppState *app = (AppState*)data;
+    TabData *td = get_current_tabdata(app);
+    if (!td) return;
+    
+    int line = scintilla_send_message((ScintillaObject*)td->sci, SCI_LINEFROMPOSITION,
+                                      scintilla_send_message((ScintillaObject*)td->sci, SCI_GETCURRENTPOS, 0, 0), 0);
+    scintilla_send_message((ScintillaObject*)td->sci, SCI_TOGGLEFOLD, line, 0);
 }
 
 // Line operations
@@ -1359,6 +1430,13 @@ static void ensure_config_dir() {
     string config_dir = get_config_dir();
     if (config_dir.empty()) return;
     
+    // Create parent directory first (~/.config)
+    const char *home = getenv("HOME");
+    if (home) {
+        string parent = string(home) + "/.config";
+        mkdir(parent.c_str(), 0755);
+    }
+    
     // Create directory if it doesn't exist
     mkdir(config_dir.c_str(), 0755);
 }
@@ -1710,6 +1788,18 @@ int main(int argc, char **argv) {
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_split_v);
     gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_unsplit);
     
+    // Folding items
+    GtkWidget *view_fold_all = gtk_menu_item_new_with_mnemonic("_Fold All");
+    GtkWidget *view_unfold_all = gtk_menu_item_new_with_mnemonic("U_nfold All");
+    GtkWidget *view_toggle_fold = gtk_menu_item_new_with_mnemonic("_Toggle Current Fold");
+    
+    gtk_widget_add_accelerator(view_toggle_fold, "activate", app.accel_group, GDK_KEY_F, (GdkModifierType)(GDK_CONTROL_MASK|GDK_SHIFT_MASK), GTK_ACCEL_VISIBLE);
+    
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), gtk_separator_menu_item_new());
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_fold_all);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_unfold_all);
+    gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_toggle_fold);
+    
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_item), view_menu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view_item);
     
@@ -1852,6 +1942,10 @@ int main(int argc, char **argv) {
     g_signal_connect(view_split_h, "activate", G_CALLBACK(cmd_split_horizontal), &app);
     g_signal_connect(view_split_v, "activate", G_CALLBACK(cmd_split_vertical), &app);
     g_signal_connect(view_unsplit, "activate", G_CALLBACK(cmd_unsplit), &app);
+    
+    g_signal_connect(view_fold_all, "activate", G_CALLBACK(cmd_fold_all), &app);
+    g_signal_connect(view_unfold_all, "activate", G_CALLBACK(cmd_unfold_all), &app);
+    g_signal_connect(view_toggle_fold, "activate", G_CALLBACK(cmd_toggle_fold), &app);
     
     g_signal_connect(eol_windows, "activate", G_CALLBACK(cmd_set_eol_windows), &app);
     g_signal_connect(eol_unix, "activate", G_CALLBACK(cmd_set_eol_unix), &app);

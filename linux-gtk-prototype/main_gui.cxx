@@ -14,7 +14,7 @@
 #include "ScintillaWidget.h"
 #include "ILexer.h"
 #include "Lexilla.h"
-#include "access/LexillaAccess.h"
+#include "LexillaAccess.h"
 
 using std::string;
 
@@ -160,8 +160,8 @@ static void apply_lexer(GtkWidget *sci, const string &filename) {
     else if (ext == "ini" || ext == "cfg" || ext == "conf") lang = "props";
     else lang = ext;
 
-    if (!lang.empty() && Lexilla::Load(".")) {
-        Scintilla::ILexer5 *pLexer = Lexilla::MakeLexer(lang);
+    if (!lang.empty()) {
+        Scintilla::ILexer5 *pLexer = CreateLexer(lang.c_str());
         if (pLexer) {
             scintilla_send_message((ScintillaObject*)sci, SCI_SETILEXER, 0, (sptr_t)pLexer);
         }

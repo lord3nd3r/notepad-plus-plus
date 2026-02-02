@@ -99,6 +99,14 @@ This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing co
   - Session file: `~/.config/notepad-plus-plus-gtk/session.txt`
   - Manual save/load via File menu
 
+### Auto-Save System ⭐ NEW
+- **Automatic Background Saving**: Periodically saves all modified files with filenames
+- **Configurable Interval**: Set auto-save frequency from 60 to 3600 seconds (default: 300s = 5 minutes)
+- **Enable/Disable**: Toggle auto-save on/off in preferences
+- **Status Updates**: Shows "Auto-saved X file(s)" in status bar when saving occurs
+- **Safe Operation**: Only saves files that have been saved at least once (ignores untitled files)
+- **Non-Intrusive**: Doesn't change file modification status - preserves user's save state
+
 ### View Menu
 - **Word Wrap**: Toggle word wrapping
 - **Show Line Numbers**: Toggle line number margin (enabled by default)

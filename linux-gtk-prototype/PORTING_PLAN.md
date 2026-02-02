@@ -81,7 +81,7 @@
 **Phase 4**: ✅ 100% Complete (zoom, wrap, symbols, split view, folding, full screen, distraction-free) ✅
 **Phase 5**: ✅ EOL conversion complete
 **Phase 7**: ✅ Session management and backup complete
-**Phase 8**: ✅ Command-line args complete
+**Phase 8**: ✅ Auto-save system complete
 
 **Current Priority**: Auto-completion, packaging
 **Features Completed**: 95+ keyboard shortcuts, ~3,270 lines of code

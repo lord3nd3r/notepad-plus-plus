@@ -1,3 +1,10 @@
+#include <gtk/gtk.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <regex>
+#include <sys/stat.h>
+#include <dirent.h>
 #include "ILexer.h"
 #include "Lexilla.h"
 #include "LexillaAccess.h"

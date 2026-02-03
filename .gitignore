@@ -147,7 +147,6 @@ scintilla/.hgignore
 scintilla/bin/__init__.py
 PowerEditor/bin/NppShell64_06.dll
 PowerEditor/bin/NppShell_06.dll
-
 PowerEditor/bin/SourceCodePro-Bold.ttf
 PowerEditor/bin/SourceCodePro-BoldIt.ttf
 PowerEditor/bin/SourceCodePro-It.ttf
@@ -160,8 +159,21 @@ PowerEditor/bin/SourceCodePro-Regular.ttf
 bin.*
 scintilla/win32/*.o
 
-
 PowerEditor/src/MISC/md5/RCa06792
 *.db
 *.sln
 *.opendb
+
+#-------------------------------------------------------------------------------
+# Linux build artifacts
+
+build/
+
+# Package build artifacts
+packages/appimage/*.AppDir/
+packages/appimage/*.AppImage
+packages/appimage/appimagetool-*.AppImage
+debian/
+*.deb
+*.rpm
+*.tar.gz

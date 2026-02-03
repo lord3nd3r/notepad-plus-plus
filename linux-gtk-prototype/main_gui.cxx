@@ -1,6 +1,7 @@
 #include "ILexer.h"
 #include "Lexilla.h"
 #include "LexillaAccess.h"
+#include "PluginInterface.h"
 #include "SciLexer.h"
 #include "Scintilla.h"
 #include "npp_gtk.h"
@@ -9,6 +10,7 @@
 #include <cctype>
 #include <cstring>
 #include <dirent.h>
+#include <dlfcn.h>
 #include <fnmatch.h>
 #include <fstream>
 #include <gtk/gtk.h>
@@ -146,6 +148,160 @@ static const ThemeColors themes[] = {{
                                      }};
 
 static const int num_themes = sizeof(themes) / sizeof(themes[0]);
+
+struct Plugin {
+  std::string name;
+  std::string path;
+  void *handle;
+  PFUNCSETINFO setInfo;
+  PFUNCGETNAME getName;
+  PFUNCGETFUNCSARRAY getFuncsArray;
+  PBENOTIFIED beNotified;
+  PFUNCPLUGINCMD pFuncs[100]; // Max 100 functions per plugin for now
+};
+
+std::vector<Plugin> loadedPlugins;
+static AppState *globalAppState = nullptr;
+
+// Exported message handler for plugins
+extern "C" __attribute__((visibility("default"))) LRESULT
+NppPluginSendMessage(HWND xpath, UINT msg, WPARAM wParam, LPARAM lParam) {
+  if (!globalAppState)
+    return 0;
+
+  switch (msg) {
+  case NPPM_GETFULLCURRENTPATH: {
+    TabData *td = get_current_tabdata(globalAppState);
+    if (td && lParam) {
+      std::wstring wpath(td->filename.begin(), td->filename.end());
+      wcscpy((wchar_t *)lParam, wpath.c_str());
+      return 1;
+    }
+    return 0;
+  }
+  case NPPM_GETFILENAME: {
+    TabData *td = get_current_tabdata(globalAppState);
+    if (td && lParam) {
+      size_t pos = td->filename.find_last_of("/\\");
+      std::string basename = (pos != std::string::npos)
+                                 ? td->filename.substr(pos + 1)
+                                 : td->filename;
+      std::wstring wname(basename.begin(), basename.end());
+      wcscpy((wchar_t *)lParam, wname.c_str());
+      return 1;
+    }
+    return 0;
+  }
+  case NPPM_GETCURRENTSCINTILLA: {
+    if (lParam) {
+      int *which = (int *)lParam;
+      *which = 0; // Always primary view for now
+    }
+    return 1;
+  }
+  case NPPM_GETNBOPENFILES: {
+    return gtk_notebook_get_n_pages(GTK_NOTEBOOK(globalAppState->notebook));
+  }
+    // Add more message handlers here as needed
+  }
+  return 0;
+}
+
+void init_plugins(AppState *app) {
+  globalAppState = app;
+  std::string pluginDir =
+      std::string(getenv("HOME")) + "/.config/notepad-plus-plus-gtk/plugins";
+  mkdir(pluginDir.c_str(), 0755);
+
+  DIR *dir = opendir(pluginDir.c_str());
+  if (!dir)
+    return;
+
+  struct dirent *ent;
+  while ((ent = readdir(dir)) != NULL) {
+    std::string filename = ent->d_name;
+    if (filename.length() > 3 &&
+        filename.substr(filename.length() - 3) == ".so") {
+      std::string fullPath = pluginDir + "/" + filename;
+      void *handle = dlopen(fullPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
+
+      if (handle) {
+        Plugin plugin;
+        plugin.path = fullPath;
+        plugin.handle = handle;
+
+        plugin.setInfo = (PFUNCSETINFO)dlsym(handle, "setInfo");
+        plugin.getName = (PFUNCGETNAME)dlsym(handle, "getName");
+        plugin.getFuncsArray =
+            (PFUNCGETFUNCSARRAY)dlsym(handle, "getFuncsArray");
+        plugin.beNotified = (PBENOTIFIED)dlsym(handle, "beNotified");
+
+        if (plugin.setInfo && plugin.getName) {
+          NppData nppData;
+          nppData._nppHandle = app->window;
+          TabData *td = get_current_tabdata(app);
+          nppData._scintillaMainHandle = td ? td->sci : nullptr;
+          nppData._scintillaSecondHandle = nullptr;
+
+          plugin.setInfo(nppData);
+          plugin.name = std::string(
+              (const char *)
+                  plugin.getName()); // Assuming ASCII/UTF8 name for now
+
+          std::cout << "Loaded plugin: " << plugin.name << std::endl;
+
+          // Get menu items
+          if (plugin.getFuncsArray) {
+            int nbFuncs = 0;
+            FuncItem *funcs = plugin.getFuncsArray(&nbFuncs);
+
+            if (funcs && nbFuncs > 0) {
+              GtkWidget *pluginsMenu =
+                  gtk_menu_item_new_with_label(plugin.name.c_str());
+              GtkWidget *submenu = gtk_menu_new();
+              gtk_menu_item_set_submenu(GTK_MENU_ITEM(pluginsMenu), submenu);
+
+              // Find Plugins menu in menubar (assuming it's the last one or we
+              // append it) For simplicity, let's append to the end of menubar
+              gtk_menu_shell_append(GTK_MENU_SHELL(app->menubar), pluginsMenu);
+              gtk_widget_show(pluginsMenu);
+
+              for (int i = 0; i < nbFuncs; i++) {
+                std::wstring wname = funcs[i]._itemName;
+                std::string name(wname.begin(), wname.end());
+                GtkWidget *item = gtk_menu_item_new_with_label(name.c_str());
+
+                // Clean way to pass callback: store in g_object_data
+                // For this prototype, we'd need a wrapper, but let's skipping
+                // complicated signal connection and just print for now as Proof
+                // of Concept
+                g_signal_connect_swapped(item, "activate",
+                                         G_CALLBACK(funcs[i]._pFunc), nullptr);
+
+                gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+                gtk_widget_show(item);
+              }
+            }
+          }
+
+          loadedPlugins.push_back(plugin);
+
+          // Notify NPPN_READY
+          if (plugin.beNotified) {
+            SCNotification notify = {0};
+            notify.nmhdr.code = NPPN_READY;
+            notify.nmhdr.hwndFrom = app->window;
+            plugin.beNotified(&notify);
+          }
+        }
+      } else {
+        std::cerr << "Failed to load plugin " << filename << ": " << dlerror()
+                  << std::endl;
+      }
+    }
+  }
+  closedir(dir);
+}
 
 // Function to get theme by name
 static const ThemeColors *get_theme_by_name(const string &name) {
@@ -4645,6 +4801,9 @@ int main(int argc, char **argv) {
       }
     }
   }
+
+  // Load Plugins
+  init_plugins(&app);
 
   gtk_widget_show_all(app.window);
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "PluginInterface.h"
+#include "ScintillaWidget.h"
 #include <codecvt>
 #include <cstring>
 #include <locale>

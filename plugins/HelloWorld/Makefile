@@ -5,7 +5,7 @@ CXX = g++
 PLUGIN_NAME = HelloWorld
 
 # Flags
-CXXFLAGS = -std=c++17 -fPIC -I../../linux-gtk-prototype -I../../scintilla/include
+CXXFLAGS = -std=c++17 -fPIC -DGTK -I../../linux-gtk-prototype -I../../scintilla/include
 CXXFLAGS += $(shell pkg-config --cflags gtk+-3.0)
 LDFLAGS = -shared
 LDFLAGS += $(shell pkg-config --libs gtk+-3.0)

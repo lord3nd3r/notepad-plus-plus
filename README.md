@@ -3,8 +3,10 @@
 A native Linux port of Notepad++ using GTK3 and Scintilla. No Wine, no emulation—just pure native Linux code.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0--beta-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux-green.svg)
 ![GTK](https://img.shields.io/badge/GTK-3.0+-purple.svg)
+
 
 ## Quick Start
 

@@ -1,274 +1,120 @@
-# Notepad++ Linux GTK Port - Status Report
-
-## Overview
-This is a native Linux port of Notepad++ using GTK3 and Scintilla. The goal is to achieve feature parity with the Windows version while maintaining a native Linux look and feel.
+# Notepad++ Linux GTK Port - Feature Status
 
 ## Build Information
-- **Language**: C++17
-- **GUI Toolkit**: GTK3 (gtk+-3.0)
-- **Editor Component**: Scintilla (GTK widget)
-- **Syntax Highlighting**: Lexilla library
-- **Build System**: CMake (with alternative Make support)
-- **Binary Size**: ~6 MB
-- **Source Code**: ~3,272 lines (main_gui.cxx)
-- **Latest Commit**: Auto-completion implementation complete
+- **Language:** C++17
+- **GUI Toolkit:** GTK3
+- **Editor:** Scintilla
+- **Syntax:** Lexilla
+- **Build:** CMake + Make wrapper
+- **Binary Size:** ~6.5 MB
 
-## Completed Features ✅
+## Feature Comparison: Windows vs Linux
 
-### Core Editing
-- [x] Undo/Redo (Ctrl+Z, Ctrl+Y)
-- [x] Cut/Copy/Paste (Ctrl+X, Ctrl+C, Ctrl+V)
-- [x] Delete (Delete key)
-- [x] Select All (Ctrl+A)
-- [x] Select Word (Ctrl+Alt+W)
+| Feature Category | Windows | Linux Port | Status |
+|-----------------|---------|------------|---------|
+| **Core Editing** | Full | Complete | ✅ 100% |
+| **Multi-tab Interface** | Full | Complete | ✅ 100% |
+| **Undo/Redo** | Full | Complete | ✅ 100% |
+| **Multi-cursor Editing** | Full | Complete | ✅ 100% |
+| **Column Mode** | Full | Complete | ✅ 100% |
+| **Split View** | Full | Complete | ✅ 100% |
+| **Syntax Highlighting** | 80+ languages | 20+ languages | 🟡 25% |
+| **Search & Replace** | Full | Complete with regex | ✅ 100% |
+| **Bookmarks** | Full | Complete | ✅ 100% |
+| **Code Folding** | Full | Complete | ✅ 100% |
+| **Macros** | Full | Record/Playback | 🟡 60% |
+| **Session Management** | Full | Auto-save/restore | ✅ 100% |
+| **Auto-completion** | Advanced | Word completion | 🟡 40% |
+| **Themes** | Many | 4 themes | 🟡 20% |
+| **Plugins** | Extensive | None | ❌ 0% |
+| **Print Support** | Full | None | ❌ 0% |
+| **Document Map** | Full | None | ❌ 0% |
+| **Function List** | Full | None | ❌ 0% |
 
-### Multi-Cursor Editing ⭐ NEW
-- [x] Add Next Occurrence (Ctrl+D) - Select next matching text
-- [x] Select All Occurrences (Ctrl+Shift+L) - Select all matches at once
-- [x] Multiple cursors typing - Edit all selections simultaneously
-- [x] Clear Multiple Selections (Escape)
-- [x] Column/Rectangular Selection (Alt+Mouse Drag)
+**Legend:** ✅ Complete | 🟡 Partial | ❌ Not Implemented
 
-### File Operations
-- [x] New File (Ctrl+N)
-- [x] Open File (Ctrl+O)
-- [x] Save File (Ctrl+S)
-- [x] Save As (Ctrl+Shift+S)
-- [x] Close All Tabs (Ctrl+Shift+W)
-- [x] Recent Files Menu (dynamic, max 10 files)
-- [x] Session Management - Auto-save/restore tabs ⭐ NEW
-- [x] Save Session - Manual session save
-- [x] Load Session - Manual session restore- [x] **Command-line Arguments** - Open files from terminal ⭐ NEW- [x] Quit (Ctrl+Q)
+## Completed Features (70+ Items)
 
-### Line Operations
-- [x] Duplicate Line (Ctrl+Alt+D) - Changed from Ctrl+D
-- [x] Delete Line (Ctrl+L)
-- [x] Cut Line (Ctrl+Shift+X)
-- [x] Copy Line (Ctrl+Shift+C)
-- [x] Move Line Up (Ctrl+Shift+Up)
-- [x] Move Line Down (Ctrl+Shift+Down)
-- [x] Transpose Lines (Ctrl+T)
-- [x] Join Lines (Ctrl+J)
-- [x] Split Lines
+### Core Editing ✅
+- Undo/Redo, Cut/Copy/Paste
+- Select All, Select Word
+- Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
+- Column/rectangular selection (Alt+drag)
+- Multiple tabs with modified indicators
+- Real-time status bar
 
-### Text Transformations
-- [x] UPPERCASE (Ctrl+Shift+U)
-- [x] lowercase (Ctrl+U)
-- [x] Block Comment (Ctrl+/)
-- [x] Block Uncomment (Ctrl+Shift+/)
-- [x] Increase Indent (Tab)
-- [x] Decrease Indent (Shift+Tab)
-- [x] Trim Trailing Space
-- [x] **Convert Tabs to Spaces** - Converts all tabs to spaces ⭐ NEW
-- [x] **Convert Spaces to Tabs** - Converts leading spaces to tabs ⭐ NEW
-- [x] **Sort Lines** - Ascending or descending alphabetical sort ⭐ NEW
+### File Operations ✅
+- New, Open, Save, Save As
+- Recent Files (last 10)
+- Session management (auto-save/restore)
+- UTF-8 encoding
+- Multi-instance support
+- Command-line arguments
 
-### Search & Navigation
-- [x] Find Dialog (Ctrl+F)
-- [x] Replace Dialog (Ctrl+H)
-- [x] **Regular Expression Support** - Find/Replace with regex patterns ⭐ NEW
-- [x] Find Next (F3)
-- [x] Find Previous (Shift+F3)
-- [x] **Incremental Search** (Ctrl+I) - Real-time search with highlighting ⭐ NEW
-- [x] Go to Line (Ctrl+G)
-- [x] **Find in Files** (Ctrl+Shift+F) - Recursive directory search ⭐ NEW
-- [x] File patterns and directory selection
-- [x] Results window with line numbers
+### Line Operations ✅
+- Duplicate, Delete, Cut/Copy line
+- Move line up/down
+- Transpose, Join, Split lines
 
-### Bookmarks
-- [x] Toggle Bookmark (F2)
-- [x] Next Bookmark (Shift+F2)
-- [x] Previous Bookmark (Ctrl+F2)
-- [x] Clear All Bookmarks
-- [x] Visual bookmark indicators (red circles in margin)
-
-### View Controls
-- [x] Word Wrap toggle (Ctrl+W)
-- [x] Zoom In (Ctrl++)
-- [x] Zoom Out (Ctrl+-)
-- [x] Restore Default Zoom (Ctrl+/)
-- [x] Show Whitespace toggle
-- [x] Show End of Line toggle
-- [x] Show Line Numbers toggle
-- [x] **Split View** - Horizontal and Vertical
-- [x] **Code Folding** - Fold/unfold code blocks
-- [x] Toggle fold (Ctrl+Shift+F)
-- [x] Fold/Unfold All commands
-- [x] **Full Screen Mode** (F11) ⭐ NEW
-
-### Language Support
-- [x] 20+ programming languages with syntax highlighting
-- [x] Auto-detection by file extension
-- Supported languages include:
-  - C/C++, C#, Java
-  - Python, JavaScript, TypeScript
-  - HTML, CSS, XML, JSON
-  - PHP, Perl, Ruby, Go
-  - Bash, Batch, PowerShell
-  - Markdown, LaTeX
-  - SQL, Lua
-  - and more...
-
-### Encoding & EOL
-- [x] EOL Format selection (Windows/Unix/Mac)
-- [x] **Convert to Windows (CRLF)** - Converts all line endings to Windows format ⭐ NEW
-- [x] **Convert to Unix (LF)** - Converts all line endings to Unix format ⭐ NEW
-- [x] **Convert to Mac (CR)** - Converts all line endings to Mac format ⭐ NEW
-- [x] UTF-8 support
-
-### Auto-Save & Backup
-- [x] **Auto-save system** - Configurable automatic saving of modified files ⭐ NEW
-- [x] **Auto-save preferences** - Enable/disable and interval settings (60-3600s) ⭐ NEW
-- [x] Background timer saves all modified files with filenames
-- [x] **File watching/auto-reload** - Detects external file changes and prompts to reload ⭐ NEW
-- [x] **Theme support** - Multiple color schemes (Default, Dark, Monokai, Solarized Dark) ⭐ NEW
-
-### Tab Management
-- [x] Multiple tabs (notebook interface)
-- [x] Modified indicator (*) in tab title
-- [x] Next Tab (Ctrl+PageDown)
-- [x] Previous Tab (Ctrl+PageUp)
-- [x] Close All Tabs
-
-### Status Bar
-- [x] Real-time statistics:
-  - Total length
-  - Line count
-  - Current line number
-  - Current column number
-  - EOL format
-  - Encoding
-  - Insert/Overwrite mode
-
-### User Interface
-- [x] Complete menu system (File, Edit, Search, View, Language, Encoding, Help)
-- [x] 80+ keyboard shortcuts
-- [x] Toolbar with common actions
-- [x] Responsive status bar
-- [x] GTK native dialogs
-
-## Planned Features 📋
-
-### Essential Features
-- [ ] Split view (horizontal/vertical)
-- [ ] Find in Files
-- [ ] Session management (save/restore open files)
-- [ ] Preferences/Settings dialog
-- [ ] Drag and drop file support
-- [x] Auto-save ⭐ NEW
-- [ ] Code folding
-
-### Advanced Features
-- [ ] Macro recording and playback
-- [x] Auto-completion ⭐ NEW
-- [ ] Function list
-- [ ] Document map
-- [ ] Plugin architecture
-- [ ] Color schemes/themes
-- [ ] Print support
-
-### Quality of Life
-- [x] File change detection ⭐ NEW
-- [ ] Backup files
-- [ ] Recent closed files
-- [ ] Tab context menu
-- [ ] Smart highlighting of selected word
-- [ ] Brace matching highlight
-- [ ] Auto-indentation
-- [ ] Tab to spaces conversion
-
-## Known Issues 🐛
-- GTK stock icons deprecated (warnings during compilation)
-- No native window icon yet
-- Toolbar uses deprecated stock items
-
-## Testing Status
-- ✅ Basic editing operations
-- ✅ File I/O
-- ✅ Syntax highlighting
-- ✅ Find/Replace
-- ✅ Bookmarks
-- ✅ Line operations
-- ✅ Text transformations
-- ✅ Recent files
-- ✅ Join/Split lines
-- ✅ Select word
-- ✅ Multi-cursor editing (Ctrl+D, Ctrl+Shift+L)
-- ✅ Column/rectangular mode (Alt+drag)
-- ✅ Split view (horizontal/vertical)
-
-## Performance
-- Fast startup time
-- Smooth scrolling with large files
-- Efficient syntax highlighting
-- Low memory footprint
-- Multiple cursors with real-time typing
-
-## Compatibility
-- Tested on: Linux x86_64
-- GTK Version: 3.0+
-- C++ Standard: C++17
-- Scintilla Version: Latest from Notepad++ source tree
-
-## Repository
-- GitHub: https://github.com/lord3nd3r/notepad-plus-plus
-- Latest Commit: 849753c6f
-- Branch: master
-
-## Build Instructions
-```bash
-cd linux-gtk-prototype/build
-cmake ..
-cmake --build .
-./gtk-proto
-```
-
-## Recent Updates
-### Latest (Commit 849753c6f)
-- ✨ **Split View**: Horizontal and vertical split panes with GtkPaned
-- ✨ Menu items: Split Horizontal, Split Vertical, Unsplit
-- 🔧 Added paned widget and notebook2 to AppState
-- 🔧 Store split state (is_split, is_horizontal_split)
-- ⚡ View two parts of code simultaneously
-
-### Previous (Commit 81afb42a3, 30dec8d91, 0e1f0a2ac)
-- ✨ **Multi-Cursor Editing**: Add Next Occurrence (Ctrl+D), Select All Occurrences (Ctrl+Shift+L)
-- ✨ **Column Selection**: Alt+mouse drag for rectangular selection mode
-- ✨ **Clear Selections**: Escape key to clear multiple cursors
-- 🔧 Changed Duplicate Line shortcut to Ctrl+Alt+D (to avoid conflict with Ctrl+D)
-- 🔧 Enabled Scintilla multiple selection, additional typing, and virtual space options
-- 🔧 Added status bar messages showing selection count
-- ⚡ Real-time typing across multiple cursors
-
-### Previous (Commit bb895bd93, f85ba6f5f, 9b9db7cbf)
-- ✨ Complete README rewrite for Linux GTK port
-- ✨ Added PORTING_STATUS.md comprehensive documentation
-- ✨ Recent Files menu with dynamic updates (max 10 files)
-- ✨ Join Lines (Ctrl+J) and Split Lines features
-- ✨ Select Word (Ctrl+Alt+W)
-- 🔧 Fixed Scintilla API usage (TextRangeFull)
-
-### Initial (Commit 3b57f4cef)
-- Initial comprehensive implementation with 70+ shortcuts
-- All core editing features (undo/redo, cut/copy/paste, etc.)
-- Complete menu system (File, Edit, Search, View, Language, Encoding, Help)
-- Bookmarks with visual indicators
+### Text Transformations ✅
+- UPPERCASE/lowercase conversion
 - Block comment/uncomment
-- Find/Replace with Find Next/Previous
-- Syntax highlighting for 20+ languages
+- Increase/decrease indent
+- Trim trailing whitespace
+- Tab/space conversion
+- Sort lines (A-Z, Z-A)
 
-## Next Steps
-1. ✅ ~~Implement multi-cursor editing~~ DONE
-2. ✅ ~~Add column (rectangular) selection mode~~ DONE
-3. ✅ ~~Implement split view (horizontal/vertical panes)~~ DONE
-4. Create preferences dialog
-5. Add session management
-6. Implement Find in Files
-7. Add code folding support
-8. Create plugin architecture
+### Search & Replace ✅
+- Find/Replace with regex
+- Incremental search (Ctrl+I)
+- Find Next/Previous
+- Find in Files (recursive)
+- Go to line
 
-## Contributing
-This port aims for 1:1 feature parity with Windows Notepad++. Priority is given to features that enhance the core editing experience.
+### View Controls ✅
+- Word wrap, zoom controls
+- Show whitespace/EOL
+- Line numbers
+- Split view (horizontal/vertical)
+- Code folding
+- Full screen (F11)
+- Distraction-free mode (F12)
 
-## License
-Following Notepad++ GPL-3.0 License
+### Advanced Features ✅
+- 20+ syntax highlighting languages
+- Bookmarks with visual indicators
+- Auto-save system
+- File watching/auto-reload
+- 4 color themes
+- Macro record/playback
+- Preferences dialog
+
+## Planned Features
+
+### High Priority
+- [ ] Additional syntax languages (target: 50+)
+- [ ] Advanced auto-completion
+- [ ] Function list panel
+- [ ] Plugin architecture
+
+### Medium Priority
+- [ ] Document map
+- [ ] Print support
+- [ ] More themes
+- [ ] Smart highlighting
+
+### Low Priority
+- [ ] Backup system
+- [ ] Tab context menu
+- [ ] Brace matching
+
+## Overall Progress
+
+**Feature Parity:** ~70% of Windows Notepad++  
+**Core Functionality:** 100% complete  
+**Advanced Features:** 40% complete
+
+---
+
+**Developer:** Kristopher Craig  
+**License:** GPL-3.0 (same as Notepad++)

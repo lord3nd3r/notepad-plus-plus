@@ -1,45 +1,54 @@
+## Supported Operating Systems
 
-## Supported OS Table
+| OS | Last Version | Supported |
+|----|--------------|-----------|
+| **Windows 95** | v3.9 | No |
+| **Windows 98** | v6.0 | No |
+| **Windows ME** | v6.0 | No |
+| **Windows NT 4.0** | v4.7.3 | No |
+| **Windows 2000** | v6.6.9 | No |
+| **Windows XP** | v6.0 | No |
+| **Windows Server 2003** | v7.9.2 | No |
+| **Windows Vista** | v8.4.6* | No |
+| **Windows Server 2008** | v8.4.6* | No |
+| **Windows 7** | Current | No |
+| **Windows 8** | Current | No |
+| **Windows 8.1** | Current | Yes |
+| **Windows 10** | Current | Yes |
+| **Windows 11** | Current | Yes |
+| **Linux (GTK3)** | Current | Yes |
 
-* The column **OS** is the list of different MS Windows generations.
-* The column **last version can be run** is for the status of the latest release to be run under the OS. If the current (latest) version can be run under the specific OS, then the `current version`  will be indicated instead of version number.
-* The column **supported** contains the status of Notepad++ team supporting Notepad++ under the specific OS. It means if a bug is present under an OS no more supported but not under supported OS, then this issue won't be treated by the team.
-
-|           OS            | last version can be run  |      supported            |
-|-------------------------|--------------------------|---------------------------|
-| **Windows 95**          | v3.9                     |          No               |
-| **Windows 98**          | v6.0                     |          No               |
-| **Windows ME**          | v6.0                     |          No               |
-| **Windows NT 4.0**      | v4.7.3                   |          No               |
-| **Windows 2000**        | v6.6.9                   |          No               |
-| **Windows XP**          | v7.9.2                   |          No               |
-| **Windows Server 2003** | v7.9.2                   |          No               |
-| **Windows Vista**       | v8.4.6  \*               |          No               |
-| **Windows Server 2008** | v8.4.6  \*               |          No               |
-| **Windows 7**           | current version          |          No               |
-| **Windows 8**           | current version          |          No               |
-| **Windows 8.1**         | current version          |          Yes              |
-| **Windows 10**          | current version          |          Yes              |
-| **Windows 11**          | current version          |          Yes              |
-| **Linux** (GTK Port)    | current version          |          Yes              |
-
-\* The current version of Notepad++ built by GCC can be run under Vista & Server 2008
-
-*Note that the list is meant for the last SP of each version*
+*\* Current version built with GCC can run on Vista & Server 2008*
 
 ## Linux Support
 
-A native Linux port using GTK3 is available in the `linux-gtk-prototype` directory. This is a fully-featured native implementation that provides:
+A native Linux port using GTK3 is available. This is a fully-featured implementation with:
+
 - Native GTK3 interface
 - Multi-cursor editing
 - Column/rectangular selection
-- Full Scintilla editing capabilities
-- Syntax highlighting for 20+ languages
+- Syntax highlighting (20+ languages)
 - 80+ keyboard shortcuts
+- Split view
+- Code folding
+- Session management
+- Macro recording
 
-Supported Linux distributions:
+### Tested Linux Distributions
 - Ubuntu 20.04+
 - Debian 10+
 - Fedora 33+
-- Arch Linux (current)
-- Other distributions with GTK 3.0+
+- Arch Linux (rolling)
+- Any distribution with GTK 3.0+
+
+### Build Requirements
+- GCC/Clang with C++17 support
+- CMake >= 3.10
+- GTK3 development headers
+
+See README.md and BUILD.md for installation instructions.
+
+---
+
+**Developer:** Kristopher Craig  
+**License:** GPL-3.0

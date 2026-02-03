@@ -66,88 +66,225 @@ struct ThemeColors {
 };
 
 // Available themes
-static const ThemeColors themes[] = {{
-                                         "Default",
-                                         0xFFFFFF, // background
-                                         0x000000, // foreground
-                                         0x3399FF, // selection_bg
-                                         0xFFFFFF, // selection_fg
-                                         0xF0F0F0, // line_number_bg
-                                         0x808080, // line_number_fg
-                                         0xE8E8FF, // caret_line_bg
-                                         0xF0F0F0, // fold_margin_bg
-                                         0x808080, // fold_margin_fg
-                                         0x008000, // comment_color
-                                         0x0000FF, // keyword_color
-                                         0x008000, // string_color
-                                         0xFF8000, // number_color
-                                         0x000000, // operator_color
-                                         0x800080, // preprocessor_color
-                                         0x000080, // function_color
-                                         0x000000  // variable_color
-                                     },
-                                     {
-                                         "Dark",
-                                         0x1E1E1E, // background
-                                         0xD4D4D4, // foreground
-                                         0x264F78, // selection_bg
-                                         0xFFFFFF, // selection_fg
-                                         0x2D2D30, // line_number_bg
-                                         0x858585, // line_number_fg
-                                         0x2A2D2E, // caret_line_bg
-                                         0x2D2D30, // fold_margin_bg
-                                         0x858585, // fold_margin_fg
-                                         0x6A9955, // comment_color
-                                         0x569CD6, // keyword_color
-                                         0xCE9178, // string_color
-                                         0xB5CEA8, // number_color
-                                         0xD4D4D4, // operator_color
-                                         0xC586C0, // preprocessor_color
-                                         0xDCDCAA, // function_color
-                                         0x9CDCFE  // variable_color
-                                     },
-                                     {
-                                         "Monokai",
-                                         0x272822, // background
-                                         0xF8F8F2, // foreground
-                                         0x49483E, // selection_bg
-                                         0xF8F8F2, // selection_fg
-                                         0x3E3D32, // line_number_bg
-                                         0x90908A, // line_number_fg
-                                         0x3E3D32, // caret_line_bg
-                                         0x3E3D32, // fold_margin_bg
-                                         0x90908A, // fold_margin_fg
-                                         0x75715E, // comment_color
-                                         0xF92672, // keyword_color
-                                         0xE6DB74, // string_color
-                                         0xAE81FF, // number_color
-                                         0xF8F8F2, // operator_color
-                                         0xA6E22E, // preprocessor_color
-                                         0xA6E22E, // function_color
-                                         0xF8F8F2  // variable_color
-                                     },
-                                     {
-                                         "Solarized Dark",
-                                         0x002B36, // background
-                                         0x839496, // foreground
-                                         0x073642, // selection_bg
-                                         0x93A1A1, // selection_fg
-                                         0x073642, // line_number_bg
-                                         0x586E75, // line_number_fg
-                                         0x073642, // caret_line_bg
-                                         0x073642, // fold_margin_bg
-                                         0x586E75, // fold_margin_fg
-                                         0x586E75, // comment_color
-                                         0x859900, // keyword_color
-                                         0x2AA198, // string_color
-                                         0xD33682, // number_color
-                                         0x839496, // operator_color
-                                         0xCB4B16, // preprocessor_color
-                                         0x268BD2, // function_color
-                                         0xB58900  // variable_color
-                                     }};
+// Available themes (Dynamic)
+std::vector<ThemeColors> themes = {{
+                                       "Default",
+                                       0xFFFFFF, // background
+                                       0x000000, // foreground
+                                       0x3399FF, // selection_bg
+                                       0xFFFFFF, // selection_fg
+                                       0xF0F0F0, // line_number_bg
+                                       0x808080, // line_number_fg
+                                       0xE8E8FF, // caret_line_bg
+                                       0xF0F0F0, // fold_margin_bg
+                                       0x808080, // fold_margin_fg
+                                       0x008000, // comment_color
+                                       0x0000FF, // keyword_color
+                                       0x008000, // string_color
+                                       0xFF8000, // number_color
+                                       0x000000, // operator_color
+                                       0x800080, // preprocessor_color
+                                       0x000080, // function_color
+                                       0x000000  // variable_color
+                                   },
+                                   {
+                                       "Dark",
+                                       0x1E1E1E, // background
+                                       0xD4D4D4, // foreground
+                                       0x264F78, // selection_bg
+                                       0xFFFFFF, // selection_fg
+                                       0x2D2D30, // line_number_bg
+                                       0x858585, // line_number_fg
+                                       0x2A2D2E, // caret_line_bg
+                                       0x2D2D30, // fold_margin_bg
+                                       0x858585, // fold_margin_fg
+                                       0x6A9955, // comment_color
+                                       0x569CD6, // keyword_color
+                                       0xCE9178, // string_color
+                                       0xB5CEA8, // number_color
+                                       0xD4D4D4, // operator_color
+                                       0xC586C0, // preprocessor_color
+                                       0xDCDCAA, // function_color
+                                       0x9CDCFE  // variable_color
+                                   },
+                                   {
+                                       "Monokai",
+                                       0x272822, // background
+                                       0xF8F8F2, // foreground
+                                       0x49483E, // selection_bg
+                                       0xF8F8F2, // selection_fg
+                                       0x3E3D32, // line_number_bg
+                                       0x90908A, // line_number_fg
+                                       0x3E3D32, // caret_line_bg
+                                       0x3E3D32, // fold_margin_bg
+                                       0x90908A, // fold_margin_fg
+                                       0x75715E, // comment_color
+                                       0xF92672, // keyword_color
+                                       0xE6DB74, // string_color
+                                       0xAE81FF, // number_color
+                                       0xF8F8F2, // operator_color
+                                       0xA6E22E, // preprocessor_color
+                                       0xA6E22E, // function_color
+                                       0xF8F8F2  // variable_color
+                                   }};
 
-static const int num_themes = sizeof(themes) / sizeof(themes[0]);
+unsigned int parse_hex_color(const std::string &hex) {
+  if (hex.empty())
+    return 0;
+  try {
+    return std::stoul(hex, nullptr, 16);
+  } catch (...) {
+    return 0;
+  }
+}
+
+void load_theme_from_xml(const std::string &path) {
+  std::ifstream file(path);
+  if (!file.is_open())
+    return;
+
+  std::string content((std::istreambuf_iterator<char>(file)),
+                      std::istreambuf_iterator<char>());
+
+  // Extract theme name from filename
+  std::string name = path.substr(path.find_last_of("/\\") + 1);
+  size_t last_dot = name.find_last_of(".");
+  if (last_dot != std::string::npos)
+    name = name.substr(0, last_dot);
+
+  ThemeColors theme = themes[0]; // Default fallback
+  theme.name = name;
+
+  auto get_attr = [&](const std::string &tag,
+                      const std::string &attr) -> std::string {
+    std::regex attr_regex(attr + "=\"([0-9A-Fa-f]+)\"");
+    std::smatch match;
+    if (std::regex_search(tag, match, attr_regex) && match.size() > 1) {
+      return match[1].str();
+    }
+    return "";
+  };
+
+  std::regex style_regex("<WordsStyle [^>]*>");
+  auto words_begin =
+      std::sregex_iterator(content.begin(), content.end(), style_regex);
+  auto words_end = std::sregex_iterator();
+
+  for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+    std::string tag = i->str();
+    std::string styleName = "";
+
+    std::regex name_regex("name=\"([^\"]+)\"");
+    std::smatch name_match;
+    if (std::regex_search(tag, name_match, name_regex) &&
+        name_match.size() > 1) {
+      styleName = name_match.str(1);
+    }
+
+    std::string fg = get_attr(tag, "fgColor");
+    std::string bg = get_attr(tag, "bgColor");
+
+    unsigned int fgVal = fg.empty() ? 0 : parse_hex_color(fg);
+    unsigned int bgVal = bg.empty() ? 0 : parse_hex_color(bg);
+
+    // Notepad++ XML colors are usually hex RGB
+    if (styleName == "Default Style") {
+      if (!fg.empty())
+        theme.foreground = fgVal;
+      if (!bg.empty())
+        theme.background = bgVal;
+    } else if (styleName == "Current line background") {
+      if (!bg.empty())
+        theme.caret_line_bg = bgVal;
+    } else if (styleName == "Selected text colour") {
+      if (!bg.empty())
+        theme.selection_bg = bgVal;
+      if (!fg.empty())
+        theme.selection_fg = fgVal;
+    } else if (styleName == "Line number margin") {
+      if (!bg.empty())
+        theme.line_number_bg = bgVal;
+      if (!fg.empty())
+        theme.line_number_fg = fgVal;
+    } else if (styleName == "Fold margin") {
+      if (!bg.empty())
+        theme.fold_margin_bg = bgVal;
+      if (!fg.empty())
+        theme.fold_margin_fg = fgVal;
+    } else if (styleName == "Comment") {
+      if (!fg.empty())
+        theme.comment_color = fgVal;
+    } else if (styleName == "Keyword") {
+      if (!fg.empty())
+        theme.keyword_color = fgVal;
+    }
+  }
+
+  themes.push_back(theme);
+}
+
+void load_xml_themes() {
+  std::string themeDir =
+      std::string(getenv("HOME")) + "/.config/notepad-plus-plus-gtk/themes";
+  mkdir(themeDir.c_str(), 0755);
+
+  DIR *dir = opendir(themeDir.c_str());
+  if (!dir)
+    return;
+
+  struct dirent *ent;
+  while ((ent = readdir(dir)) != NULL) {
+    std::string filename = ent->d_name;
+    if (filename.length() > 4 &&
+        filename.substr(filename.length() - 4) == ".xml") {
+      load_theme_from_xml(themeDir + "/" + filename);
+      std::cout << "Loaded theme: " << filename << std::endl;
+    }
+  }
+  closedir(dir);
+}
+
+// Session Snapshot (Backup)
+gboolean snapshot_session(gpointer data) {
+  AppState *app = (AppState *)data;
+  if (!app || !app->notebook)
+    return TRUE;
+
+  std::string backupDir =
+      std::string(getenv("HOME")) + "/.config/notepad-plus-plus-gtk/backup";
+  mkdir(backupDir.c_str(), 0755);
+
+  int n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(app->notebook));
+  for (int i = 0; i < n_pages; i++) {
+    GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(app->notebook), i);
+    TabData *td = (TabData *)g_object_get_data(G_OBJECT(page), "tab_data");
+
+    if (td) {
+      ScintillaObject *sci = (ScintillaObject *)td->sci;
+      if (scintilla_send_message(sci, SCI_GETMODIFY, 0, 0)) {
+        int len = scintilla_send_message(sci, SCI_GETLENGTH, 0, 0);
+        if (len > 0) {
+          std::vector<char> buffer(len + 1);
+          scintilla_send_message(sci, SCI_GETTEXT, len + 1,
+                                 (sptr_t)buffer.data());
+
+          std::string filename = td->filename;
+          if (filename.empty())
+            filename = "new_" + std::to_string(i + 1);
+          else {
+            size_t pos = filename.find_last_of("/\\");
+            if (pos != std::string::npos)
+              filename = filename.substr(pos + 1);
+          }
+
+          std::ofstream out(backupDir + "/" + filename + ".bak");
+          out.write(buffer.data(), len);
+        }
+      }
+    }
+  }
+  return TRUE;
+}
 
 struct Plugin {
   std::string name;
@@ -483,9 +620,9 @@ void cmd_run_google_search(GtkWidget *w, gpointer data) {
 
 // Function to get theme by name
 static const ThemeColors *get_theme_by_name(const string &name) {
-  for (int i = 0; i < num_themes; i++) {
-    if (themes[i].name == name) {
-      return &themes[i];
+  for (const auto &theme : themes) {
+    if (theme.name == name) {
+      return &theme;
     }
   }
   return &themes[0]; // Default fallback
@@ -1916,7 +2053,7 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
   gtk_box_pack_start(GTK_BOX(theme_box), gtk_label_new("Theme:"), FALSE, FALSE,
                      0);
   GtkWidget *theme_combo = gtk_combo_box_text_new();
-  for (int i = 0; i < num_themes; i++) {
+  for (int i = 0; i < themes.size(); i++) {
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(theme_combo),
                                    themes[i].name.c_str());
     if (themes[i].name == prefs.theme_name) {
@@ -1990,7 +2127,7 @@ static void cmd_preferences(GtkWidget *w, gpointer data) {
 
     // Get selected theme
     int theme_index = gtk_combo_box_get_active(GTK_COMBO_BOX(theme_combo));
-    if (theme_index >= 0 && theme_index < num_themes) {
+    if (theme_index >= 0 && theme_index < themes.size()) {
       prefs.theme_name = themes[theme_index].name;
     }
 
@@ -4057,7 +4194,8 @@ static void session_restore(AppState *app) {
 
 int main(int argc, char **argv) {
   // Suppress harmless GLib-GIO warnings about GFileInfo content-type
-  // This is a known issue with GTK3 file chooser dialogs in newer GLib versions
+  // This is a known issue with GTK3 file chooser dialogs in newer GLib
+  // versions
   g_log_set_handler(
       "GLib-GIO", G_LOG_LEVEL_CRITICAL,
       +[](const gchar *, GLogLevelFlags, const gchar *message, gpointer) {
@@ -5008,8 +5146,14 @@ int main(int argc, char **argv) {
     }
   }
 
+  // Load Themes
+  load_xml_themes();
+
   // Load Plugins
   init_plugins(&app);
+
+  // Start Session Snapshot Timer (every 7 seconds)
+  g_timeout_add_seconds(7, snapshot_session, &app);
 
   gtk_widget_show_all(app.window);
 

@@ -207,11 +207,73 @@ NppPluginSendMessage(HWND xpath, UINT msg, WPARAM wParam, LPARAM lParam) {
   return 0;
 }
 
+// Plugins Admin Dialog
+void show_plugins_admin_dialog(GtkWidget *widget, gpointer data) {
+  AppState *app = (AppState *)data;
+  GtkWidget *dialog = gtk_dialog_new_with_buttons(
+      "Plugins Admin", GTK_WINDOW(app->window), GTK_DIALOG_MODAL, "Close",
+      GTK_RESPONSE_CLOSE, NULL);
+
+  gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 400);
+  GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+  // Create list view
+  GtkListStore *store =
+      gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  GtkWidget *tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+
+  // Columns
+  GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(
+      GTK_TREE_VIEW(tree_view), -1, "Plugin Name", renderer, "text", 0, NULL);
+  gtk_tree_view_insert_column_with_attributes(
+      GTK_TREE_VIEW(tree_view), -1, "Status", renderer, "text", 1, NULL);
+  gtk_tree_view_insert_column_with_attributes(
+      GTK_TREE_VIEW(tree_view), -1, "Path", renderer, "text", 2, NULL);
+
+  // Populate list
+  for (const auto &plugin : loadedPlugins) {
+    GtkTreeIter iter;
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, 0, plugin.name.c_str(), 1, "Loaded", 2,
+                       plugin.path.c_str(), -1);
+  }
+
+  GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(scrolled_window), tree_view);
+  gtk_box_pack_start(GTK_BOX(content_area), scrolled_window, TRUE, TRUE, 0);
+
+  gtk_widget_show_all(dialog);
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+}
+
 void init_plugins(AppState *app) {
   globalAppState = app;
   std::string pluginDir =
       std::string(getenv("HOME")) + "/.config/notepad-plus-plus-gtk/plugins";
   mkdir(pluginDir.c_str(), 0755);
+
+  // Create "Plugins" top-level menu
+  GtkWidget *pluginsMenuItem = gtk_menu_item_new_with_label("Plugins");
+  GtkWidget *pluginsMenu = gtk_menu_new();
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(pluginsMenuItem), pluginsMenu);
+  gtk_menu_shell_append(GTK_MENU_SHELL(app->menubar), pluginsMenuItem);
+  gtk_widget_show(pluginsMenuItem);
+
+  // Add "Plugins Admin..."
+  GtkWidget *adminItem = gtk_menu_item_new_with_label("Plugins Admin...");
+  g_signal_connect(adminItem, "activate", G_CALLBACK(show_plugins_admin_dialog),
+                   app);
+  gtk_menu_shell_append(GTK_MENU_SHELL(pluginsMenu), adminItem);
+  gtk_widget_show(adminItem);
+
+  // Separator
+  GtkWidget *sep = gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(pluginsMenu), sep);
+  gtk_widget_show(sep);
 
   DIR *dir = opendir(pluginDir.c_str());
   if (!dir)
@@ -244,37 +306,30 @@ void init_plugins(AppState *app) {
           nppData._scintillaSecondHandle = nullptr;
 
           plugin.setInfo(nppData);
-          plugin.name = std::string(
-              (const char *)
-                  plugin.getName()); // Assuming ASCII/UTF8 name for now
+          plugin.name = std::string((const char *)plugin.getName());
 
           std::cout << "Loaded plugin: " << plugin.name << std::endl;
 
-          // Get menu items
+          // Add plugin submenu
           if (plugin.getFuncsArray) {
             int nbFuncs = 0;
             FuncItem *funcs = plugin.getFuncsArray(&nbFuncs);
 
             if (funcs && nbFuncs > 0) {
-              GtkWidget *pluginsMenu =
+              GtkWidget *pluginItem =
                   gtk_menu_item_new_with_label(plugin.name.c_str());
               GtkWidget *submenu = gtk_menu_new();
-              gtk_menu_item_set_submenu(GTK_MENU_ITEM(pluginsMenu), submenu);
+              gtk_menu_item_set_submenu(GTK_MENU_ITEM(pluginItem), submenu);
 
-              // Find Plugins menu in menubar (assuming it's the last one or we
-              // append it) For simplicity, let's append to the end of menubar
-              gtk_menu_shell_append(GTK_MENU_SHELL(app->menubar), pluginsMenu);
-              gtk_widget_show(pluginsMenu);
+              gtk_menu_shell_append(GTK_MENU_SHELL(pluginsMenu), pluginItem);
+              gtk_widget_show(pluginItem);
 
               for (int i = 0; i < nbFuncs; i++) {
                 std::wstring wname = funcs[i]._itemName;
                 std::string name(wname.begin(), wname.end());
                 GtkWidget *item = gtk_menu_item_new_with_label(name.c_str());
-
-                // Clean way to pass callback: store in g_object_data
-                // For this prototype, we'd need a wrapper, but let's skipping
-                // complicated signal connection and just print for now as Proof
-                // of Concept
+                g_object_set_data(G_OBJECT(item), "plugin_func",
+                                  (gpointer)funcs[i]._pFunc);
                 g_signal_connect_swapped(item, "activate",
                                          G_CALLBACK(funcs[i]._pFunc), nullptr);
 
@@ -286,7 +341,6 @@ void init_plugins(AppState *app) {
 
           loadedPlugins.push_back(plugin);
 
-          // Notify NPPN_READY
           if (plugin.beNotified) {
             SCNotification notify = {0};
             notify.nmhdr.code = NPPN_READY;

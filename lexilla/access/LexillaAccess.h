@@ -4,18 +4,25 @@
  ** This does not depend on SciTE code so can be copied out into other projects.
  **/
 // Copyright 2019 by Neil Hodgson <neilh@scintilla.org>
-// The License.txt file describes the conditions under which this software may be distributed.
+// The License.txt file describes the conditions under which this software may
+// be distributed.
 
 #ifndef LEXILLAACCESS_H
 #define LEXILLAACCESS_H
 
+#include <string>
+#include <string_view>
+#include <vector>
+
 namespace Lexilla {
 
-// Directory to load default Lexilla from, commonly the directory of the application.
+// Directory to load default Lexilla from, commonly the directory of the
+// application.
 void SetDefaultDirectory(std::string_view directory);
 
-// Specify CreateLexer when statically linked so no hard dependency in LexillaAccess
-// so it doesn't have to be built in two forms - static and dynamic.
+// Specify CreateLexer when statically linked so no hard dependency in
+// LexillaAccess so it doesn't have to be built in two forms - static and
+// dynamic.
 void SetDefault(CreateLexerFn pCreate) noexcept;
 
 // sharedLibraryPaths is a ';' separated list of shared libraries to load.
@@ -30,6 +37,6 @@ std::vector<std::string> Lexers();
 std::vector<std::string> LibraryProperties();
 void SetProperty(const char *key, const char *value);
 
-}
+} // namespace Lexilla
 
 #endif

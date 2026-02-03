@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Notepad++
+GenericName=Text Editor
+Comment=Native Linux port of Notepad++ using GTK3
+Exec=notepad++ %F
+Icon=notepad-plus-plus
+Terminal=false
+Categories=Utility;TextEditor;Development;GTK;
+MimeType=text/plain;text/x-c;text/x-c++;text/x-java;text/x-python;text/x-script;text/html;text/css;text/javascript;application/javascript;application/x-shellscript;application/xml;text/markdown;text/x-makefile;text/x-log;
+Keywords=text;editor;notepad;code;programming;
+StartupNotify=true
+StartupWMClass=notepad++
+Actions=new-window;
+
+[Desktop Action new-window]
+Name=New Window
+Exec=notepad++

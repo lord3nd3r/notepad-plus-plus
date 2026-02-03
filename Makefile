@@ -16,7 +16,10 @@ build:
 install:
 	@echo "Installing Notepad++ to /usr/local/bin..."
 	@cd build && $(MAKE) install
+	@echo "Installing desktop integration..."
+	@install -D -m 644 notepad-plus-plus.desktop /usr/share/applications/notepad-plus-plus.desktop
 	@echo "Installation complete! Run 'notepad++' to start the application."
+	@echo "Notepad++ will now appear in your applications menu."
 
 # Clean build artifacts
 clean:
@@ -28,6 +31,7 @@ clean:
 uninstall:
 	@echo "Uninstalling Notepad++..."
 	@rm -f /usr/local/bin/notepad++
+	@rm -f /usr/share/applications/notepad-plus-plus.desktop
 	@echo "Uninstall complete."
 
 # Rebuild from scratch

@@ -19,7 +19,7 @@ TARGET = gtk-proto
 SRCS = main_gui.cxx
 OBJS = $(SRCS:.cxx=.o)
 
-.PHONY: all clean scintilla lexilla
+.PHONY: all clean scintilla lexilla install uninstall
 
 all: lexilla scintilla $(TARGET)
 
@@ -42,3 +42,12 @@ $(TARGET): $(OBJS)
 
 clean:
 	-rm -f $(OBJS) $(TARGET)
+
+INSTALL_DIR ?= /usr/local/bin
+
+install: $(TARGET)
+	install -d $(INSTALL_DIR)
+	install -m 755 $(TARGET) $(INSTALL_DIR)/notepad++
+
+uninstall:
+	rm -f $(INSTALL_DIR)/notepad++

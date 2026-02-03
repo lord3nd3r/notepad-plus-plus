@@ -65,14 +65,48 @@ The Linux native port uses GTK3 and Scintilla to provide a native Linux experien
 # Install dependencies (Ubuntu/Debian)
 sudo apt-get install build-essential cmake libgtk-3-dev
 
+# Install dependencies (Fedora)
+sudo dnf install gcc-c++ cmake gtk3-devel
+
+# Install dependencies (Arch Linux)
+sudo pacman -S base-devel cmake gtk3
+
+# Clone the repository
+git clone https://github.com/lord3nd3r/notepad-plus-plus.git
+cd notepad-plus-plus
+
 # Build
-cd linux-gtk-prototype
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
+make
+
+# Install (optional)
+sudo make install
 
 # Run
-./build/gtk-proto
+notepad++  # if installed
+# or
+./build/linux-gtk-prototype/gtk-proto  # run without installing
 ```
+
+### Other Make Targets
+
+```bash
+make clean    # Remove build artifacts
+make rebuild  # Clean and rebuild from scratch
+make run      # Build and run the gtk-proto executable
+make help     # Show all available targets
+```
+
+### Advanced: Manual CMake Build
+
+If you prefer to use CMake directly:
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build . -j$(nproc)
+sudo cmake --install .  # optional install
+```
+
 
 ### Features
 

@@ -134,24 +134,41 @@ sudo dnf install gcc-c++ cmake gtk3-devel
 sudo pacman -S base-devel cmake gtk3
 ```
 
-### Build
+### Build & Install
 ```bash
-cd linux-gtk-prototype/build
-cmake ..
-cmake --build . -j$(nproc)
+# Clone the repository
+git clone https://github.com/lord3nd3r/notepad-plus-plus.git
+cd notepad-plus-plus
+
+# Build
+make
+
+# Install (requires sudo)
+sudo make install
 ```
 
 ### Run
 ```bash
-./gtk-proto [file1] [file2] ...
+# Run from anywhere after installation
+notepad++
+
+# Or open specific files
+notepad++ file1.txt file2.cpp
+
+# Or run without installing
+./build/linux-gtk-prototype/gtk-proto
 ```
 
 Open files directly from command line or run without arguments to restore last session. **Multi-instance support** - If an instance is already running, new files will open in the existing instance.
 
-Or from anywhere:
+### Other Make Targets
 ```bash
-/path/to/linux-gtk-prototype/build/gtk-proto
+make clean    # Remove build artifacts
+make rebuild  # Clean and rebuild from scratch  
+make run      # Build and run the application
+make help     # Show all available targets
 ```
+
 
 ## ⌨️ Keyboard Shortcuts
 

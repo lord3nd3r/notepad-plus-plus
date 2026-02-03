@@ -357,6 +357,130 @@ void init_plugins(AppState *app) {
   closedir(dir);
 }
 
+// Variable expansion for Run command
+std::string expand_variables(std::string cmd, AppState *app) {
+  TabData *td = get_current_tabdata(app);
+  if (!td)
+    return cmd;
+
+  std::string full_path = td->filename;
+  std::string filename = full_path;
+  std::string dir = "";
+
+  size_t pos = full_path.find_last_of("/\\");
+  if (pos != std::string::npos) {
+    filename = full_path.substr(pos + 1);
+    dir = full_path.substr(0, pos);
+  }
+
+  // Replace $(FULL_CURRENT_PATH)
+  size_t start_pos = 0;
+  while ((start_pos = cmd.find("$(FULL_CURRENT_PATH)", start_pos)) !=
+         std::string::npos) {
+    cmd.replace(start_pos, 20, full_path);
+    start_pos += full_path.length();
+  }
+
+  // Replace $(FILE_NAME)
+  start_pos = 0;
+  while ((start_pos = cmd.find("$(FILE_NAME)", start_pos)) !=
+         std::string::npos) {
+    cmd.replace(start_pos, 11, filename);
+    start_pos += filename.length();
+  }
+
+  // Replace $(CURRENT_DIRECTORY)
+  start_pos = 0;
+  while ((start_pos = cmd.find("$(CURRENT_DIRECTORY)", start_pos)) !=
+         std::string::npos) {
+    cmd.replace(start_pos, 19, dir);
+    start_pos += dir.length();
+  }
+
+  return cmd;
+}
+
+void execute_command(const std::string &cmd) {
+  GError *error = NULL;
+  if (!g_spawn_command_line_async(cmd.c_str(), &error)) {
+    std::cerr << "Failed to execute command: " << error->message << std::endl;
+    g_error_free(error);
+  }
+}
+
+void cmd_run_run(GtkWidget *w, gpointer data) {
+  AppState *app = (AppState *)data;
+  GtkWidget *dialog = gtk_dialog_new_with_buttons(
+      "Run...", GTK_WINDOW(app->window), GTK_DIALOG_MODAL, "_Cancel",
+      GTK_RESPONSE_CANCEL, "_Run", GTK_RESPONSE_OK, NULL);
+
+  GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+  gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
+
+  GtkWidget *label = gtk_label_new("The Program to Run:");
+  gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+
+  GtkWidget *entry = gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY(entry), "");
+  gtk_widget_set_tooltip_text(
+      entry,
+      "Variables: $(FULL_CURRENT_PATH), $(FILE_NAME), $(CURRENT_DIRECTORY)");
+
+  gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
+
+  gtk_container_add(GTK_CONTAINER(content_area), vbox);
+  gtk_widget_show_all(dialog);
+
+  if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+    std::string cmd = gtk_entry_get_text(GTK_ENTRY(entry));
+    if (!cmd.empty()) {
+      std::string expanded = expand_variables(cmd, app);
+      execute_command(expanded);
+    }
+  }
+
+  gtk_widget_destroy(dialog);
+}
+
+void cmd_run_open_browser(GtkWidget *w, gpointer data) {
+  AppState *app = (AppState *)data;
+  TabData *td = get_current_tabdata(app);
+  if (td) {
+    std::string cmd = "xdg-open \"" + td->filename + "\"";
+    execute_command(cmd);
+  }
+}
+
+void cmd_run_google_search(GtkWidget *w, gpointer data) {
+  AppState *app = (AppState *)data;
+  TabData *td = get_current_tabdata(app);
+  if (!td)
+    return;
+
+  ScintillaObject *sci = (ScintillaObject *)td->sci;
+  int len = scintilla_send_message(sci, SCI_GETSELTEXT, 0, 0);
+  if (len > 0) {
+    std::vector<char> text(len + 1);
+    scintilla_send_message(sci, SCI_GETSELTEXT, 0, (sptr_t)text.data());
+    std::string query = text.data();
+
+    // URL encode (simple)
+    std::string encoded = "";
+    for (char c : query) {
+      if (isalnum(c))
+        encoded += c;
+      else
+        encoded += "%" + std::to_string((unsigned char)c); // Simplified
+    }
+
+    std::string cmd =
+        "xdg-open \"https://www.google.com/search?q=" + query + "\"";
+    execute_command(cmd);
+  }
+}
+
 // Function to get theme by name
 static const ThemeColors *get_theme_by_name(const string &name) {
   for (int i = 0; i < num_themes; i++) {
@@ -4504,6 +4628,34 @@ int main(int argc, char **argv) {
   gtk_menu_shell_append(GTK_MENU_SHELL(macro_menu), macro_load);
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(macro_item), macro_menu);
   gtk_menu_shell_append(GTK_MENU_SHELL(menubar), macro_item);
+
+  // Run menu
+  GtkWidget *run_menu = gtk_menu_new();
+  GtkWidget *run_item = gtk_menu_item_new_with_mnemonic("_Run");
+
+  GtkWidget *run_run = gtk_menu_item_new_with_label("Run...");
+  g_signal_connect(run_run, "activate", G_CALLBACK(cmd_run_run), &app);
+  gtk_menu_shell_append(GTK_MENU_SHELL(run_menu), run_run);
+
+  gtk_menu_shell_append(GTK_MENU_SHELL(run_menu),
+                        gtk_separator_menu_item_new());
+
+  GtkWidget *run_google = gtk_menu_item_new_with_label("Google Search");
+  g_signal_connect(run_google, "activate", G_CALLBACK(cmd_run_google_search),
+                   &app);
+  gtk_menu_shell_append(GTK_MENU_SHELL(run_menu), run_google);
+
+  gtk_menu_shell_append(GTK_MENU_SHELL(run_menu),
+                        gtk_separator_menu_item_new());
+
+  GtkWidget *run_browser =
+      gtk_menu_item_new_with_label("Open in Default Browser");
+  g_signal_connect(run_browser, "activate", G_CALLBACK(cmd_run_open_browser),
+                   &app);
+  gtk_menu_shell_append(GTK_MENU_SHELL(run_menu), run_browser);
+
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(run_item), run_menu);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menubar), run_item);
 
   // Help menu
   GtkWidget *help_menu = gtk_menu_new();

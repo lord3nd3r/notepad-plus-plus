@@ -173,7 +173,7 @@ build/
 packages/appimage/*.AppDir/
 packages/appimage/*.AppImage
 packages/appimage/appimagetool-*.AppImage
-debian/
+/debian/
 *.deb
 *.rpm
 *.tar.gz

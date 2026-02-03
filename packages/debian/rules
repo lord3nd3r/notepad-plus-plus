@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX=/usr
+
+override_dh_auto_install:
+	dh_auto_install
+	install -D -m 644 ../notepad-plus-plus.desktop debian/notepad-plus-plus/usr/share/applications/notepad-plus-plus.desktop
+	install -D -m 644 ../notepad-plus-plus.png debian/notepad-plus-plus/usr/share/pixmaps/notepad-plus-plus.png

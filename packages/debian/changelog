@@ -1,0 +1,12 @@
+notepad-plus-plus (1.0~beta-1) unstable; urgency=medium
+
+  * Initial beta release
+  * ~70% feature parity with Windows Notepad++
+  * Complete core editing functionality
+  * Multi-cursor editing and column mode
+  * 20+ syntax highlighting languages
+  * 4 color themes
+  * Session management and auto-save
+  * 80+ keyboard shortcuts
+
+ -- Kristopher Craig <lord3nd3r@github.com>  Sun, 02 Feb 2026 21:00:00 -0600

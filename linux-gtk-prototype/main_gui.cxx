@@ -3152,6 +3152,19 @@ static void session_restore(AppState *app) {
 }
 
 int main(int argc, char **argv) {
+    // Suppress harmless GLib-GIO warnings about GFileInfo content-type
+    // This is a known issue with GTK3 file chooser dialogs in newer GLib versions
+    g_log_set_handler("GLib-GIO", G_LOG_LEVEL_CRITICAL, 
+                      +[](const gchar*, GLogLevelFlags, const gchar *message, gpointer) {
+                          // Only suppress the specific GFileInfo content-type warnings
+                          if (!g_str_has_prefix(message, "GFileInfo created without") &&
+                              !g_str_has_prefix(message, "file ") && 
+                              !g_str_has_suffix(message, "should not be reached")) {
+                              // Log other critical messages normally
+                              g_printerr("** (GLib-GIO:CRITICAL): %s\n", message);
+                          }
+                      }, NULL);
+    
     gtk_init(&argc, &argv);
 
     // Multi-instance support: check if another instance is running

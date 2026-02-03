@@ -297,7 +297,7 @@ void Indicator::Draw(Surface *surface, const PRectangle &rc, const PRectangle &r
 		break;
 
 	default:
-		// Either IndicatorStyle::Plain, IndicatorStyle::ExplorerLink or unknown
+		// Either IndicatorStyle::Plain or unknown
 		surface->FillRectangle(PRectangle(rcAligned.left, ymid,
 			rcAligned.right, ymid + std::round(strokeWidth)), sacDraw.fore);
 	}

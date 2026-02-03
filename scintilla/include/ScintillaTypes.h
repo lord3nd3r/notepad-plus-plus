@@ -11,6 +11,8 @@
 #ifndef SCINTILLATYPES_H
 #define SCINTILLATYPES_H
 
+#include <cstdint>
+
 namespace Scintilla {
 
 // Enumerations
@@ -233,7 +235,6 @@ enum class IndicatorStyle {
 	Gradient = 20,
 	GradientCentre = 21,
 	PointTop = 22,
-	ExplorerLink = 23,
 };
 
 enum class IndicatorNumbers {

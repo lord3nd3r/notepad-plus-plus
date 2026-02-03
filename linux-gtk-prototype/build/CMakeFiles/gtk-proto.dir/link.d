@@ -20,6 +20,19 @@ gtk-proto: \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgobject-2.0.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgmodule-2.0.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libglib-2.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgdk-3.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgdk_pixbuf-2.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libcairo.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgio-2.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libpangocairo-1.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgobject-2.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libglib-2.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libz.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libpango-1.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libharfbuzz.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libatk-1.0.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libcairo-gobject.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgmodule-2.0.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
@@ -46,9 +59,6 @@ gtk-proto: \
   /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
   /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgmodule-2.0.so \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgio-2.0.so \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libharfbuzz.so \
   /lib/i386-linux-gnu/libpangoft2-1.0.so.0 \
   /usr/lib/i386-linux-gnu/libpangoft2-1.0.so.0 \
   /lib/x86_64-linux-gnu/libpangoft2-1.0.so.0 \
@@ -88,13 +98,15 @@ gtk-proto: \
   /lib/i386-linux-gnu/libthai.so.0 \
   /usr/lib/i386-linux-gnu/libthai.so.0 \
   /lib/x86_64-linux-gnu/libthai.so.0 \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libz.so \
-  /lib/i386-linux-gnu/libpng16.so.16 \
-  /usr/lib/i386-linux-gnu/libpng16.so.16 \
-  /lib/x86_64-linux-gnu/libpng16.so.16 \
   /lib/i386-linux-gnu/libfreetype.so.6 \
   /usr/lib/i386-linux-gnu/libfreetype.so.6 \
   /lib/x86_64-linux-gnu/libfreetype.so.6 \
+  /lib/i386-linux-gnu/libgraphite2.so.3 \
+  /usr/lib/i386-linux-gnu/libgraphite2.so.3 \
+  /lib/x86_64-linux-gnu/libgraphite2.so.3 \
+  /lib/i386-linux-gnu/libpng16.so.16 \
+  /usr/lib/i386-linux-gnu/libpng16.so.16 \
+  /lib/x86_64-linux-gnu/libpng16.so.16 \
   /lib/i386-linux-gnu/libXrender.so.1 \
   /usr/lib/i386-linux-gnu/libXrender.so.1 \
   /lib/x86_64-linux-gnu/libXrender.so.1 \
@@ -113,6 +125,12 @@ gtk-proto: \
   /lib/i386-linux-gnu/libjpeg.so.8 \
   /usr/lib/i386-linux-gnu/libjpeg.so.8 \
   /lib/x86_64-linux-gnu/libjpeg.so.8 \
+  /lib/i386-linux-gnu/libmount.so.1 \
+  /usr/lib/i386-linux-gnu/libmount.so.1 \
+  /lib/x86_64-linux-gnu/libmount.so.1 \
+  /lib/i386-linux-gnu/libselinux.so.1 \
+  /usr/lib/i386-linux-gnu/libselinux.so.1 \
+  /lib/x86_64-linux-gnu/libselinux.so.1 \
   /lib/i386-linux-gnu/libffi.so.8 \
   /usr/lib/i386-linux-gnu/libffi.so.8 \
   /lib/x86_64-linux-gnu/libffi.so.8 \
@@ -122,15 +140,6 @@ gtk-proto: \
   /lib/i386-linux-gnu/libpcre2-8.so.0 \
   /usr/lib/i386-linux-gnu/libpcre2-8.so.0 \
   /lib/x86_64-linux-gnu/libpcre2-8.so.0 \
-  /lib/i386-linux-gnu/libmount.so.1 \
-  /usr/lib/i386-linux-gnu/libmount.so.1 \
-  /lib/x86_64-linux-gnu/libmount.so.1 \
-  /lib/i386-linux-gnu/libselinux.so.1 \
-  /usr/lib/i386-linux-gnu/libselinux.so.1 \
-  /lib/x86_64-linux-gnu/libselinux.so.1 \
-  /lib/i386-linux-gnu/libgraphite2.so.3 \
-  /usr/lib/i386-linux-gnu/libgraphite2.so.3 \
-  /lib/x86_64-linux-gnu/libgraphite2.so.3 \
   /lib/i386-linux-gnu/libexpat.so.1 \
   /usr/lib/i386-linux-gnu/libexpat.so.1 \
   /lib/x86_64-linux-gnu/libexpat.so.1 \
@@ -208,6 +217,32 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libglib-2.0.so:
 
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgdk-3.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgdk_pixbuf-2.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libcairo.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgio-2.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libpangocairo-1.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgobject-2.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libglib-2.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libz.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libpango-1.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libharfbuzz.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libatk-1.0.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libcairo-gobject.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgmodule-2.0.so:
+
 /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
@@ -259,12 +294,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgmodule-2.0.so:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgio-2.0.so:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libharfbuzz.so:
 
 /lib/i386-linux-gnu/libpangoft2-1.0.so.0:
 
@@ -344,19 +373,23 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /lib/x86_64-linux-gnu/libthai.so.0:
 
-/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libz.so:
+/lib/i386-linux-gnu/libfreetype.so.6:
+
+/usr/lib/i386-linux-gnu/libfreetype.so.6:
+
+/lib/x86_64-linux-gnu/libfreetype.so.6:
+
+/lib/i386-linux-gnu/libgraphite2.so.3:
+
+/usr/lib/i386-linux-gnu/libgraphite2.so.3:
+
+/lib/x86_64-linux-gnu/libgraphite2.so.3:
 
 /lib/i386-linux-gnu/libpng16.so.16:
 
 /usr/lib/i386-linux-gnu/libpng16.so.16:
 
 /lib/x86_64-linux-gnu/libpng16.so.16:
-
-/lib/i386-linux-gnu/libfreetype.so.6:
-
-/usr/lib/i386-linux-gnu/libfreetype.so.6:
-
-/lib/x86_64-linux-gnu/libfreetype.so.6:
 
 /lib/i386-linux-gnu/libXrender.so.1:
 
@@ -394,6 +427,18 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /lib/x86_64-linux-gnu/libjpeg.so.8:
 
+/lib/i386-linux-gnu/libmount.so.1:
+
+/usr/lib/i386-linux-gnu/libmount.so.1:
+
+/lib/x86_64-linux-gnu/libmount.so.1:
+
+/lib/i386-linux-gnu/libselinux.so.1:
+
+/usr/lib/i386-linux-gnu/libselinux.so.1:
+
+/lib/x86_64-linux-gnu/libselinux.so.1:
+
 /lib/i386-linux-gnu/libffi.so.8:
 
 /usr/lib/i386-linux-gnu/libffi.so.8:
@@ -411,24 +456,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/lib/i386-linux-gnu/libpcre2-8.so.0:
 
 /lib/x86_64-linux-gnu/libpcre2-8.so.0:
-
-/lib/i386-linux-gnu/libmount.so.1:
-
-/usr/lib/i386-linux-gnu/libmount.so.1:
-
-/lib/x86_64-linux-gnu/libmount.so.1:
-
-/lib/i386-linux-gnu/libselinux.so.1:
-
-/usr/lib/i386-linux-gnu/libselinux.so.1:
-
-/lib/x86_64-linux-gnu/libselinux.so.1:
-
-/lib/i386-linux-gnu/libgraphite2.so.3:
-
-/usr/lib/i386-linux-gnu/libgraphite2.so.3:
-
-/lib/x86_64-linux-gnu/libgraphite2.so.3:
 
 /lib/i386-linux-gnu/libexpat.so.1:
 

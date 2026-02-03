@@ -40,7 +40,7 @@ CETCOMPAT=-CETCOMPAT
 !ENDIF
 !ENDIF
 
-CRTFLAGS=-D_CRT_SECURE_NO_DEPRECATE=1 $(ADD_DEFINE)
+CRTFLAGS=$(ADD_DEFINE)
 CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 -utf-8 $(CRTFLAGS)
 CXXDEBUG=-Od -MTd -DDEBUG
 CXXNDEBUG=-O2 -MT -DNDEBUG -GL
@@ -117,10 +117,6 @@ SRC_OBJS=\
 	$(DIR_O)\UniqueString.obj \
 	$(DIR_O)\ViewStyle.obj \
 	$(DIR_O)\XPM.obj
-
-
-# To have PCRE boost regex with header only is integrated and not just the one from std
-!INCLUDE ../../boostregex/nppSpecifics.mak
 
 COMPONENT_OBJS = \
 	$(DIR_O)\HanjaDic.obj \

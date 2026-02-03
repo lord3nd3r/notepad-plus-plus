@@ -64,10 +64,12 @@ CMAKE_BINARY_DIR = /home/ender/notepad-plus-plus/linux-gtk-prototype/build
 
 # The main recursive "all" target.
 all: CMakeFiles/gtk-proto.dir/all
+all: CMakeFiles/notepad++.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
 codegen: CMakeFiles/gtk-proto.dir/codegen
+codegen: CMakeFiles/notepad++.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -76,6 +78,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/gtk-proto.dir/clean
+clean: CMakeFiles/notepad++.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -109,6 +112,38 @@ CMakeFiles/gtk-proto.dir/codegen:
 CMakeFiles/gtk-proto.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/clean
 .PHONY : CMakeFiles/gtk-proto.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/notepad++.dir
+
+# All Build rule for target.
+CMakeFiles/notepad++.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles --progress-num=4,5,6 "Built target notepad++"
+.PHONY : CMakeFiles/notepad++.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/notepad++.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/notepad++.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles 0
+.PHONY : CMakeFiles/notepad++.dir/rule
+
+# Convenience name for target.
+notepad++: CMakeFiles/notepad++.dir/rule
+.PHONY : notepad++
+
+# codegen rule for target.
+CMakeFiles/notepad++.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles --progress-num=4,5,6 "Finished codegen for target notepad++"
+.PHONY : CMakeFiles/notepad++.dir/codegen
+
+# clean rule for target.
+CMakeFiles/notepad++.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/clean
+.PHONY : CMakeFiles/notepad++.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

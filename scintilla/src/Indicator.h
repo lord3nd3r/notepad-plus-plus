@@ -44,7 +44,7 @@ public:
 		return !(sacNormal == sacHover);
 	}
 	bool OverridesTextFore() const noexcept {
-		return sacNormal.style == Scintilla::IndicatorStyle::TextFore || sacHover.style == Scintilla::IndicatorStyle::TextFore || sacNormal.style == Scintilla::IndicatorStyle::ExplorerLink || sacHover.style == Scintilla::IndicatorStyle::ExplorerLink;
+		return sacNormal.style == Scintilla::IndicatorStyle::TextFore || sacHover.style == Scintilla::IndicatorStyle::TextFore;
 	}
 	Scintilla::IndicFlag Flags() const noexcept {
 		return attributes;

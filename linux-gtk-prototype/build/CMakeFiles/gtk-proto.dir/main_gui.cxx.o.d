@@ -870,7 +870,10 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: \
  /usr/include/c++/15/bits/regex_compiler.tcc \
  /usr/include/c++/15/bits/regex.h /usr/include/c++/15/bits/regex.tcc \
  /usr/include/c++/15/bits/regex_executor.h \
- /usr/include/c++/15/bits/regex_executor.tcc \
+ /usr/include/c++/15/bits/regex_executor.tcc /usr/include/c++/15/set \
+ /usr/include/c++/15/bits/stl_set.h \
+ /usr/include/c++/15/bits/stl_multiset.h \
+ /usr/include/c++/15/bits/erase_if.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
@@ -881,8 +884,21 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: \
  /usr/include/fnmatch.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Scintilla.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Sci_Position.h \
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/ScintillaTypes.h \
  /usr/include/c++/15/cstdint \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/ScintillaWidget.h \
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Scintilla.h \
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/../lexilla/include/SciLexer.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/ILexer.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../lexilla/include/Lexilla.h \
- /home/ender/notepad-plus-plus/linux-gtk-prototype/../lexilla/access/LexillaAccess.h
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/../lexilla/access/LexillaAccess.h \
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/npp_gtk.h \
+ /usr/include/c++/15/memory \
+ /usr/include/c++/15/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/15/bits/align.h \
+ /usr/include/c++/15/bits/shared_ptr_atomic.h \
+ /usr/include/c++/15/bits/atomic_base.h \
+ /usr/include/c++/15/bits/atomic_lockfree_defines.h \
+ /usr/include/c++/15/backward/auto_ptr.h \
+ /usr/include/c++/15/pstl/glue_memory_defs.h \
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/npp_icon.xpm

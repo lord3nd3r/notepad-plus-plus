@@ -2175,7 +2175,7 @@ void EditView::DrawForeground(Surface *surface, const EditModel &model, const Vi
 							hover =	rangeRun.ContainsCharacter(model.hoverIndicatorPos);
 						}
 						if (hover) {
-							if (indicator.sacHover.style == IndicatorStyle::TextFore || (indicator.sacHover.style == IndicatorStyle::ExplorerLink)) {
+							if (indicator.sacHover.style == IndicatorStyle::TextFore) {
 								textFore = indicator.sacHover.fore;
 							}
 						} else {

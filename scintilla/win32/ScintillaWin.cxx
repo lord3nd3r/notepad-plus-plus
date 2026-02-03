@@ -107,39 +107,6 @@ using Microsoft::WRL::ComPtr;
 #endif
 #include "HanjaDic.h"
 #include "ScintillaWin.h"
-#include "BoostRegexSearch.h"
-
-//needed for gcc builds
-#ifndef SPI_GETWHEELSCROLLLINES
-#define SPI_GETWHEELSCROLLLINES   104
-#endif
-
-#ifndef WM_UNICHAR
-#define WM_UNICHAR                      0x0109
-#endif
-
-#ifndef WM_DPICHANGED
-#define WM_DPICHANGED 0x02E0
-#endif
-#ifndef WM_DPICHANGED_AFTERPARENT
-#define WM_DPICHANGED_AFTERPARENT 0x02E3
-#endif
-
-#ifndef UNICODE_NOCHAR
-#define UNICODE_NOCHAR                  0xFFFF
-#endif
-
-#ifndef IS_HIGH_SURROGATE
-#define IS_HIGH_SURROGATE(x)            ((x) >= SURROGATE_LEAD_FIRST && (x) <= SURROGATE_LEAD_LAST)
-#endif
-
-#ifndef IS_LOW_SURROGATE
-#define IS_LOW_SURROGATE(x)             ((x) >= SURROGATE_TRAIL_FIRST && (x) <= SURROGATE_TRAIL_LAST)
-#endif
-
-#ifndef MK_ALT
-#define MK_ALT 32
-#endif
 
 // __uuidof is a Microsoft extension but makes COM code neater, so disable warning
 #if defined(__clang__)
@@ -1661,13 +1628,8 @@ UINT CodePageFromCharSet(CharacterSet characterSet, UINT documentCodePage) noexc
 		return CpUtf8;
 	}
 	switch (characterSet) {
-	case CharacterSet::Ansi: return 1252;
-	
-	// Cyrillic / Turkish or other languages cannot be shown in ANSI mode.
-	// This fixes such problem. For more information about this fix, check:
-	// https://github.com/notepad-plus-plus/notepad-plus-plus/issues/5671
-	//	case CharacterSet::Default: return documentCodePage ? documentCodePage : 1252;
-	case CharacterSet::Default: return documentCodePage;
+	case CharacterSet::Ansi: return codePageWindowsLatin;
+	case CharacterSet::Default: return documentCodePage ? documentCodePage : codePageWindowsLatin;
 	case CharacterSet::Baltic: return 1257;
 	case CharacterSet::ChineseBig5: return 950;
 	case CharacterSet::EastEurope: return 1250;
@@ -1888,10 +1850,6 @@ sptr_t ScintillaWin::MouseMessage(unsigned int iMessage, uptr_t wParam, sptr_t l
 
 			RightButtonDownWithModifiers(pt, ::GetMessageTime(), MouseModifiers(wParam));
 		}
-		break;
-
-	case WM_MBUTTONDOWN:
-		::SetFocus(MainHWND());
 		break;
 
 	case WM_MOUSEMOVE: {
@@ -2251,22 +2209,6 @@ sptr_t ScintillaWin::SciMessage(Message iMessage, uptr_t wParam, sptr_t lParam) 
 	case Message::GetDirectPointer:
 		return reinterpret_cast<sptr_t>(this);
 
-#ifdef SCI_OWNREGEX
-	case Message::GetBoostRegexErrmsg:
-	{
-		// copies behavior of SCI_GETTEXT
-		if (lParam == 0)
-			return g_exceptionMessage.length() + 1;
-		if (wParam == 0)
-			return 0;
-		char *ptr = CharPtrFromSPtr(lParam);
-		const Sci_Position len = std::min<Sci_Position>(wParam - 1, g_exceptionMessage.length());
-		strncpy (ptr, g_exceptionMessage.c_str(), len);
-		ptr [len] = '\0';
-		return len;
-	}
-#endif
-
 	case Message::GrabFocus:
 		::SetFocus(MainHWND());
 		break;
@@ -2537,9 +2479,6 @@ sptr_t ScintillaWin::WndProc(Message iMessage, uptr_t wParam, sptr_t lParam) {
 		case Message::GetDirectFunction:
 		case Message::GetDirectStatusFunction:
 		case Message::GetDirectPointer:
-#ifdef SCI_OWNREGEX
-		case Message::GetBoostRegexErrmsg:
-#endif
 		case Message::GrabFocus:
 		case Message::SetTechnology:
 		case Message::SetBidirectional:

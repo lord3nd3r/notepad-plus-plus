@@ -79,7 +79,19 @@ notepad++
 - Macro recording and playback (F9/Shift+F9/F10)
 
 ### Plugin Support
-- **100% Backwards Compatible:** Uses the same API as Windows Notepad++
+- **Plugin System**: 100% API compatible with Windows Notepad++ plugins.
+  - Supports `setInfo`, `getName`, `getFuncsArray`, `beNotified`, and host messages.
+  - "Plugins Admin" dialog for managing loaded plugins.
+- **Run Menu**:
+  - Execute shell commands.
+  - Variable expansion: `$(FULL_CURRENT_PATH)`, `$(FILE_NAME)`, `$(CURRENT_DIRECTORY)`.
+  - integrated Web Search and Browser launching.
+- **Themes**:
+  - Native XML Theme support (compatible with Notepad++ `stylers.xml`).
+  - Drop themes into `~/.config/notepad-plus-plus-gtk/themes/`.
+- **Session Snapshot**:
+  - Automatic backup of unsaved files every 7 seconds.
+  - Crash protection saves to `~/.config/notepad-plus-plus-gtk/backup/`.
 - **Native Performance:** Plugins compile to native Linux shared libraries (`.so`)
 - **Hello World Example:** Included in `plugins/HelloWorld/`
 - **Easy Porting:** Most Windows plugins require NO code changes

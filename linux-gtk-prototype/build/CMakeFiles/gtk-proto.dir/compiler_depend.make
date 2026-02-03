@@ -6,6 +6,7 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
   /home/ender/notepad-plus-plus/lexilla/include/Lexilla.h \
   /home/ender/notepad-plus-plus/scintilla/include/ILexer.h \
   /home/ender/notepad-plus-plus/scintilla/include/Sci_Position.h \
+  /home/ender/notepad-plus-plus/scintilla/include/ScintillaTypes.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -173,10 +174,14 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk-prototype/main_gui.cxx \
   /home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.h \
   /home/ender/notepad-plus-plus/lexilla/include/Lexilla.h \
+  /home/ender/notepad-plus-plus/lexilla/include/SciLexer.h \
   /home/ender/notepad-plus-plus/scintilla/include/ILexer.h \
   /home/ender/notepad-plus-plus/scintilla/include/Sci_Position.h \
   /home/ender/notepad-plus-plus/scintilla/include/Scintilla.h \
+  /home/ender/notepad-plus-plus/scintilla/include/ScintillaTypes.h \
   /home/ender/notepad-plus-plus/scintilla/include/ScintillaWidget.h \
+  /home/ender/notepad-plus-plus/linux-gtk-prototype/npp_gtk.h \
+  /home/ender/notepad-plus-plus/linux-gtk-prototype/npp_icon.xpm \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
   /usr/include/asm-generic/errno-base.h \
@@ -220,12 +225,16 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/atk-1.0/atk/atkversion.h \
   /usr/include/atk-1.0/atk/atkwindow.h \
   /usr/include/c++/15/algorithm \
+  /usr/include/c++/15/backward/auto_ptr.h \
   /usr/include/c++/15/backward/binders.h \
   /usr/include/c++/15/bit \
   /usr/include/c++/15/bits/algorithmfwd.h \
+  /usr/include/c++/15/bits/align.h \
   /usr/include/c++/15/bits/alloc_traits.h \
   /usr/include/c++/15/bits/allocated_ptr.h \
   /usr/include/c++/15/bits/allocator.h \
+  /usr/include/c++/15/bits/atomic_base.h \
+  /usr/include/c++/15/bits/atomic_lockfree_defines.h \
   /usr/include/c++/15/bits/basic_ios.h \
   /usr/include/c++/15/bits/basic_ios.tcc \
   /usr/include/c++/15/bits/basic_string.h \
@@ -238,6 +247,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/c++/15/bits/cxxabi_forced.h \
   /usr/include/c++/15/bits/cxxabi_init_exception.h \
   /usr/include/c++/15/bits/deque.tcc \
+  /usr/include/c++/15/bits/erase_if.h \
   /usr/include/c++/15/bits/exception.h \
   /usr/include/c++/15/bits/exception_defines.h \
   /usr/include/c++/15/bits/exception_ptr.h \
@@ -284,6 +294,7 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/c++/15/bits/regex_scanner.tcc \
   /usr/include/c++/15/bits/requires_hosted.h \
   /usr/include/c++/15/bits/shared_ptr.h \
+  /usr/include/c++/15/bits/shared_ptr_atomic.h \
   /usr/include/c++/15/bits/shared_ptr_base.h \
   /usr/include/c++/15/bits/sstream.tcc \
   /usr/include/c++/15/bits/std_abs.h \
@@ -299,7 +310,10 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/c++/15/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/15/bits/stl_iterator_base_types.h \
   /usr/include/c++/15/bits/stl_map.h \
+  /usr/include/c++/15/bits/stl_multiset.h \
   /usr/include/c++/15/bits/stl_pair.h \
+  /usr/include/c++/15/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/15/bits/stl_set.h \
   /usr/include/c++/15/bits/stl_stack.h \
   /usr/include/c++/15/bits/stl_tempbuf.h \
   /usr/include/c++/15/bits/stl_tree.h \
@@ -347,12 +361,15 @@ CMakeFiles/gtk-proto.dir/main_gui.cxx.o: /home/ender/notepad-plus-plus/linux-gtk
   /usr/include/c++/15/iostream \
   /usr/include/c++/15/istream \
   /usr/include/c++/15/locale \
+  /usr/include/c++/15/memory \
   /usr/include/c++/15/new \
   /usr/include/c++/15/ostream \
   /usr/include/c++/15/pstl/execution_defs.h \
   /usr/include/c++/15/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/15/pstl/glue_memory_defs.h \
   /usr/include/c++/15/pstl/pstl_config.h \
   /usr/include/c++/15/regex \
+  /usr/include/c++/15/set \
   /usr/include/c++/15/sstream \
   /usr/include/c++/15/stack \
   /usr/include/c++/15/stdexcept \
@@ -1357,27 +1374,27 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/lib/i386-linux-gnu/libXinerama.so.1:
 
-/usr/include/glib-2.0/gobject/gbinding.h:
+/usr/lib/i386-linux-gnu/libXext.so.6:
 
-/usr/include/glib-2.0/gmodule.h:
+/usr/lib/i386-linux-gnu/libXdmcp.so.6:
 
-/usr/include/glib-2.0/gio/gproxyresolver.h:
+/usr/lib/i386-linux-gnu/libXau.so.6:
 
-/usr/include/gtk-3.0/gtk/gtkspinbutton.h:
+/usr/lib/i386-linux-gnu/libbz2.so.1.0:
 
-/usr/include/glib-2.0/glib/gvariant.h:
+/usr/lib/i386-linux-gnu/libX11.so.6:
 
-/usr/include/glib-2.0/gio/gfilenamecompleter.h:
+/usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
 
-/usr/include/glib-2.0/glib/gunicode.h:
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
 
-/usr/include/gtk-3.0/gtk/gtktreemodel.h:
+/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o:
 
-/usr/include/glib-2.0/glib/gtypes.h:
+/usr/lib/i386-linux-gnu/libfreetype.so.6:
 
-/usr/include/c++/15/bits/fstream.tcc:
+/usr/lib/x86_64-linux-gnu/libz.so:
 
-/usr/include/glib-2.0/glib/gtree.h:
+/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so:
 
 /usr/include/glib-2.0/glib/gtimezone.h:
 
@@ -1390,6 +1407,10 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/gtk-3.0/gtk/gtkflowbox.h:
 
 /usr/include/glib-2.0/glib/gsequence.h:
+
+/usr/lib/i386-linux-gnu/libXfixes.so.3:
+
+/usr/include/c++/15/bits/ostream.tcc:
 
 /usr/include/glib-2.0/glib/grcbox.h:
 
@@ -1426,8 +1447,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/glib-2.0/glib/gdatetime.h:
 
 /usr/include/glib-2.0/glib/gdataset.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
 
 /usr/include/glib-2.0/glib/gchecksum.h:
 
@@ -1485,13 +1504,15 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/glib-2.0/glib/gmem.h:
 
+/usr/include/c++/15/bits/atomic_base.h:
+
 /usr/include/glib-2.0/gio/gproxy.h:
 
 /usr/include/glib-2.0/gio/gpropertyaction.h:
 
-/usr/lib/i386-linux-gnu/libXdmcp.so.6:
-
 /usr/include/glib-2.0/gio/gpollableoutputstream.h:
+
+/home/ender/notepad-plus-plus/scintilla/include/ScintillaTypes.h:
 
 /usr/include/glib-2.0/gio/gmemoryinputstream.h:
 
@@ -1561,6 +1582,10 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/glib-2.0/gio/gfileoutputstream.h:
 
+/usr/include/glib-2.0/gio/gfilenamecompleter.h:
+
+/usr/include/glib-2.0/glib/gvariant.h:
+
 /usr/include/glib-2.0/gio/gsimpleproxyresolver.h:
 
 /usr/include/glib-2.0/gio/gfileinfo.h:
@@ -1580,8 +1605,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h:
 
 /usr/include/glib-2.0/gio/gdtlsclientconnection.h:
-
-/usr/include/glib-2.0/gio/gdrive.h:
 
 /usr/include/glib-2.0/gio/gapplication.h:
 
@@ -1611,9 +1634,9 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/atk-1.0/atk/atkplug.h:
 
-/usr/include/glib-2.0/glib/gutils.h:
-
 /usr/include/glib-2.0/gio/gnetworkaddress.h:
+
+/usr/include/glib-2.0/glib/gutils.h:
 
 /usr/include/glib-2.0/gio/gdbusaddress.h:
 
@@ -1633,8 +1656,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/glib-2.0/gio/gcontenttype.h:
 
-/usr/include/glib-2.0/gobject/gobject-autocleanups.h:
-
 /usr/include/glib-2.0/gio/gcharsetconverter.h:
 
 /usr/include/glib-2.0/glib-object.h:
@@ -1650,8 +1671,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /lib/i386-linux-gnu/libbz2.so.1.0:
 
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
-
-/usr/include/c++/15/ext/atomicity.h:
 
 /usr/lib/i386-linux-gnu/libxkbcommon.so.0:
 
@@ -1701,10 +1720,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/dirent.h:
 
-/usr/include/glib-2.0/glib/gconvert.h:
-
-/usr/include/glib-2.0/glib/gregex.h:
-
 /usr/include/cairo/cairo.h:
 
 /usr/include/gtk-3.0/gtk/gtknativedialog.h:
@@ -1751,11 +1766,11 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/stack:
 
-/usr/include/glib-2.0/glib/guri.h:
-
 /lib/i386-linux-gnu/libpcre2-8.so.0:
 
 /usr/include/c++/15/pstl/execution_defs.h:
+
+/usr/include/c++/15/memory:
 
 /usr/include/glib-2.0/gio/gproxyaddress.h:
 
@@ -1812,6 +1827,18 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/glib-2.0/gio/gfilteroutputstream.h:
 
 /lib/x86_64-linux-gnu/libpixman-1.so.0:
+
+/usr/include/c++/15/bits/uniform_int_dist.h:
+
+/usr/include/gtk-3.0/gtk/deprecated/gtktoggleaction.h:
+
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+
+/usr/include/c++/15/bits/stl_raw_storage_iter.h:
+
+/usr/include/c++/15/bits/ostream.h:
+
+/usr/include/c++/15/bits/stl_algo.h:
 
 /usr/include/glib-2.0/gio/gnetworkservice.h:
 
@@ -1877,6 +1904,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/glib-2.0/glib/glist.h:
 
+/usr/include/gtk-3.0/gtk/gtkexpander.h:
+
 /usr/include/glib-2.0/gio/gzlibcompressor.h:
 
 /usr/include/gtk-3.0/gtk/gtkpapersize.h:
@@ -1889,15 +1918,13 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/bits/locale_facets.h:
 
+/home/ender/notepad-plus-plus/lexilla/include/SciLexer.h:
+
 /usr/include/glib-2.0/gio/gconverterinputstream.h:
 
 /lib/i386-linux-gnu/libxcb-shm.so.0:
 
 /usr/include/gtk-3.0/gtk/gtkstyleprovider.h:
-
-/usr/include/c++/15/bits/localefwd.h:
-
-/usr/include/x86_64-linux-gnu/bits/endian.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
 
@@ -1921,14 +1948,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /lib/i386-linux-gnu/libXext.so.6:
 
-/usr/include/glib-2.0/glib/guuid.h:
-
-/usr/include/gtk-3.0/gtk/gtkcheckmenuitem.h:
-
-/usr/include/atk-1.0/atk/atk-autocleanups.h:
-
-/usr/include/gtk-3.0/gtk/gtkcellrendererspin.h:
-
 /usr/include/stdlib.h:
 
 /usr/include/c++/15/bits/regex_automaton.tcc:
@@ -1937,25 +1956,19 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/stdio.h:
 
+/usr/include/glib-2.0/gio/gproxyresolver.h:
+
+/usr/include/glib-2.0/gmodule.h:
+
 /home/ender/notepad-plus-plus/scintilla/include/Scintilla.h:
-
-/usr/include/glib-2.0/gio/gdbusobjectmanagerclient.h:
-
-/usr/include/glib-2.0/gio/gfileiostream.h:
-
-/usr/lib/i386-linux-gnu/libselinux.so.1:
-
-/usr/include/glib-2.0/gio/gtlsfiledatabase.h:
 
 /usr/include/features-time64.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/locale_t.h:
 
-/usr/include/c++/15/bits/uniform_int_dist.h:
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
 
-/usr/include/gtk-3.0/gtk/deprecated/gtktoggleaction.h:
-
-/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+/usr/include/glib-2.0/gio/gpowerprofilemonitor.h:
 
 /lib/x86_64-linux-gnu/libXrandr.so.2:
 
@@ -1995,13 +2008,13 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/gtk-3.0/gdk/gdkthreads.h:
 
-/usr/include/glib-2.0/gio/gpowerprofilemonitor.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
-
 /usr/include/gtk-3.0/gtk/deprecated/gtkhbbox.h:
 
 /usr/include/c++/15/string_view:
+
+/usr/include/c++/15/bits/basic_string.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
 
 /usr/include/glib-2.0/gio/gtlsserverconnection.h:
 
@@ -2017,6 +2030,8 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/bits/basic_ios.tcc:
 
+/usr/include/glib-2.0/glib/gtree.h:
+
 /usr/include/glib-2.0/gio/gnotification.h:
 
 /home/ender/notepad-plus-plus/scintilla/include/ILexer.h:
@@ -2028,10 +2043,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
-
-/usr/include/gtk-3.0/gtk/gtkappchooserbutton.h:
-
-/usr/include/c++/15/iosfwd:
 
 /usr/include/c++/15/initializer_list:
 
@@ -2058,8 +2069,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
 /home/ender/notepad-plus-plus/lexilla/bin/liblexilla.a:
-
-/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so:
 
 /usr/include/c++/15/ext/type_traits.h:
 
@@ -2099,6 +2108,20 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/bits/stl_bvector.h:
 
+/usr/lib/i386-linux-gnu/libpangoft2-1.0.so.0:
+
+/usr/include/glib-2.0/gio/gdbusauthobserver.h:
+
+/usr/include/harfbuzz/hb-style.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/c++/15/bits/vector.tcc:
+
+/usr/include/glib-2.0/gio/gdbusmenumodel.h:
+
+/usr/include/gtk-3.0/gtk/gtkcolorutils.h:
+
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
 /usr/include/gtk-3.0/gdk/gdkdnd.h:
@@ -2133,6 +2156,14 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /lib/i386-linux-gnu/libxcb.so.1:
 
+/usr/include/gtk-3.0/gtk/gtkcheckmenuitem.h:
+
+/usr/include/atk-1.0/atk/atk-autocleanups.h:
+
+/usr/include/glib-2.0/glib/guuid.h:
+
+/usr/include/gtk-3.0/gtk/gtkcellrendererspin.h:
+
 /usr/include/glib-2.0/gio/gthreadedsocketservice.h:
 
 /usr/include/glib-2.0/gio/gmountoperation.h:
@@ -2144,6 +2175,18 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/gtk-3.0/gtk/gtkcellrendererspinner.h:
 
 /usr/include/x86_64-linux-gnu/bits/stat.h:
+
+/usr/include/glib-2.0/gio/gdbusobjectmanagerclient.h:
+
+/usr/include/glib-2.0/gio/gfileiostream.h:
+
+/usr/include/glib-2.0/gio/gdrive.h:
+
+/usr/include/c++/15/bits/atomic_lockfree_defines.h:
+
+/usr/lib/i386-linux-gnu/libselinux.so.1:
+
+/usr/include/glib-2.0/gio/gtlsfiledatabase.h:
 
 /usr/include/glib-2.0/glib/gspawn.h:
 
@@ -2197,23 +2240,25 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
 
+/usr/include/c++/15/bits/align.h:
+
+/usr/include/c++/15/debug/debug.h:
+
+/usr/include/x86_64-linux-gnu/bits/ss_flags.h:
+
 /usr/include/stdc-predef.h:
 
-/usr/include/endian.h:
-
-/usr/include/gtk-3.0/gtk/deprecated/gtkhscale.h:
-
-/usr/include/stdint.h:
-
-/usr/include/glib-2.0/gio/gdbusobjectproxy.h:
-
-/usr/include/gtk-3.0/gtk/gtkborder.h:
+/usr/include/glib-2.0/gio/gmount.h:
 
 /usr/include/c++/15/ext/string_conversions.h:
 
 /usr/include/x86_64-linux-gnu/c++/15/bits/c++allocator.h:
 
 /usr/include/glib-2.0/gio/gactiongroup.h:
+
+/usr/include/c++/15/ext/atomicity.h:
+
+/usr/include/c++/15/pstl/glue_memory_defs.h:
 
 /usr/include/glib-2.0/glib/gprimes.h:
 
@@ -2226,6 +2271,22 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/gtk-3.0/gtk/gtkframe.h:
 
 /usr/include/asm-generic/errno-base.h:
+
+/usr/include/stdint.h:
+
+/usr/include/glib-2.0/gio/gdbusobjectproxy.h:
+
+/usr/include/gtk-3.0/gtk/gtkborder.h:
+
+/usr/include/endian.h:
+
+/usr/include/gtk-3.0/gtk/deprecated/gtkhscale.h:
+
+/usr/include/glib-2.0/glib/gregex.h:
+
+/usr/include/glib-2.0/glib/gconvert.h:
+
+/usr/include/x86_64-linux-gnu/sys/stat.h:
 
 /usr/include/asm-generic/errno.h:
 
@@ -2281,8 +2342,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/bits/postypes.h:
 
-/usr/include/x86_64-linux-gnu/sys/stat.h:
-
 /usr/include/glib-2.0/glib/gstringchunk.h:
 
 /usr/include/pthread.h:
@@ -2312,20 +2371,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/libintl.h:
 
 /usr/include/features.h:
-
-/usr/lib/i386-linux-gnu/libpangoft2-1.0.so.0:
-
-/usr/include/glib-2.0/gio/gdbusauthobserver.h:
-
-/usr/include/harfbuzz/hb-style.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/c++/15/bits/vector.tcc:
-
-/usr/include/glib-2.0/gio/gdbusmenumodel.h:
-
-/usr/include/gtk-3.0/gtk/gtkcolorutils.h:
 
 /usr/include/alloca.h:
 
@@ -2369,15 +2414,11 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/asm-generic/int-ll64.h:
 
-/usr/include/glib-2.0/glib/gversionmacros.h:
-
-/usr/include/glib-2.0/glib/gversion.h:
-
-/usr/include/c++/15/bits/erase_if.h:
-
 /usr/include/gtk-3.0/gdk/gdkrgba.h:
 
 /usr/include/atk-1.0/atk/atkwindow.h:
+
+/usr/include/c++/15/bits/erase_if.h:
 
 /usr/include/c++/15/bits/stringfwd.h:
 
@@ -2405,13 +2446,21 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/bits/codecvt.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+/usr/include/c++/15/bits/stl_deque.h:
 
-/lib/x86_64-linux-gnu/libmvec.so.1:
+/usr/include/gtk-3.0/gtk/gtklinkbutton.h:
+
+/usr/include/c++/15/bits/locale_classes.h:
+
+/usr/include/c++/15/bits/stl_map.h:
 
 /lib/x86_64-linux-gnu/libgraphite2.so.3:
 
 /usr/include/glib-2.0/gio/giostream.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
 /usr/include/glib-2.0/gio/gunixcredentialsmessage.h:
 
@@ -2509,6 +2558,26 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /home/ender/notepad-plus-plus/scintilla/include/ScintillaWidget.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+
+/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/home/ender/notepad-plus-plus/linux-gtk-prototype/npp_gtk.h:
+
+/usr/include/x86_64-linux-gnu/bits/endian.h:
+
+/usr/include/c++/15/bits/localefwd.h:
+
+/usr/include/glib-2.0/glib/guri.h:
+
+/usr/include/atk-1.0/atk/atkvalue.h:
+
+/usr/include/glib-2.0/gio/gio.h:
+
+/usr/include/c++/15/bits/istream.tcc:
+
+/lib64/ld-linux-x86-64.so.2:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
 /usr/include/gtk-3.0/gtk/gtklockbutton.h:
@@ -2520,14 +2589,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/atk-1.0/atk/atkeditabletext.h:
 
 /usr/include/gtk-3.0/gtk/gtktypes.h:
-
-/usr/include/c++/15/bits/locale_classes.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
-
-/usr/include/c++/15/bits/stl_map.h:
 
 /usr/include/glib-2.0/gio/gpermission.h:
 
@@ -2599,25 +2660,21 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /lib/i386-linux-gnu/libfontconfig.so.1:
 
-/usr/include/atk-1.0/atk/atkvalue.h:
-
-/usr/include/glib-2.0/gio/gmount.h:
-
-/usr/include/glib-2.0/gio/gio.h:
-
-/usr/include/c++/15/bits/istream.tcc:
-
-/lib64/ld-linux-x86-64.so.2:
+/usr/include/c++/15/backward/auto_ptr.h:
 
 /usr/include/glib-2.0/gio/gproxyaddressenumerator.h:
+
+/usr/include/c++/15/bits/stl_tempbuf.h:
+
+/usr/include/c++/15/bits/fstream.tcc:
+
+/usr/include/glib-2.0/glib/gtypes.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 
 /usr/include/glib-2.0/gio/gtlsinteraction.h:
 
 /usr/include/glib-2.0/gio/gdbusutils.h:
-
-/usr/include/c++/15/bits/ostream.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
 
@@ -2653,25 +2710,29 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/c++/15/bits/regex_scanner.h:
 
+/usr/include/glib-2.0/gobject/gobject-autocleanups.h:
+
+/usr/include/c++/15/bits/shared_ptr_atomic.h:
+
 /usr/include/glib-2.0/gio/gsrvtarget.h:
 
 /usr/include/c++/15/bits/stl_uninitialized.h:
 
-/usr/include/c++/15/bits/stl_algo.h:
+/usr/include/glib-2.0/glib/gunicode.h:
 
-/usr/include/c++/15/bits/stl_deque.h:
+/usr/include/gtk-3.0/gtk/gtktreemodel.h:
 
-/usr/include/gtk-3.0/gtk/gtklinkbutton.h:
+/usr/include/glib-2.0/glib/gversion.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+/usr/include/glib-2.0/glib/gversionmacros.h:
 
-/usr/include/c++/15/bits/stl_tempbuf.h:
+/usr/include/gtk-3.0/gtk/gtkspinbutton.h:
 
-/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
+/usr/include/c++/15/iosfwd:
 
-/usr/include/c++/15/bits/basic_string.tcc:
+/usr/include/gtk-3.0/gtk/gtkappchooserbutton.h:
 
-/usr/include/gtk-3.0/gtk/gtkexpander.h:
+/usr/include/glib-2.0/gobject/gbinding.h:
 
 /usr/include/glib-2.0/gobject/gbindinggroup.h:
 
@@ -2844,6 +2905,12 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/gtk-3.0/gtk/deprecated/gtkcolorseldialog.h:
 
 /usr/include/gtk-3.0/gtk/deprecated/gtkgradient.h:
+
+/usr/include/c++/15/sstream:
+
+/usr/include/gtk-3.0/gtk/gtkseparator.h:
+
+/usr/include/gtk-3.0/gtk/deprecated/gtkhscrollbar.h:
 
 /usr/include/glib-2.0/glib/gbitlock.h:
 
@@ -3163,12 +3230,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/gtk-3.0/gtk/gtkselection.h:
 
-/usr/include/c++/15/sstream:
-
-/usr/include/gtk-3.0/gtk/deprecated/gtkhscrollbar.h:
-
-/usr/include/gtk-3.0/gtk/gtkseparator.h:
-
 /usr/include/gtk-3.0/gtk/gtkseparatortoolitem.h:
 
 /usr/include/gtk-3.0/gtk/gtksettings.h:
@@ -3269,7 +3330,15 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/harfbuzz/hb-version.h:
 
+/home/ender/notepad-plus-plus/linux-gtk-prototype/npp_icon.xpm:
+
 /usr/include/inttypes.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o:
+
+/usr/include/glib-2.0/gio/ginetaddress.h:
+
+/usr/include/linux/close_range.h:
 
 /usr/include/pango-1.0/pango/pango-bidi-type.h:
 
@@ -3357,10 +3426,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /usr/include/x86_64-linux-gnu/bits/sigthread.h:
 
-/usr/include/c++/15/debug/debug.h:
-
-/usr/include/x86_64-linux-gnu/bits/ss_flags.h:
-
 /usr/include/x86_64-linux-gnu/bits/statx.h:
 
 /lib/x86_64-linux-gnu/libXrender.so.1:
@@ -3390,10 +3455,6 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/include/sched.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
-
-/usr/lib/i386-linux-gnu/libbz2.so.1.0:
-
-/usr/lib/i386-linux-gnu/libX11.so.6:
 
 /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
 
@@ -3463,9 +3524,9 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 
 /lib/i386-linux-gnu/libbrotlicommon.so.1:
 
-/usr/include/c++/15/bits/deque.tcc:
-
 /usr/include/c++/15/bits/streambuf.tcc:
+
+/usr/include/c++/15/bits/deque.tcc:
 
 /lib/i386-linux-gnu/libfreetype.so.6:
 
@@ -3570,23 +3631,3 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
 /usr/lib/x86_64-linux-gnu/libharfbuzz.so:
 
 /usr/lib/x86_64-linux-gnu/libm.so:
-
-/usr/lib/i386-linux-gnu/libfreetype.so.6:
-
-/usr/lib/x86_64-linux-gnu/libz.so:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o:
-
-/usr/include/glib-2.0/gio/ginetaddress.h:
-
-/usr/include/linux/close_range.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o:
-
-/usr/lib/i386-linux-gnu/libXau.so.6:
-
-/usr/lib/i386-linux-gnu/libXext.so.6:
-
-/usr/include/c++/15/bits/ostream.tcc:
-
-/usr/lib/i386-linux-gnu/libXfixes.so.3:

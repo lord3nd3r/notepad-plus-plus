@@ -12,6 +12,9 @@
 
 #if defined(GTK)
 
+#include "ScintillaTypes.h"
+#include "Scintilla.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -85,6 +85,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ender/notepad-plus-plus/linux-gtk-prototype/build/CMakeFiles /home/ender/notepad-plus-plus/linux-gtk-prototype/build//CMakeFiles/progress.marks
@@ -129,12 +174,26 @@ gtk-proto/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/build
 .PHONY : gtk-proto/fast
 
+#=============================================================================
+# Target rules for targets named notepad++
+
+# Build rule for target.
+notepad++: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 notepad++
+.PHONY : notepad++
+
+# fast build rule for target.
+notepad++/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/build
+.PHONY : notepad++/fast
+
 home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.o: home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.o
 .PHONY : home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.o
 
 # target to build an object file
 home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.o
 .PHONY : home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.o
 
 home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.i: home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.i
@@ -143,6 +202,7 @@ home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.i: home/ender/notepad-
 # target to preprocess a source file
 home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.i
 .PHONY : home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.i
 
 home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.s: home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.s
@@ -151,6 +211,7 @@ home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.s: home/ender/notepad-
 # target to generate assembly for a file
 home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.s
 .PHONY : home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.cxx.s
 
 main_gui.o: main_gui.cxx.o
@@ -159,6 +220,7 @@ main_gui.o: main_gui.cxx.o
 # target to build an object file
 main_gui.cxx.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/main_gui.cxx.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/main_gui.cxx.o
 .PHONY : main_gui.cxx.o
 
 main_gui.i: main_gui.cxx.i
@@ -167,6 +229,7 @@ main_gui.i: main_gui.cxx.i
 # target to preprocess a source file
 main_gui.cxx.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/main_gui.cxx.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/main_gui.cxx.i
 .PHONY : main_gui.cxx.i
 
 main_gui.s: main_gui.cxx.s
@@ -175,6 +238,7 @@ main_gui.s: main_gui.cxx.s
 # target to generate assembly for a file
 main_gui.cxx.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gtk-proto.dir/build.make CMakeFiles/gtk-proto.dir/main_gui.cxx.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/notepad++.dir/build.make CMakeFiles/notepad++.dir/main_gui.cxx.s
 .PHONY : main_gui.cxx.s
 
 # Help Target
@@ -184,8 +248,13 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... gtk-proto"
+	@echo "... notepad++"
 	@echo "... home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.o"
 	@echo "... home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.i"
 	@echo "... home/ender/notepad-plus-plus/lexilla/access/LexillaAccess.s"

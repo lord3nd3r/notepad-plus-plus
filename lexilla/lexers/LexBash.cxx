@@ -280,8 +280,8 @@ public:
 	unsigned backtickLevel = 0;
 	QuoteCls Current;
 	QuoteCls Stack[BASH_QUOTE_STACK_MAX];
-	const CharacterSet &setParamStart;
-	QuoteStackCls(const CharacterSet &setParamStart_) noexcept : setParamStart{setParamStart_} {}
+	const LexillaCharacterSet &setParamStart;
+	QuoteStackCls(const LexillaCharacterSet &setParamStart_) noexcept : setParamStart{setParamStart_} {}
 	[[nodiscard]] bool Empty() const noexcept {
 		return Current.Up == '\0';
 	}
@@ -471,7 +471,8 @@ const LexicalClass lexicalClasses[] = {
 	13, "SCE_SH_HERE_Q", "here-doc literal string", "Heredoc quoted string",
 };
 
-}
+// Explicitly qualify all CharacterSet references
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 class LexerBash final : public DefaultLexer {
 	WordList keywords;
@@ -481,13 +482,13 @@ class LexerBash final : public DefaultLexer {
 	WordList testOperator;
 	OptionsBash options;
 	OptionSetBash osBash;
-	CharacterSet setParamStart;
+	LexillaCharacterSet setParamStart;
 	enum { ssIdentifier, ssScalar };
 	SubStyles subStyles{styleSubable};
 public:
 	LexerBash() :
 		DefaultLexer("bash", SCLEX_BASH, lexicalClasses, std::size(lexicalClasses)),
-		setParamStart(CharacterSet::setAlphaNum, "_" BASH_SPECIAL_PARAMETER) {
+		setParamStart(LexillaCharacterSet::setAlphaNum, "_" BASH_SPECIAL_PARAMETER) {
 		cmdDelimiter.Set("| || |& & && ; ;; ( ) { }");
 		bashStruct.Set("if elif fi while until else then do done esac eval");
 		bashStruct_in.Set("for case select");
@@ -552,7 +553,7 @@ public:
 		return styleSubable;
 	}
 
-	bool IsTestOperator(const char *s, const CharacterSet &setSingleCharOp) const noexcept {
+	bool IsTestOperator(const char *s, const LexillaCharacterSet &setSingleCharOp) const noexcept {
 		return (s[2] == '\0' && setSingleCharOp.Contains(s[1]))
 			|| testOperator.InList(s + 1);
 	}
@@ -590,17 +591,16 @@ Sci_Position SCI_METHOD LexerBash::WordListSet(int n, const char *wl) {
 }
 
 void SCI_METHOD LexerBash::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) {
-	const CharacterSet setWordStart(CharacterSet::setAlpha, "_");
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_");
 	// note that [+-] are often parts of identifiers in shell scripts
-	const CharacterSet setWord(CharacterSet::setAlphaNum, "._+-");
-	CharacterSet setMetaCharacter(CharacterSet::setNone, "|&;()<> \t\r\n");
-	setMetaCharacter.Add(0);
-	const CharacterSet setBashOperator(CharacterSet::setNone, "^&%()-+=|{}[]:;>,*/<?!.~@");
-	const CharacterSet setSingleCharOp(CharacterSet::setNone, "rwxoRWXOezsfdlpSbctugkTBMACahGLNn");
-	const CharacterSet setParam(CharacterSet::setAlphaNum, "_");
-	const CharacterSet setHereDoc(CharacterSet::setAlpha, "_\\-+!%*,./:?@[]^`{}~");
-	const CharacterSet setHereDoc2(CharacterSet::setAlphaNum, "_-+!%*,./:=?@[]^`{}~");
-	const CharacterSet setLeftShift(CharacterSet::setDigits, "$");
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._+-");
+	LexillaCharacterSet setMetaCharacter(LexillaCharacterSet::setNone, "|&;()<> \t\r\n");
+	LexillaCharacterSet setBashOperator(LexillaCharacterSet::setNone, "^&%()-+=|{}[]:;>,*/<?!.~@");
+	LexillaCharacterSet setSingleCharOp(LexillaCharacterSet::setNone, "rwxoRWXOezsfdlpSbctugkTBMACahGLNn");
+	LexillaCharacterSet setParam(LexillaCharacterSet::setAlphaNum, "_");
+	LexillaCharacterSet setHereDoc(LexillaCharacterSet::setAlpha, "_\\-+!%*,./:?@[]^`{}~");
+	LexillaCharacterSet setHereDoc2(LexillaCharacterSet::setAlphaNum, "_-+!%*,./:=?@[]^`{}~");
+	LexillaCharacterSet setLeftShift(LexillaCharacterSet::setDigits, "$");
 
 	class HereDocCls {	// Class to manage HERE document elements
 	public:

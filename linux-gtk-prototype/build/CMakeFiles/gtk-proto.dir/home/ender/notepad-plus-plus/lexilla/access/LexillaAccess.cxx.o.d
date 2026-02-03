@@ -131,6 +131,7 @@ CMakeFiles/gtk-proto.dir/home/ender/notepad-plus-plus/lexilla/access/LexillaAcce
  /usr/include/x86_64-linux-gnu/bits/dl_find_object.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/ILexer.h \
  /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/Sci_Position.h \
+ /home/ender/notepad-plus-plus/linux-gtk-prototype/../scintilla/include/ScintillaTypes.h \
  /usr/include/c++/15/cstdint \
  /usr/lib/gcc/x86_64-linux-gnu/15/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \

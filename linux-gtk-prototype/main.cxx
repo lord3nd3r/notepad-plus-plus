@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include "../scintilla/include/ScintillaWidget.h"
+#include "../scintilla/include/ScintillaTypes.h"
 
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);

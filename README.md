@@ -8,6 +8,11 @@ A native Linux port of Notepad++ using GTK3 and Scintilla. No Wine, no emulation
 ![GTK](https://img.shields.io/badge/GTK-3.0+-purple.svg)
 ![Syntax](https://img.shields.io/badge/lexers-125+-brightgreen.svg)
 
+## Screenshot
+
+[![Notepad++ GTK in Action](linux-gtk-prototype/screenshots/notepad-gtk-screenshot.png)](linux-gtk-prototype/screenshots/notepad-gtk-screenshot.png)
+
+*Notepad++ running natively on Linux with full syntax highlighting support*
 
 ## ✨ Latest Updates (February 2026)
 

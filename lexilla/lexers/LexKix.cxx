@@ -28,6 +28,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Extended to accept accented characters
 static inline bool IsAWordChar(int ch) {

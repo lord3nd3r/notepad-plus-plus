@@ -26,6 +26,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 inline static void getRange( Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len )
 {

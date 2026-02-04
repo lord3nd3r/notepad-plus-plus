@@ -38,6 +38,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
     // Use an unnamed namespace to protect the functions and classes from name conflicts
 
 enum NumType {
@@ -221,7 +222,7 @@ LexicalClass lexicalClasses[] = {
 }
 
 class LexerNim : public DefaultLexer {
-    CharacterSet setWord;
+    LexillaCharacterSet setWord;
     WordList keywords;
     OptionsNim options;
     OptionSetNim osNim;
@@ -229,7 +230,7 @@ class LexerNim : public DefaultLexer {
 public:
     LexerNim() :
         DefaultLexer("nim", SCLEX_NIM, lexicalClasses, ELEMENTS(lexicalClasses)),
-        setWord(CharacterSet::setAlphaNum, "_", 0x80, true) { }
+        setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true) { }
 
     virtual ~LexerNim() { }
 

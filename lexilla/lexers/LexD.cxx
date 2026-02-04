@@ -33,6 +33,7 @@
 
 using namespace Scintilla;
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 /* Nested comments require keeping the value of the nesting level for every
    position in the document.  But since scintilla always styles line by line,

@@ -30,6 +30,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 
 /* KVIrc Script syntactic rules: http://www.kvirc.net/doc/doc_syntactic_rules.html */
@@ -127,7 +128,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
                 }
 
                 /* Detecting numbers - isdigit is unsafe as it does not
-                 * validate, use CharacterSet.h functions */
+                 * validate, use LexillaCharacterSet.h functions */
                 if (IsADigit(sc.ch))
                 {
                     sc.SetState(SCE_KVIRC_NUMBER);

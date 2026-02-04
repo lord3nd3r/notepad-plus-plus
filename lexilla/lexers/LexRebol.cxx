@@ -33,6 +33,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static inline bool IsAWordChar(const int ch) {
 	return (isalnum(ch) || ch == '?' || ch == '!' || ch == '.' || ch == '\'' || ch == '+' || ch == '-' || ch == '*' || ch == '&' || ch == '|' || ch == '=' || ch == '_' || ch == '~');

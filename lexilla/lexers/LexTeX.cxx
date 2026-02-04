@@ -38,6 +38,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // val SCE_TEX_DEFAULT = 0
 // val SCE_TEX_SPECIAL = 1

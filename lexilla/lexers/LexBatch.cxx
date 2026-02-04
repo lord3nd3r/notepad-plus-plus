@@ -31,6 +31,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 constexpr bool Is0To9(char ch) noexcept {
 	return (ch >= '0') && (ch <= '9');

@@ -30,6 +30,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 bool strstart(const char *haystack, const char *needle) noexcept {
 	return strncmp(haystack, needle, strlen(needle)) == 0;

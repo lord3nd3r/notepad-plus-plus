@@ -26,6 +26,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
 		WordList *keywordlists[], Accessor &styler) {
@@ -33,8 +34,8 @@ static void ColouriseAsyDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
-	CharacterSet setWord(CharacterSet::setAlphaNum, "._", 0x80, true);
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._", 0x80, true);
 
 	int visibleChars = 0;
 

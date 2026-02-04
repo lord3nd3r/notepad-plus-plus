@@ -37,6 +37,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 #define SCE_HA_JS (SCE_HJA_START - SCE_HJ_START)
 #define SCE_HA_VBS (SCE_HBA_START - SCE_HB_START)
@@ -1271,13 +1272,13 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 	const bool isMako = options.isMako;
 	const bool isDjango = options.isDjango;
 	const bool allowASP = (isXml ? options.allowASPinXML : options.allowASPinHTML) && !isMako && !isDjango;
-	const CharacterSet setHTMLWord(CharacterSet::setAlphaNum, ".-_:!#", true);
-	const CharacterSet setTagContinue(CharacterSet::setAlphaNum, ".-_:!#[", true);
-	const CharacterSet setAttributeContinue(CharacterSet::setAlphaNum, ".-_:!#/", true);
+	const LexillaCharacterSet setHTMLWord(LexillaCharacterSet::setAlphaNum, ".-_:!#", true);
+	const LexillaCharacterSet setTagContinue(LexillaCharacterSet::setAlphaNum, ".-_:!#[", true);
+	const LexillaCharacterSet setAttributeContinue(LexillaCharacterSet::setAlphaNum, ".-_:!#/", true);
 	// TODO: also handle + and - (except if they're part of ++ or --) and return keywords
-	const CharacterSet setOKBeforeJSRE(CharacterSet::setNone, "([{=,:;!%^&*|?~> ");
+	const LexillaCharacterSet setOKBeforeJSRE(LexillaCharacterSet::setNone, "([{=,:;!%^&*|?~> ");
 	// Only allow [A-Za-z0-9.#-_:] in entities
-	const CharacterSet setEntity(CharacterSet::setAlphaNum, ".#-_:");
+	const LexillaCharacterSet setEntity(LexillaCharacterSet::setAlphaNum, ".#-_:");
 
 	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
 	int levelCurrent = levelPrev;

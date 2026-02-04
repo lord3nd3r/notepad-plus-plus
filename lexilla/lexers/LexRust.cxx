@@ -37,6 +37,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 constexpr int NUM_RUST_KEYWORD_LISTS = 7;
 constexpr int MAX_RUST_IDENT_CHARS = 1023;

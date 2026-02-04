@@ -44,6 +44,7 @@ val SCE_GC_OPERATOR=9
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 #define debug Platform::DebugPrintf
 

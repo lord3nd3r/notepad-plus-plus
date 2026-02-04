@@ -27,6 +27,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 #define KW_MSSQL_STATEMENTS         0
 #define KW_MSSQL_DATA_TYPES         1

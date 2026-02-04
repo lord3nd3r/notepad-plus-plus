@@ -46,6 +46,7 @@ static constexpr int keywordClasses[] = {
 };
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 struct OptionsFSharp {
 	bool fold = true;
@@ -268,23 +269,23 @@ class LexerFSharp : public DefaultLexer {
 	WordList keywords[WORDLIST_SIZE];
 	OptionsFSharp options;
 	OptionSetFSharp optionSet;
-	CharacterSet setOperators;
-	CharacterSet setFormatSpecs;
-	CharacterSet setDotNetFormatSpecs;
-	CharacterSet setFormatFlags;
-	CharacterSet numericMetaChars1;
-	CharacterSet numericMetaChars2;
+	LexillaCharacterSet setOperators;
+	LexillaCharacterSet setFormatSpecs;
+	LexillaCharacterSet setDotNetFormatSpecs;
+	LexillaCharacterSet setFormatFlags;
+	LexillaCharacterSet numericMetaChars1;
+	LexillaCharacterSet numericMetaChars2;
 	std::map<int, int> numericPrefixes = { { 'b', 2 }, { 'o', 8 }, { 'x', 16 } };
 
 public:
 	explicit LexerFSharp()
 	    : DefaultLexer(lexerName, SCLEX_FSHARP),
-	      setOperators(CharacterSet::setNone, "~^'-+*/%=@|&<>()[]{};,:!?"),
-	      setFormatSpecs(CharacterSet::setNone, ".%aAbBcdeEfFgGiMoOstuxX0123456789"),
-	      setDotNetFormatSpecs(CharacterSet::setNone, "cCdDeEfFgGnNpPxX"),
-	      setFormatFlags(CharacterSet::setNone, ".-+0 "),
-	      numericMetaChars1(CharacterSet::setNone, "_uU"),
-	      numericMetaChars2(CharacterSet::setNone, "fFIlLmMnsy") {
+	      setOperators(LexillaCharacterSet::setNone, "~^'-+*/%=@|&<>()[]{};,:!?"),
+	      setFormatSpecs(LexillaCharacterSet::setNone, ".%aAbBcdeEfFgGiMoOstuxX0123456789"),
+	      setDotNetFormatSpecs(LexillaCharacterSet::setNone, "cCdDeEfFgGnNpPxX"),
+	      setFormatFlags(LexillaCharacterSet::setNone, ".-+0 "),
+	      numericMetaChars1(LexillaCharacterSet::setNone, "_uU"),
+	      numericMetaChars2(LexillaCharacterSet::setNone, "fFIlLmMnsy") {
 	}
 	LexerFSharp(const LexerFSharp &) = delete;
 	LexerFSharp(LexerFSharp &&) = delete;

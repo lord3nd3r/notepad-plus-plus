@@ -27,6 +27,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Some char test functions
 static bool isAsn1Number(int ch)

@@ -48,6 +48,7 @@
 
 using namespace Scintilla;
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // See https://github.com/ghc/ghc/blob/master/compiler/parser/Lexer.x#L1682
 // Note, letter modifiers are prohibited.

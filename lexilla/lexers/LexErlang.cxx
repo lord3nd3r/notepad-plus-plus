@@ -31,6 +31,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static int is_radix(int radix, int ch) {
 	int digit;

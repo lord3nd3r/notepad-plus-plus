@@ -29,6 +29,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, int, WordList
 *keywordLists[], Accessor &styler)

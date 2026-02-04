@@ -35,6 +35,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Info for HERE document handling from perldata.pod (reformatted):
 // ----------------------------------------------------------------
@@ -468,20 +469,20 @@ const LexicalClass lexicalClasses[] = {
 };
 
 class LexerPerl : public DefaultLexer {
-	CharacterSet setWordStart;
-	CharacterSet setWord;
-	CharacterSet setSpecialVar;
-	CharacterSet setControlVar;
+	LexillaCharacterSet setWordStart;
+	LexillaCharacterSet setWord;
+	LexillaCharacterSet setSpecialVar;
+	LexillaCharacterSet setControlVar;
 	WordList keywords;
 	OptionsPerl options;
 	OptionSetPerl osPerl;
 public:
 	LexerPerl() :
 		DefaultLexer("perl", SCLEX_PERL, lexicalClasses, std::size(lexicalClasses)),
-		setWordStart(CharacterSet::setAlpha, "_", 0x80, true),
-		setWord(CharacterSet::setAlphaNum, "_", 0x80, true),
-		setSpecialVar(CharacterSet::setNone, "\"$;<>&`'+,./\\%:=~!?@[]"),
-		setControlVar(CharacterSet::setNone, "ACDEFHILMNOPRSTVWX") {
+		setWordStart(LexillaCharacterSet::setAlpha, "_", 0x80, true),
+		setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true),
+		setSpecialVar(LexillaCharacterSet::setNone, "\"$;<>&`'+,./\\%:=~!?@[]"),
+		setControlVar(LexillaCharacterSet::setNone, "ACDEFHILMNOPRSTVWX") {
 	}
 	virtual ~LexerPerl() {
 	}
@@ -656,25 +657,25 @@ void SCI_METHOD LexerPerl::Lex(Sci_PositionU startPos, Sci_Position length, int 
 	reWords.Set("elsif if split while");
 
 	// charset classes
-	CharacterSet setSingleCharOp(CharacterSet::setNone, "rwxoRWXOezsfdlpSbctugkTBMAC");
+	LexillaCharacterSet setSingleCharOp(LexillaCharacterSet::setNone, "rwxoRWXOezsfdlpSbctugkTBMAC");
 	// lexing of "%*</" operators is non-trivial; these are missing in the set below
-	CharacterSet setPerlOperator(CharacterSet::setNone, "^&\\()-+=|{}[]:;>,?!.~");
-	CharacterSet setQDelim(CharacterSet::setNone, "qrwx");
-	CharacterSet setModifiers(CharacterSet::setAlpha);
-	CharacterSet setPreferRE(CharacterSet::setNone, "*/<%");
+	LexillaCharacterSet setPerlOperator(LexillaCharacterSet::setNone, "^&\\()-+=|{}[]:;>,?!.~");
+	LexillaCharacterSet setQDelim(LexillaCharacterSet::setNone, "qrwx");
+	LexillaCharacterSet setModifiers(LexillaCharacterSet::setAlpha);
+	LexillaCharacterSet setPreferRE(LexillaCharacterSet::setNone, "*/<%");
 	// setArray and setHash also accepts chars for special vars like $_,
 	// which are then truncated when the next char does not match setVar
-	CharacterSet setVar(CharacterSet::setAlphaNum, "#$_'", 0x80, true);
-	CharacterSet setArray(CharacterSet::setAlpha, "#$_+-", 0x80, true);
-	CharacterSet setHash(CharacterSet::setAlpha, "#$_!^+-", 0x80, true);
-	CharacterSet &setPOD = setModifiers;
-	CharacterSet setNonHereDoc(CharacterSet::setDigits, "=$@");
-	CharacterSet setHereDocDelim(CharacterSet::setAlphaNum, "_");
-	CharacterSet setSubPrototype(CharacterSet::setNone, "\\[$@%&*+];_ \t");
-	CharacterSet setRepetition(CharacterSet::setDigits, ")\"'");
+	LexillaCharacterSet setVar(LexillaCharacterSet::setAlphaNum, "#$_'", 0x80, true);
+	LexillaCharacterSet setArray(LexillaCharacterSet::setAlpha, "#$_+-", 0x80, true);
+	LexillaCharacterSet setHash(LexillaCharacterSet::setAlpha, "#$_!^+-", 0x80, true);
+	LexillaCharacterSet &setPOD = setModifiers;
+	LexillaCharacterSet setNonHereDoc(LexillaCharacterSet::setDigits, "=$@");
+	LexillaCharacterSet setHereDocDelim(LexillaCharacterSet::setAlphaNum, "_");
+	LexillaCharacterSet setSubPrototype(LexillaCharacterSet::setNone, "\\[$@%&*+];_ \t");
+	LexillaCharacterSet setRepetition(LexillaCharacterSet::setDigits, ")\"'");
 	// for format identifiers
-	CharacterSet setFormatStart(CharacterSet::setAlpha, "_=");
-	CharacterSet &setFormat = setHereDocDelim;
+	LexillaCharacterSet setFormatStart(LexillaCharacterSet::setAlpha, "_=");
+	LexillaCharacterSet &setFormat = setHereDocDelim;
 
 	// Lexer for perl often has to backtrack to start of current style to determine
 	// which characters are being used as quotes, how deeply nested is the

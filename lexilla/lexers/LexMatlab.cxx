@@ -51,6 +51,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static bool IsMatlabCommentChar(int c) {
 	return (c == '%') ;

@@ -26,6 +26,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 // Use an unnamed namespace to protect the functions and classes from name conflicts
 
 constexpr bool IsEOLChar(int ch) noexcept {

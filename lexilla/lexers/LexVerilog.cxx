@@ -39,6 +39,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 	// Use an unnamed namespace to protect the functions and classes from name conflicts
 
 struct PPDefinition {
@@ -179,7 +180,7 @@ const char styleSubable[] = {0};
 }
 
 class LexerVerilog : public DefaultLexer {
-	CharacterSet setWord;
+	LexillaCharacterSet setWord;
 	WordList keywords;
 	WordList keywords2;
 	WordList keywords3;
@@ -220,7 +221,7 @@ class LexerVerilog : public DefaultLexer {
 public:
 	LexerVerilog() :
 		DefaultLexer("verilog", SCLEX_VERILOG),
-		setWord(CharacterSet::setAlphaNum, "._", 0x80, true),
+		setWord(LexillaCharacterSet::setAlphaNum, "._", 0x80, true),
 		subStyles(styleSubable, 0x80, 0x40, activeFlag) {
 		}
 	virtual ~LexerVerilog() {}

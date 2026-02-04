@@ -27,6 +27,7 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static inline bool isMaximaoperator(char ch) {
   return (ch == '\'' || ch == '`' || ch == '(' ||

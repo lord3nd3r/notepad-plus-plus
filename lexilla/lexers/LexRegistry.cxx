@@ -34,6 +34,7 @@
 
 using namespace Scintilla;
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static const char *const RegistryWordListDesc[] = {
 	0
@@ -216,7 +217,7 @@ void SCI_METHOD LexerRegistry::Lex(Sci_PositionU startPos,
 								   IDocument *pAccess) {
 	int beforeGUID = SCE_REG_DEFAULT;
 	int beforeEscape = SCE_REG_DEFAULT;
-	CharacterSet setOperators = CharacterSet(CharacterSet::setNone, "-,.=:\\@()");
+	LexillaCharacterSet setOperators = LexillaCharacterSet(LexillaCharacterSet::setNone, "-,.=:\\@()");
 	LexAccessor styler(pAccess);
 	StyleContext context(startPos, length, initStyle, styler);
 	bool highlight = true;

@@ -30,6 +30,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Internal state, highlighted as number
 constexpr int SCE_B_FILENUMBER = SCE_B_DEFAULT + 100;

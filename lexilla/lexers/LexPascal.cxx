@@ -134,6 +134,7 @@ contains requires
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 void GetRangeLowered(Sci_PositionU start,
 		Sci_PositionU end,
@@ -149,7 +150,7 @@ void GetRangeLowered(Sci_PositionU start,
 }
 
 void GetForwardRangeLowered(Sci_PositionU start,
-		CharacterSet &charSet,
+		LexillaCharacterSet &charSet,
 		Accessor &styler,
 		char *s,
 		Sci_PositionU len) {
@@ -221,11 +222,11 @@ void ColourisePascalDoc(Sci_PositionU startPos, Sci_Position length, int initSty
 		Accessor &styler) {
 	bool bSmartHighlighting = styler.GetPropertyInt("lexer.pascal.smart.highlighting", 1) != 0;
 
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
-	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
-	CharacterSet setNumber(CharacterSet::setDigits, ".-+eE");
-	CharacterSet setHexNumber(CharacterSet::setDigits, "abcdefABCDEF");
-	CharacterSet setOperator(CharacterSet::setNone, "#$&'()*+,-./:;<=>@[]^{}");
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true);
+	LexillaCharacterSet setNumber(LexillaCharacterSet::setDigits, ".-+eE");
+	LexillaCharacterSet setHexNumber(LexillaCharacterSet::setDigits, "abcdefABCDEF");
+	LexillaCharacterSet setOperator(LexillaCharacterSet::setNone, "#$&'()*+,-./:;<=>@[]^{}");
 
 	int curLineState = 0;
 
@@ -378,7 +379,7 @@ void SetFoldInPreprocessorLevelFlag(int &lineFoldStateCurrent, unsigned int nest
 
 void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFoldStateCurrent,
 		Sci_PositionU startPos, Accessor &styler) {
-	CharacterSet setWord(CharacterSet::setAlpha);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlpha);
 
 	char s[11];	// Size of the longest possible keyword + one additional character + null
 	GetForwardRangeLowered(startPos, setWord, styler, s, sizeof(s));
@@ -411,7 +412,7 @@ void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFoldStateCu
 
 Sci_PositionU SkipWhiteSpace(Sci_PositionU currentPos, Sci_PositionU endPos,
 		Accessor &styler, bool includeChars = false) {
-	CharacterSet setWord(CharacterSet::setAlphaNum, "_");
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_");
 	Sci_PositionU j = currentPos + 1;
 	char ch = styler.SafeGetCharAt(j);
 	while ((j < endPos) && (IsASpaceOrTab(ch) || ch == '\r' || ch == '\n' ||
@@ -441,8 +442,8 @@ void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCurrent,
 		bool ignoreKeyword = false;
 		Sci_PositionU j = SkipWhiteSpace(currentPos, endPos, styler);
 		if (j < endPos) {
-			CharacterSet setWordStart(CharacterSet::setAlpha, "_");
-			CharacterSet setWord(CharacterSet::setAlphaNum, "_");
+			LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_");
+			LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_");
 
 			if (styler.SafeGetCharAt(j) == ';') {
 				// Handle forward class declarations ("type TMyClass = class;")
@@ -536,7 +537,7 @@ void FoldPascalDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, W
 	int style = initStyle;
 
 	Sci_Position lastStart = 0;
-	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true);
 
 	for (Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;

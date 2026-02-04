@@ -37,6 +37,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 enum kwType { kwOther, kwClass, kwDef, kwExtends};
 

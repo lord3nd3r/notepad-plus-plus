@@ -37,6 +37,7 @@ inline int issmld(int c) {return isdigit(c) || c == '_';}
 
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ColouriseSMLDoc(
 	Sci_PositionU startPos, Sci_Position length,

@@ -53,6 +53,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static const int T3_SINGLE_QUOTE = 1;
 static const int T3_INT_EXPRESSION = 2;

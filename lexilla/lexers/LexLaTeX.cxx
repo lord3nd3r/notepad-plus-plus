@@ -34,6 +34,7 @@
 
 using namespace Scintilla;
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 using namespace std;
 

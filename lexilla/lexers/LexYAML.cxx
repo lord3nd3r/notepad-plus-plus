@@ -29,6 +29,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 const char * const yamlWordListDesc[] = {
 	"Keywords",

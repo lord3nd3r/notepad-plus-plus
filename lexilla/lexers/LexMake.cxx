@@ -33,6 +33,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Options used for LexerMakeFile
 struct OptionsMake {

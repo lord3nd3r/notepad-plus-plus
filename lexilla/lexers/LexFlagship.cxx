@@ -30,6 +30,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Extended to accept accented characters
 static inline bool IsAWordChar(int ch)
@@ -53,7 +54,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 	//	initial # to the end of the command word(1, the default). It also determines how to present text, dump, and disabled code.
 	bool stylingWithinPreprocessor = styler.GetPropertyInt("lexer.flagship.styling.within.preprocessor", 1) != 0;
 
-	CharacterSet setDoxygen(CharacterSet::setAlpha, "$@\\&<>#{}[]");
+	LexillaCharacterSet setDoxygen(LexillaCharacterSet::setAlpha, "$@\\&<>#{}[]");
 
 	int visibleChars = 0;
 	int closeStringChar = 0;

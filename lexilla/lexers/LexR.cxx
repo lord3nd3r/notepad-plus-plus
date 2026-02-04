@@ -26,6 +26,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 inline bool IsAWordChar(int ch) noexcept {
 	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_');

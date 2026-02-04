@@ -37,6 +37,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 bool IsAWordChar(int ch, bool sqlAllowDottedWord) noexcept {
 	if (!sqlAllowDottedWord)

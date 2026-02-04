@@ -69,6 +69,7 @@ The list of keywords that can be used in dataflex.properties file (up to DataFle
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 
 static void GetRangeLowered(Sci_PositionU start,
@@ -85,7 +86,7 @@ static void GetRangeLowered(Sci_PositionU start,
 }
 
 static void GetForwardRangeLowered(Sci_PositionU start,
-		CharacterSet &charSet,
+		LexillaCharacterSet &charSet,
 		Accessor &styler,
 		char *s,
 		Sci_PositionU len) {
@@ -194,11 +195,11 @@ static void ColouriseDataFlexDoc(Sci_PositionU startPos, Sci_Position length, in
 		Accessor &styler) {
 //	bool bSmartHighlighting = styler.GetPropertyInt("lexer.dataflex.smart.highlighting", 1) != 0;
 
-			CharacterSet setWordStart(CharacterSet::setAlpha, "_$#@", 0x80, true);
-			CharacterSet setWord(CharacterSet::setAlphaNum, "_$#@", 0x80, true);
-	CharacterSet setNumber(CharacterSet::setDigits, ".-+eE");
-	CharacterSet setHexNumber(CharacterSet::setDigits, "abcdefABCDEF");
-	CharacterSet setOperator(CharacterSet::setNone, "*+-/<=>^");
+			LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_$#@", 0x80, true);
+			LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_$#@", 0x80, true);
+	LexillaCharacterSet setNumber(LexillaCharacterSet::setDigits, ".-+eE");
+	LexillaCharacterSet setHexNumber(LexillaCharacterSet::setDigits, "abcdefABCDEF");
+	LexillaCharacterSet setOperator(LexillaCharacterSet::setNone, "*+-/<=>^");
 
 	Sci_Position curLine = styler.GetLine(startPos);
 	int curLineState = curLine > 0 ? styler.GetLineState(curLine - 1) : 0;
@@ -379,7 +380,7 @@ static void SetFoldInPreprocessorLevelFlag(int &lineFoldStateCurrent, unsigned i
 
 static int ClassifyDataFlexPreprocessorFoldPoint(int &levelCurrent, int &lineFoldStateCurrent,
 		Sci_PositionU startPos, Accessor &styler) {
-	CharacterSet setWord(CharacterSet::setAlpha);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlpha);
 
 	char s[100];	// Size of the longest possible keyword + one additional character + null
 	GetForwardRangeLowered(startPos, setWord, styler, s, sizeof(s));
@@ -514,7 +515,7 @@ static void FoldDataFlexDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	int iWordSize;
 
 	Sci_Position lastStart = 0;
-	CharacterSet setWord(CharacterSet::setAlphaNum, "_$#@", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_$#@", 0x80, true);
 
 	for (Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;

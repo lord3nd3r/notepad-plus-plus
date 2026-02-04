@@ -34,6 +34,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Test for [=[ ... ]=] delimiters, returns 0 if it's only a [ or ],
 // return 1 for [[ or ]], returns >=2 for [=[ or ]=] and so on.
@@ -235,14 +236,14 @@ void LexerLua::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, I
 	LexAccessor styler(pAccess);
 
 	// Accepts accented characters
-	const CharacterSet setWordStart(CharacterSet::setAlpha, "_", true);
-	const CharacterSet setWord(CharacterSet::setAlphaNum, "_", true);
+	const LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_", true);
+	const LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_", true);
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases. [pP] is for hex floats.
-	const CharacterSet setNumber(CharacterSet::setDigits, ".-+abcdefpABCDEFP");
-	const CharacterSet setExponent("eEpP");
-	const CharacterSet setLuaOperator("*/-+()={}~[];<>,.^%:#&|");
-	const CharacterSet setEscapeSkip("\"'\\");
+	const LexillaCharacterSet setNumber(LexillaCharacterSet::setDigits, ".-+abcdefpABCDEFP");
+	const LexillaCharacterSet setExponent("eEpP");
+	const LexillaCharacterSet setLuaOperator("*/-+()={}~[];<>,.^%:#&|");
+	const LexillaCharacterSet setEscapeSkip("\"'\\");
 
 	const WordClassifier &classifierIdentifiers = subStyles.Classifier(SCE_LUA_IDENTIFIER);
 

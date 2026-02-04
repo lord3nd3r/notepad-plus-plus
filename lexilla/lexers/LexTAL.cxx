@@ -30,6 +30,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 inline bool isTALoperator(char ch)
 	{

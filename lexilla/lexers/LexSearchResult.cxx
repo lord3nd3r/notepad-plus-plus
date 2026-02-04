@@ -41,9 +41,25 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // The following definitions are a copy of the ones in FindReplaceDlg.h
 enum { searchHeaderLevel = SC_FOLDLEVELBASE, fileHeaderLevel, resultLevel };
+
+
+#ifndef SC_SEARCHRESULT_LINEBUFFERMAXLENGTH
+#define SC_SEARCHRESULT_LINEBUFFERMAXLENGTH 2000
+#endif
+
+struct SearchResultMarkingLine {
+	std::vector<std::pair<intptr_t, intptr_t>> _segmentPostions;
+};
+
+struct SearchResultMarkings {
+	long _length;
+	SearchResultMarkingLine *_markings;
+};
+
 
 
 static inline bool AtEOL(Accessor &styler, size_t i) {

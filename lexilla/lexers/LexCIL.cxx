@@ -38,6 +38,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
     // Use an unnamed namespace to protect the functions and classes from name conflicts
 
 bool IsAWordChar(const int ch) {

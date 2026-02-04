@@ -28,6 +28,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Is an end of line character
 inline bool IsEOL(const int ch) {

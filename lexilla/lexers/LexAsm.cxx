@@ -37,6 +37,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 bool IsAWordChar(const int ch) noexcept {
 	return IsAlphaNumeric(ch) || ch == '.' || ch == '_' || ch == '?';

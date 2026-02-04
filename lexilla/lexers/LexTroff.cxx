@@ -46,6 +46,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // Can be used as the line state to detect continuations
 // across calls to ColouriseTroffDoc().

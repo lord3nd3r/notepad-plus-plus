@@ -28,6 +28,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 
 static bool IsAlphabetic(int ch) {

@@ -47,6 +47,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 // Options used for LexerVisualProlog
 struct OptionsVisualProlog {
     bool verbatimStrings;
@@ -347,8 +348,8 @@ public:
 
 void SCI_METHOD LexerVisualProlog::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument* pAccess) {
     LexAccessor styler(pAccess);
-    CharacterSet setDoxygen(CharacterSet::setAlpha, "");
-    CharacterSet setNumber(CharacterSet::setNone, "0123456789abcdefABCDEFxoXO_");
+    LexillaCharacterSet setDoxygen(LexillaCharacterSet::setAlpha, "");
+    LexillaCharacterSet setNumber(LexillaCharacterSet::setNone, "0123456789abcdefABCDEFxoXO_");
 
     StyleContext sc(startPos, length, initStyle, styler, 0x7f);
 

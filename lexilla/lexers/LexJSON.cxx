@@ -36,6 +36,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 const char *const JSONWordListDesc[] = {
 	"JSON Keywords",
@@ -52,11 +53,11 @@ const char *const JSONWordListDesc[] = {
 struct CompactIRI {
 	int colonCount;
 	bool foundInvalidChar;
-	CharacterSet setCompactIRI;
+	LexillaCharacterSet setCompactIRI;
 	CompactIRI() {
 		colonCount = 0;
 		foundInvalidChar = false;
-		setCompactIRI = CharacterSet(CharacterSet::setAlpha, "$_-");
+		setCompactIRI = LexillaCharacterSet(LexillaCharacterSet::setAlpha, "$_-");
 	}
 	void resetState() {
 		colonCount = 0;
@@ -81,12 +82,12 @@ struct CompactIRI {
  */
 struct EscapeSequence {
 	int digitsLeft;
-	CharacterSet setHexDigits;
-	CharacterSet setEscapeChars;
+	LexillaCharacterSet setHexDigits;
+	LexillaCharacterSet setEscapeChars;
 	EscapeSequence() {
 		digitsLeft = 0;
-		setHexDigits = CharacterSet(CharacterSet::setDigits, "ABCDEFabcdef");
-		setEscapeChars = CharacterSet(CharacterSet::setNone, "\\\"tnbfru/");
+		setHexDigits = LexillaCharacterSet(LexillaCharacterSet::setDigits, "ABCDEFabcdef");
+		setEscapeChars = LexillaCharacterSet(LexillaCharacterSet::setNone, "\\\"tnbfru/");
 	}
 	// Returns true if the following character is a valid escaped character
 	bool newSequence(int nextChar) {
@@ -139,10 +140,10 @@ class LexerJSON : public DefaultLexer {
 	EscapeSequence escapeSeq;
 	WordList keywordsJSON;
 	WordList keywordsJSONLD;
-	CharacterSet setOperators;
-	CharacterSet setURL;
-	CharacterSet setKeywordJSONLD;
-	CharacterSet setKeywordJSON;
+	LexillaCharacterSet setOperators;
+	LexillaCharacterSet setURL;
+	LexillaCharacterSet setKeywordJSONLD;
+	LexillaCharacterSet setKeywordJSON;
 	CompactIRI compactIRI;
 
 	static bool IsNextNonWhitespace(LexAccessor &styler, Sci_Position start, char ch) {
@@ -188,7 +189,7 @@ class LexerJSON : public DefaultLexer {
 		return false;
 	}
 
-	static bool IsNextWordInList(WordList &keywordList, CharacterSet wordSet,
+	static bool IsNextWordInList(WordList &keywordList, LexillaCharacterSet wordSet,
 								 StyleContext &context, LexAccessor &styler) {
 		char word[51];
 		Sci_Position currPos = (Sci_Position) context.currentPos;
@@ -208,10 +209,10 @@ class LexerJSON : public DefaultLexer {
 	public:
 	LexerJSON() :
 		DefaultLexer("json", SCLEX_JSON),
-		setOperators(CharacterSet::setNone, "[{}]:,"),
-		setURL(CharacterSet::setAlphaNum, "-._~:/?#[]@!$&'()*+,),="),
-		setKeywordJSONLD(CharacterSet::setAlpha, ":@"),
-		setKeywordJSON(CharacterSet::setAlpha, "$_") {
+		setOperators(LexillaCharacterSet::setNone, "[{}]:,"),
+		setURL(LexillaCharacterSet::setAlphaNum, "-._~:/?#[]@!$&'()*+,),="),
+		setKeywordJSONLD(LexillaCharacterSet::setAlpha, ":@"),
+		setKeywordJSON(LexillaCharacterSet::setAlpha, "$_") {
 	}
 	virtual ~LexerJSON() {}
 	int SCI_METHOD Version() const override {

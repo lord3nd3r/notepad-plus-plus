@@ -34,6 +34,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // val SCE_METAPOST_DEFAULT = 0
 // val SCE_METAPOST_SPECIAL = 1

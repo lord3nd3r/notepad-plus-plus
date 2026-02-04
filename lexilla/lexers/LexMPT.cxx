@@ -29,6 +29,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static int GetLotLineState(std::string &line) {
 	if (line.length()) {

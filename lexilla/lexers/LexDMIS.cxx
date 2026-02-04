@@ -27,6 +27,7 @@
 #include "DefaultLexer.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 
 static const char *const DMISWordListDesc[] = {
@@ -197,9 +198,9 @@ void SCI_METHOD LexerDMIS::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, i
 
 	LexAccessor styler(pAccess);
 	StyleContext scCTX(startPos, lengthDoc, initStyle, styler);
-	CharacterSet setDMISNumber(CharacterSet::setDigits, ".-+eE");
-	CharacterSet setDMISWordStart(CharacterSet::setAlpha, "-234", 0x80, true);
-	CharacterSet setDMISWord(CharacterSet::setAlpha);
+	LexillaCharacterSet setDMISNumber(LexillaCharacterSet::setDigits, ".-+eE");
+	LexillaCharacterSet setDMISWordStart(LexillaCharacterSet::setAlpha, "-234", 0x80, true);
+	LexillaCharacterSet setDMISWord(LexillaCharacterSet::setAlpha);
 
 
 	bool isIFLine = false;
@@ -305,7 +306,7 @@ void SCI_METHOD LexerDMIS::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, 
 	int levelCurrent = levelPrev;
 	int strPos = 0;
 	bool foldWordPossible = false;
-	CharacterSet setDMISFoldWord(CharacterSet::setAlpha);
+	LexillaCharacterSet setDMISFoldWord(LexillaCharacterSet::setAlpha);
 	char *tmpStr;
 
 

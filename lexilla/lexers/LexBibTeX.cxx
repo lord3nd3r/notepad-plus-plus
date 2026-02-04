@@ -34,6 +34,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 	bool IsAlphabetic(unsigned int ch)
 	{
 		return IsASCII(ch) && std::isalpha(ch) != 0;

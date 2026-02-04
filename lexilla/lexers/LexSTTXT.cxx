@@ -28,6 +28,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ClassifySTTXTWord(WordList *keywordlists[], StyleContext &sc)
 {
@@ -66,12 +67,12 @@ static void ColouriseSTTXTDoc (Sci_PositionU startPos, Sci_Position length, int 
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
-	CharacterSet setNumber(CharacterSet::setDigits, "_.eE");
-	CharacterSet setHexNumber(CharacterSet::setDigits, "_abcdefABCDEF");
-	CharacterSet setOperator(CharacterSet::setNone,",.+-*/:;<=>[]()%&");
-	CharacterSet setDataTime(CharacterSet::setDigits,"_.-:dmshDMSH");
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true);
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_", 0x80, true);
+	LexillaCharacterSet setNumber(LexillaCharacterSet::setDigits, "_.eE");
+	LexillaCharacterSet setHexNumber(LexillaCharacterSet::setDigits, "_abcdefABCDEF");
+	LexillaCharacterSet setOperator(LexillaCharacterSet::setNone,",.+-*/:;<=>[]()%&");
+	LexillaCharacterSet setDataTime(LexillaCharacterSet::setDigits,"_.-:dmshDMSH");
 
  	for ( ; sc.More() ; sc.Forward())
  	{
@@ -337,7 +338,7 @@ static void FoldSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 	int style = initStyle;
 	Sci_Position lastStart = 0;
 
-	CharacterSet setWord(CharacterSet::setAlphaNum, "_", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true);
 
 	for (Sci_PositionU i = startPos; i < endPos; i++)
 	{

@@ -28,6 +28,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 #define SCE_LISP_CHARACTER 29
 #define SCE_LISP_MACRO 30

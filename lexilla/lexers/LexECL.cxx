@@ -45,6 +45,7 @@
 #define SET_DIGITS "0123456789"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static bool IsSpaceEquiv(int state) {
 	switch (state) {
@@ -76,11 +77,11 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 	bool stylingWithinPreprocessor = false;
 
-	CharacterSet setOKBeforeRE(CharacterSet::setNone, "(=,");
-	CharacterSet setDoxygen(CharacterSet::setLower, "$@\\&<>#{}[]");
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
-	CharacterSet setWord(CharacterSet::setAlphaNum, "._", 0x80, true);
-	CharacterSet setQualified(CharacterSet::setNone, "uUxX");
+	LexillaCharacterSet setOKBeforeRE(LexillaCharacterSet::setNone, "(=,");
+	LexillaCharacterSet setDoxygen(LexillaCharacterSet::setLower, "$@\\&<>#{}[]");
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._", 0x80, true);
+	LexillaCharacterSet setQualified(LexillaCharacterSet::setNone, "uUxX");
 
 	int chPrevNonWhite = ' ';
 	int visibleChars = 0;

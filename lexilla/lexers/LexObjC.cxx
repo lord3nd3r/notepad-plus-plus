@@ -28,6 +28,7 @@
 #include "SciLexer.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 constexpr auto KEYWORD_BOXHEADER = 1;
 

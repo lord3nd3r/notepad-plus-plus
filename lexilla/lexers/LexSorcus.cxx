@@ -29,6 +29,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 
 //each character a..z and A..Z + '_' can be part of a keyword

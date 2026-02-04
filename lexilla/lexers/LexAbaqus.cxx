@@ -30,6 +30,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static inline bool IsAKeywordChar(const int ch) {
 	return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == ' ')));

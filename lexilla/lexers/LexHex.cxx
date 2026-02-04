@@ -122,6 +122,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 // prototypes for general helper functions
 static inline bool IsNewline(const int ch);

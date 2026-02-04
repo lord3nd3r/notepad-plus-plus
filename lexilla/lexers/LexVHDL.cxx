@@ -32,6 +32,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ColouriseVHDLDoc(
   Sci_PositionU startPos,

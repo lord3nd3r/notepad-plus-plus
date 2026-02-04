@@ -38,6 +38,7 @@ using namespace Lexilla;
 #define NOT_HEADER 0x10
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 bool isCOBOLoperator(char ch)
     {

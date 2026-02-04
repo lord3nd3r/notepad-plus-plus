@@ -1,10 +1,3 @@
-#include <gtk/gtk.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <regex>
-#include <sys/stat.h>
-#include <dirent.h>
 #include "ILexer.h"
 #include "Lexilla.h"
 #include "LexillaAccess.h"
@@ -637,11 +630,14 @@ static const ThemeColors *get_theme_by_name(const string &name) {
 
 // Function to apply theme to Scintilla
 static void apply_theme_to_scintilla(GtkWidget *sci, const ThemeColors *theme) {
-  // Set editor colors
+  // Set global styles first and CLEAR ALL to defaults
   scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETBACK,
                          STYLE_DEFAULT, theme->background);
   scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
                          STYLE_DEFAULT, theme->foreground);
+  scintilla_send_message((ScintillaObject *)sci, SCI_STYLECLEARALL, 0, 0);
+
+  // Set Selection colors
   scintilla_send_message((ScintillaObject *)sci, SCI_SETSELBACK, 1,
                          theme->selection_bg);
   scintilla_send_message((ScintillaObject *)sci, SCI_SETSELFORE, 1,
@@ -663,28 +659,98 @@ static void apply_theme_to_scintilla(GtkWidget *sci, const ThemeColors *theme) {
   scintilla_send_message((ScintillaObject *)sci, SCI_SETFOLDMARGINHICOLOUR, 1,
                          theme->fold_margin_bg);
 
-  // Syntax highlighting colors
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
-                         SCE_C_COMMENT, theme->comment_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
-                         SCE_C_COMMENTLINE, theme->comment_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
-                         SCE_C_COMMENTDOC, theme->comment_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE, SCE_C_WORD,
-                         theme->keyword_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE, SCE_C_STRING,
-                         theme->string_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
-                         SCE_C_CHARACTER, theme->string_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE, SCE_C_NUMBER,
-                         theme->number_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
-                         SCE_C_OPERATOR, theme->operator_color);
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE,
-                         SCE_C_PREPROCESSOR, theme->preprocessor_color);
+  // Helper lambda to set style color
+  auto set_style = [&](int style, unsigned int color) {
+    scintilla_send_message((ScintillaObject *)sci, SCI_STYLESETFORE, style,
+                           color);
+  };
 
-  // Apply to all styles
-  scintilla_send_message((ScintillaObject *)sci, SCI_STYLECLEARALL, 0, 0);
+  // Identify Lexer and apply specific styles
+  int lexer =
+      scintilla_send_message((ScintillaObject *)sci, SCI_GETLEXER, 0, 0);
+
+  switch (lexer) {
+  case SCLEX_CPP: // C, C++, Java, JS, C#, Go, etc.
+    set_style(SCE_C_COMMENT, theme->comment_color);
+    set_style(SCE_C_COMMENTLINE, theme->comment_color);
+    set_style(SCE_C_COMMENTDOC, theme->comment_color);
+    set_style(SCE_C_WORD, theme->keyword_color);
+    set_style(SCE_C_STRING, theme->string_color);
+    set_style(SCE_C_CHARACTER, theme->string_color);
+    set_style(SCE_C_NUMBER, theme->number_color);
+    set_style(SCE_C_OPERATOR, theme->operator_color);
+    set_style(SCE_C_PREPROCESSOR, theme->preprocessor_color);
+    break;
+
+  case SCLEX_PYTHON:
+    set_style(SCE_P_COMMENTLINE, theme->comment_color);
+    set_style(SCE_P_COMMENTBLOCK, theme->comment_color);
+    set_style(SCE_P_WORD, theme->keyword_color);
+    set_style(SCE_P_WORD2, theme->keyword_color);
+    set_style(SCE_P_STRING, theme->string_color);
+    set_style(SCE_P_CHARACTER, theme->string_color);
+    set_style(SCE_P_TRIPLE, theme->string_color);
+    set_style(SCE_P_TRIPLEDOUBLE, theme->string_color);
+    set_style(SCE_P_NUMBER, theme->number_color);
+    set_style(SCE_P_OPERATOR, theme->operator_color);
+    set_style(SCE_P_CLASSNAME, theme->function_color);
+    set_style(SCE_P_DEFNAME, theme->function_color);
+    set_style(SCE_P_DECORATOR, theme->preprocessor_color);
+    break;
+
+  case SCLEX_HTML:
+  case SCLEX_XML:
+    set_style(SCE_H_COMMENT, theme->comment_color);
+    set_style(SCE_H_TAG, theme->keyword_color);
+    set_style(SCE_H_TAGEND, theme->keyword_color);
+    set_style(SCE_H_ATTRIBUTE, theme->variable_color);
+    set_style(SCE_H_DOUBLESTRING, theme->string_color);
+    set_style(SCE_H_SINGLESTRING, theme->string_color);
+    set_style(SCE_H_NUMBER, theme->number_color);
+    set_style(SCE_H_ENTITY, theme->preprocessor_color);
+    break;
+
+  case SCLEX_BASH:
+    set_style(SCE_SH_COMMENTLINE, theme->comment_color);
+    set_style(SCE_SH_WORD, theme->keyword_color);
+    set_style(SCE_SH_STRING, theme->string_color);
+    set_style(SCE_SH_CHARACTER, theme->string_color);
+    set_style(SCE_SH_NUMBER, theme->number_color);
+    set_style(SCE_SH_OPERATOR, theme->operator_color);
+    set_style(SCE_SH_BACKTICKS, theme->string_color);
+    set_style(SCE_SH_PARAM, theme->variable_color);
+    set_style(SCE_SH_SCALAR, theme->variable_color);
+    break;
+
+  case SCLEX_MAKEFILE:
+    set_style(SCE_MAKE_COMMENT, theme->comment_color);
+    set_style(SCE_MAKE_PREPROCESSOR, theme->preprocessor_color);
+    set_style(SCE_MAKE_IDENTIFIER, theme->variable_color);
+    set_style(SCE_MAKE_OPERATOR, theme->operator_color);
+    set_style(SCE_MAKE_TARGET, theme->keyword_color);
+    break;
+
+  case SCLEX_RUST:
+    set_style(SCE_RUST_COMMENTLINE, theme->comment_color);
+    set_style(SCE_RUST_COMMENTBLOCK, theme->comment_color);
+    set_style(SCE_RUST_WORD, theme->keyword_color);
+    set_style(SCE_RUST_STRING, theme->string_color);
+    set_style(SCE_RUST_CHARACTER, theme->string_color);
+    set_style(SCE_RUST_NUMBER, theme->number_color);
+    set_style(SCE_RUST_OPERATOR, theme->operator_color);
+    set_style(SCE_RUST_MACRO, theme->preprocessor_color);
+    set_style(SCE_RUST_LIFETIME, theme->preprocessor_color);
+    break;
+
+  case SCLEX_JSON:
+    set_style(SCE_JSON_LINECOMMENT, theme->comment_color);
+    set_style(SCE_JSON_BLOCKCOMMENT, theme->comment_color);
+    set_style(SCE_JSON_KEYWORD, theme->keyword_color);
+    set_style(SCE_JSON_NUMBER, theme->number_color);
+    set_style(SCE_JSON_STRING, theme->string_color);
+    set_style(SCE_JSON_PROPERTYNAME, theme->variable_color);
+    break;
+  }
 }
 
 // Multi-instance support using D-Bus
@@ -926,74 +992,179 @@ static void sci_notify_cb(GtkWidget *widget, gint code, gpointer notification,
   }
 }
 
+// Convert RGB to BGR (Scintilla uses BGR format)
+static unsigned int rgb_to_bgr(unsigned int rgb) {
+  unsigned int r = (rgb >> 16) & 0xFF;
+  unsigned int g = (rgb >> 8) & 0xFF;
+  unsigned int b = rgb & 0xFF;
+  return (b << 16) | (g << 8) | r;
+}
+
+static void apply_language_styles(GtkWidget *sci, const std::string &lang,
+                                  const ThemeColors &theme) {
+  ScintillaObject *s = (ScintillaObject *)sci;
+
+  std::cout << "Applying styles for language: " << lang << std::endl;
+  std::cout << "Comment color (RGB): 0x" << std::hex << theme.comment_color
+            << std::dec << std::endl;
+  std::cout << "Keyword color (RGB): 0x" << std::hex << theme.keyword_color
+            << std::dec << std::endl;
+
+  auto set_style = [&](int style, int color) {
+    unsigned int bgr = rgb_to_bgr(color);
+    std::cout << "  Setting style " << style << " to BGR: 0x" << std::hex << bgr
+              << std::dec << std::endl;
+    scintilla_send_message(s, SCI_STYLESETFORE, style, bgr);
+  };
+
+  if (lang == "cpp") {
+    set_style(SCE_C_COMMENT, theme.comment_color);
+    set_style(SCE_C_COMMENTLINE, theme.comment_color);
+    set_style(SCE_C_COMMENTDOC, theme.comment_color);
+    set_style(SCE_C_NUMBER, theme.number_color);
+    set_style(SCE_C_WORD, theme.keyword_color);
+    set_style(SCE_C_STRING, theme.string_color);
+    set_style(SCE_C_PREPROCESSOR, theme.preprocessor_color);
+    set_style(SCE_C_OPERATOR, theme.operator_color);
+  } else if (lang == "python") {
+    set_style(SCE_P_COMMENTLINE, theme.comment_color);
+    set_style(SCE_P_NUMBER, theme.number_color);
+    set_style(SCE_P_STRING, theme.string_color);
+    set_style(SCE_P_WORD, theme.keyword_color);
+    set_style(SCE_P_CLASSNAME, theme.function_color);
+    set_style(SCE_P_DEFNAME, theme.function_color);
+    set_style(SCE_P_OPERATOR, theme.operator_color);
+  } else if (lang == "makefile") {
+    std::cout << "Setting Makefile styles..." << std::endl;
+    set_style(SCE_MAKE_COMMENT, theme.comment_color);
+    set_style(SCE_MAKE_PREPROCESSOR, theme.preprocessor_color);
+    set_style(SCE_MAKE_IDENTIFIER, theme.variable_color);
+    set_style(SCE_MAKE_OPERATOR, theme.operator_color);
+    set_style(SCE_MAKE_TARGET, theme.function_color);
+  } else if (lang == "bash") {
+    set_style(SCE_SH_COMMENTLINE, theme.comment_color);
+    set_style(SCE_SH_NUMBER, theme.number_color);
+    set_style(SCE_SH_WORD, theme.keyword_color);
+    set_style(SCE_SH_STRING, theme.string_color);
+    set_style(SCE_SH_OPERATOR, theme.operator_color);
+  } else if (lang == "xml" || lang == "html") {
+    set_style(SCE_H_COMMENT, theme.comment_color);
+    set_style(SCE_H_TAG, theme.keyword_color);
+    set_style(SCE_H_ATTRIBUTE, theme.variable_color);
+    set_style(SCE_H_NUMBER, theme.number_color);
+    set_style(SCE_H_DOUBLESTRING, theme.string_color);
+    set_style(SCE_H_SINGLESTRING, theme.string_color);
+  } else if (lang == "json") {
+    set_style(SCE_JSON_NUMBER, theme.number_color);
+    set_style(SCE_JSON_STRING, theme.string_color);
+    set_style(SCE_JSON_KEYWORD, theme.keyword_color);
+    set_style(SCE_JSON_PROPERTYNAME, theme.variable_color);
+  }
+
+  std::cout << "Finished applying styles for " << lang << std::endl;
+}
+
 static void apply_lexer(GtkWidget *sci, const string &filename) {
   if (filename.empty())
     return;
-  std::string::size_type pos = filename.rfind('.');
-  if (pos == std::string::npos)
-    return;
 
-  std::string ext = filename.substr(pos + 1);
-  for (auto &c : ext)
-    c = tolower(c);
   std::string lang;
 
-  if (ext == "c" || ext == "h")
-    lang = "cpp";
-  else if (ext == "cpp" || ext == "cc" || ext == "cxx" || ext == "hpp")
-    lang = "cpp";
-  else if (ext == "py")
-    lang = "python";
-  else if (ext == "js")
-    lang = "javascript";
-  else if (ext == "json")
-    lang = "json";
-  else if (ext == "html" || ext == "htm")
-    lang = "html";
-  else if (ext == "xml")
-    lang = "xml";
-  else if (ext == "java")
-    lang = "java";
-  else if (ext == "rs")
-    lang = "rust";
-  else if (ext == "go")
-    lang = "go";
-  else if (ext == "sh" || ext == "bash")
-    lang = "bash";
-  else if (ext == "lua")
-    lang = "lua";
-  else if (ext == "tex")
-    lang = "tex";
-  else if (ext == "md" || ext == "markdown")
-    lang = "markdown";
-  else if (ext == "cs")
-    lang = "csharp";
-  else if (ext == "rb")
-    lang = "ruby";
-  else if (ext == "php")
-    lang = "php";
-  else if (ext == "pl" || ext == "pm")
-    lang = "perl";
-  else if (ext == "sql")
-    lang = "sql";
-  else if (ext == "css")
-    lang = "css";
-  else if (ext == "scss" || ext == "sass")
-    lang = "css";
-  else if (ext == "yml" || ext == "yaml")
-    lang = "yaml";
-  else if (ext == "toml")
-    lang = "toml";
-  else if (ext == "ini" || ext == "cfg" || ext == "conf")
-    lang = "props";
-  else
-    lang = ext;
+  // Check for special filenames without extensions first
+  std::string basename = filename;
+  size_t last_slash = filename.find_last_of("/\\");
+  if (last_slash != std::string::npos) {
+    basename = filename.substr(last_slash + 1);
+  }
+
+  // Convert basename to lowercase for comparison
+  std::string basename_lower = basename;
+  for (auto &c : basename_lower)
+    c = tolower(c);
+
+  if (basename_lower == "makefile" || basename_lower.find("makefile.") == 0) {
+    lang = "makefile";
+  } else if (basename_lower == "cmakelists.txt") {
+    lang = "cmake";
+  } else {
+    // Try to get extension
+    std::string::size_type pos = filename.rfind('.');
+    if (pos == std::string::npos)
+      return;
+
+    std::string ext = filename.substr(pos + 1);
+    for (auto &c : ext)
+      c = tolower(c);
+
+    if (ext == "c" || ext == "h")
+      lang = "cpp";
+    else if (ext == "cpp" || ext == "cc" || ext == "cxx" || ext == "hpp")
+      lang = "cpp";
+    else if (ext == "py")
+      lang = "python";
+    else if (ext == "js")
+      lang = "javascript";
+    else if (ext == "json")
+      lang = "json";
+    else if (ext == "html" || ext == "htm")
+      lang = "html";
+    else if (ext == "xml")
+      lang = "xml";
+    else if (ext == "java")
+      lang = "java";
+    else if (ext == "rs")
+      lang = "rust";
+    else if (ext == "go")
+      lang = "go";
+    else if (ext == "sh" || ext == "bash")
+      lang = "bash";
+    else if (ext == "lua")
+      lang = "lua";
+    else if (ext == "tex")
+      lang = "tex";
+    else if (ext == "md" || ext == "markdown")
+      lang = "markdown";
+    else if (ext == "cs")
+      lang = "csharp";
+    else if (ext == "rb")
+      lang = "ruby";
+    else if (ext == "php")
+      lang = "php";
+    else if (ext == "pl" || ext == "pm")
+      lang = "perl";
+    else if (ext == "sql")
+      lang = "sql";
+    else if (ext == "css")
+      lang = "css";
+    else if (ext == "scss" || ext == "sass")
+      lang = "css";
+    else if (ext == "yml" || ext == "yaml")
+      lang = "yaml";
+    else if (ext == "toml")
+      lang = "toml";
+    else if (ext == "ini" || ext == "cfg" || ext == "conf")
+      lang = "props";
+    else
+      lang = ext;
+  }
 
   if (!lang.empty()) {
+    std::cout << "Attempting to create lexer for language: " << lang
+              << std::endl;
     Scintilla::ILexer5 *pLexer = CreateLexer(lang.c_str());
     if (pLexer) {
+      std::cout << "Successfully created lexer for " << lang << std::endl;
       scintilla_send_message((ScintillaObject *)sci, SCI_SETILEXER, 0,
                              (sptr_t)pLexer);
+
+      if (!themes.empty()) {
+        apply_language_styles(sci, lang, themes[0]);
+      }
+
+      // Trigger re-colorization
+      scintilla_send_message((ScintillaObject *)sci, SCI_COLOURISE, 0, -1);
+    } else {
+      std::cout << "FAILED to create lexer for " << lang << std::endl;
     }
   }
 }
@@ -1178,6 +1349,8 @@ static void cmd_open(GtkWidget *w, gpointer data) {
     if (td) {
       scintilla_send_message((ScintillaObject *)td->sci, SCI_SETTEXT, 0,
                              (sptr_t)str.c_str());
+      // Trigger re-colorization after loading text
+      scintilla_send_message((ScintillaObject *)td->sci, SCI_COLOURISE, 0, -1);
       td->modified = false;
       td->fileModTime = get_file_modification_time(td->filename);
       GtkWidget *label =
@@ -1977,7 +2150,7 @@ void Preferences::apply_to_scintilla(GtkWidget *sci) {
     scintilla_send_message(
         (ScintillaObject *)sci, SCI_STYLESETSIZE, STYLE_DEFAULT,
         pango_font_description_get_size(font_desc) / PANGO_SCALE);
-    scintilla_send_message((ScintillaObject *)sci, SCI_STYLECLEARALL, 0, 0);
+    // DON'T call SCI_STYLECLEARALL here - it clears syntax highlighting colors!
     pango_font_description_free(font_desc);
   }
 }

@@ -43,6 +43,7 @@
 
 using namespace Scintilla;
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 /* Bits:
  * 1  - whitespace

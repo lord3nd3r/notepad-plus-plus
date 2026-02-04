@@ -32,6 +32,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 #ifdef DEBUG_LEX_MODULA
 #define DEBUG_STATE( p, c )\

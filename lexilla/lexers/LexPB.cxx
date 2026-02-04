@@ -55,6 +55,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static inline bool IsTypeCharacter(const int ch)
 {

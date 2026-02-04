@@ -53,6 +53,7 @@ static const int baseT[24] = {
 };
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ColouriseCamlDoc(
 	Sci_PositionU startPos, Sci_Position length,

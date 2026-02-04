@@ -25,6 +25,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ClassifyWordSol(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler, char *prevWord)
 {

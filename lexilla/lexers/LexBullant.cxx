@@ -23,6 +23,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, WordList &keywords, Accessor &styler) {
 	char s[100];

@@ -39,6 +39,7 @@
 
 using namespace Scintilla;
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static const int MAX_JULIA_IDENT_CHARS = 1023;
 

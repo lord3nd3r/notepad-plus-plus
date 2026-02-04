@@ -13,8 +13,8 @@
 //	2008-10-26 - Changed how <name> is hilighted in  'function <name>' so that
 //				 local isFunction = "" and local functions = "" don't get falsely highlighted
 //	2008-12-14 - Added bounds checking for szFirstWord and szDo
-//			   - Replaced SetOfCharacters with CharacterSet
-//			   - Made sure that CharacterSet::Contains is passed only positive values
+//			   - Replaced SetOfCharacters with LexillaCharacterSet
+//			   - Made sure that LexillaCharacterSet::Contains is passed only positive values
 //			   - Made sure that the return value of Accessor::SafeGetCharAt is positive before
 //				 passing to functions that require positive values like isspacechar()
 //			   - Removed unused visibleChars processing from ColourisePowerProDoc()
@@ -47,6 +47,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static inline bool IsStreamCommentStyle(int style) {
 	return style == SCE_POWERPRO_COMMENTBLOCK;
@@ -138,8 +139,8 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 	WordList &keywords4 = *keywordlists[3];
 
 	//define the character sets
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_@", 0x80, true);
-	CharacterSet setWord(CharacterSet::setAlphaNum, "._", 0x80, true);
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_@", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._", 0x80, true);
 
 	StyleContext sc(startPos, length, initStyle, styler);
 	char s_save[100]; //for last line highlighting
@@ -364,8 +365,8 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
 {
 	//define the character sets
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_@", 0x80, true);
-	CharacterSet setWord(CharacterSet::setAlphaNum, "._", 0x80, true);
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_@", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._", 0x80, true);
 
 	//used to tell if we're recursively folding the whole document, or just a small piece (ie: if statement or 1 function)
 	bool isFoldingAll = true;

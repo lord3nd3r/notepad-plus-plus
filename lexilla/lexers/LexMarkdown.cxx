@@ -57,6 +57,7 @@
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 constexpr bool IsNewline(const int ch) {
     // sc.GetRelative(i) returns '\0' if out of range

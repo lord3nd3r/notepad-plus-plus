@@ -29,6 +29,7 @@
 /***************************************/
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 /***********************************************/
 static inline bool IsAWordChar(const int ch) {

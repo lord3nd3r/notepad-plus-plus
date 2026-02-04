@@ -34,6 +34,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static void ColouriseSASDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[],
     Accessor &styler) {
@@ -43,10 +44,10 @@ static void ColouriseSASDoc(Sci_PositionU startPos, Sci_Position length, int ini
     WordList &functionKeywords = *keywordlists[2];
     WordList &statements = *keywordlists[3];
 
-    CharacterSet setCouldBePostOp(CharacterSet::setNone, "+-");
-    CharacterSet setMacroStart(CharacterSet::setNone, "%");
-    CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
-    CharacterSet setWord(CharacterSet::setAlphaNum, "._", 0x80, true);
+    LexillaCharacterSet setCouldBePostOp(LexillaCharacterSet::setNone, "+-");
+    LexillaCharacterSet setMacroStart(LexillaCharacterSet::setNone, "%");
+    LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_", 0x80, true);
+    LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._", 0x80, true);
 
     StyleContext sc(startPos, length, initStyle, styler);
     bool lineHasNonCommentChar = false;

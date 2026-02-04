@@ -31,6 +31,7 @@
 #include "LexerModule.h"
 
 using namespace Lexilla;
+using LexillaCharacterSet = Lexilla::CharacterSet;
 
 static bool IsSpaceEquiv(int state) {
 	return (state == SCE_COFFEESCRIPT_DEFAULT
@@ -118,11 +119,11 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords4 = *keywordlists[3];
 
-	CharacterSet setOKBeforeRE(CharacterSet::setNone, "([{=,:;!%^&*|?~+-");
-	CharacterSet setCouldBePostOp(CharacterSet::setNone, "+-");
+	LexillaCharacterSet setOKBeforeRE(LexillaCharacterSet::setNone, "([{=,:;!%^&*|?~+-");
+	LexillaCharacterSet setCouldBePostOp(LexillaCharacterSet::setNone, "+-");
 
-	CharacterSet setWordStart(CharacterSet::setAlpha, "_$@", 0x80, true);
-	CharacterSet setWord(CharacterSet::setAlphaNum, "._$", 0x80, true);
+	LexillaCharacterSet setWordStart(LexillaCharacterSet::setAlpha, "_$@", 0x80, true);
+	LexillaCharacterSet setWord(LexillaCharacterSet::setAlphaNum, "._$", 0x80, true);
 
 	int chPrevNonWhite = ' ';
 	int visibleChars = 0;

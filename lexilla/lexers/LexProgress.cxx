@@ -49,6 +49,7 @@ using namespace Lexilla;
 #define SCE_ABL_IDENTIFIERCOMPOUND 30
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
    // Use an unnamed namespace to protect the functions and classes from name conflicts
 
    void highlightTaskMarker(StyleContext &sc, LexAccessor &styler, WordList &markerList){
@@ -122,12 +123,12 @@ namespace {
 }
 
 class LexerABL : public DefaultLexer {
-   CharacterSet setWord;
-   CharacterSet setNegationOp;
-   CharacterSet setArithmethicOp;
-   CharacterSet setRelOp;
-   CharacterSet setLogicalOp;
-   CharacterSet setWordStart;
+   LexillaCharacterSet setWord;
+   LexillaCharacterSet setNegationOp;
+   LexillaCharacterSet setArithmethicOp;
+   LexillaCharacterSet setRelOp;
+   LexillaCharacterSet setLogicalOp;
+   LexillaCharacterSet setWordStart;
    WordList keywords1;      // regular keywords
    WordList keywords2;      // block opening keywords, only when isSentenceStart
    WordList keywords3;      // block opening keywords
@@ -137,11 +138,11 @@ class LexerABL : public DefaultLexer {
 public:
    LexerABL() :
       DefaultLexer("abl", SCLEX_PROGRESS),
-      setWord(CharacterSet::setAlphaNum, "_", 0x80, true),
-      setNegationOp(CharacterSet::setNone, "!"),
-      setArithmethicOp(CharacterSet::setNone, "+-/*%"),
-      setRelOp(CharacterSet::setNone, "=!<>"),
-      setLogicalOp(CharacterSet::setNone, "|&"){
+      setWord(LexillaCharacterSet::setAlphaNum, "_", 0x80, true),
+      setNegationOp(LexillaCharacterSet::setNone, "!"),
+      setArithmethicOp(LexillaCharacterSet::setNone, "+-/*%"),
+      setRelOp(LexillaCharacterSet::setNone, "=!<>"),
+      setLogicalOp(LexillaCharacterSet::setNone, "|&"){
    }
    virtual ~LexerABL() {
    }
@@ -221,7 +222,7 @@ Sci_Position SCI_METHOD LexerABL::WordListSet(int n, const char *wl) {
 void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) {
    LexAccessor styler(pAccess);
 
-   setWordStart = CharacterSet(CharacterSet::setAlpha, "_", 0x80, true);
+   setWordStart = LexillaCharacterSet(LexillaCharacterSet::setAlpha, "_", 0x80, true);
 
    int visibleChars1 = 0;
    int styleBeforeTaskMarker = SCE_ABL_DEFAULT;

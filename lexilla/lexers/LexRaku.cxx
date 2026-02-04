@@ -64,7 +64,8 @@
 using namespace Scintilla;
 using namespace Lexilla;
 
-namespace { // anonymous namespace to isolate any name clashes
+namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet; // anonymous namespace to isolate any name clashes
 /*----------------------------------------------------------------------------*
  * --- DEFINITIONS: OPTIONS / CONSTANTS ---
  *----------------------------------------------------------------------------*/
@@ -432,7 +433,7 @@ bool IsQLangStartAtScPos(StyleContext &sc, int &type, const Sci_Position length)
  *   -              regex R :adverb //;
  *   -                     /:adverb /;
  */
-bool IsRegexStartAtScPos(StyleContext &sc, int &type, CharacterSet &set) {
+bool IsRegexStartAtScPos(StyleContext &sc, int &type, LexillaCharacterSet &set) {
 	const bool valid_adj = IsValidRegOrQAdjacent(sc.chNext);
 	type = -1;
 	if (IsValidRegOrQPrecede(sc.chPrev)) {
@@ -631,11 +632,11 @@ void GetRelativeString(StyleContext &sc, Sci_Position offset, Sci_Position lengt
  *----------------------------------------------------------------------------*/
 //class LexerRaku : public ILexerWithMetaData {
 class LexerRaku : public DefaultLexer {
-	CharacterSet setWord;
-	CharacterSet setSigil;
-	CharacterSet setTwigil;
-	CharacterSet setOperator;
-	CharacterSet setSpecialVar;
+	LexillaCharacterSet setWord;
+	LexillaCharacterSet setSigil;
+	LexillaCharacterSet setTwigil;
+	LexillaCharacterSet setOperator;
+	LexillaCharacterSet setSpecialVar;
 	WordList regexIdent;			// identifiers that specify a regex
 	OptionsRaku options;			// Options from config
 	OptionSetRaku osRaku;
@@ -651,11 +652,11 @@ public:
 	// Defined as explicit, so that constructor can not be copied
 	explicit LexerRaku() :
 		DefaultLexer("raku", SCLEX_RAKU),
-		setWord(CharacterSet::setAlphaNum, "-_", 0x80),
-		setSigil(CharacterSet::setNone, "$&%@"),
-		setTwigil(CharacterSet::setNone, "!*.:<=?^~"),
-		setOperator(CharacterSet::setNone, "^&\\()-+=|{}[]:;<>,?!.~"),
-		setSpecialVar(CharacterSet::setNone, "_/!") {
+		setWord(LexillaCharacterSet::setAlphaNum, "-_", 0x80),
+		setSigil(LexillaCharacterSet::setNone, "$&%@"),
+		setTwigil(LexillaCharacterSet::setNone, "!*.:<=?^~"),
+		setOperator(LexillaCharacterSet::setNone, "^&\\()-+=|{}[]:;<>,?!.~"),
+		setSpecialVar(LexillaCharacterSet::setNone, "_/!") {
 		regexIdent.Set("regex rule token");
 	}
 	// Deleted so LexerRaku objects can not be copied.

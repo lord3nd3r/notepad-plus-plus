@@ -35,6 +35,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 // Use an unnamed namespace to protect the functions and classes from name conflicts
 
 /* Notes on f-strings: f-strings are strings prefixed with f (e.g. f'') that may

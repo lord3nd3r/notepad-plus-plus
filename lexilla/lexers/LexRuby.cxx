@@ -36,6 +36,7 @@ using namespace Scintilla;
 using namespace Lexilla;
 
 namespace {
+	using LexillaCharacterSet = Lexilla::CharacterSet;
 
 //XXX Identical to Perl, put in common area
 constexpr bool isEOLChar(char ch) noexcept {

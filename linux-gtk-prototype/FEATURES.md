@@ -3,6 +3,10 @@
 ## Overview
 This is a native Linux port of Notepad++ using GTK3 and the Scintilla editing component. The application provides a comprehensive text editing experience with syntax highlighting, multiple document interface, and extensive editing features.
 
+### Recent Improvements ⭐
+- **Enhanced Toolbar Icons**: Icons now use the dark theme variants with brightness adjustments for better visibility
+- All toolbar icons have been optimized with +15% brightness and +10% contrast for improved clarity
+
 ## Implemented Features
 
 ### File Operations

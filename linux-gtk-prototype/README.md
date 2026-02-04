@@ -21,6 +21,7 @@ This project brings the popular Notepad++ text editor to Linux as a native GTK3 
 - 📊 **Status Bar** - Real-time position, line count, and encoding info
 - 💼 **Session Management** - Auto-save/restore tabs on exit/startup ⭐ NEW
 - 🎨 **Theme Support** - Multiple color schemes (Default, Dark, Monokai, Solarized) ⭐ NEW
+- 🎯 **Enhanced Toolbar Icons** - Bright, visible icons optimized for dark themes ⭐ NEW
 
 ### 📝 Editing Features
 - Complete undo/redo

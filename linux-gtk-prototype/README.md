@@ -93,24 +93,34 @@ sudo pacman -S base-devel cmake pkg-config gtk3
 ```
 
 ### Building from Source
+
+**See [BUILD_LINUX.md](../BUILD_LINUX.md) for detailed build instructions.**
+
+Quick start:
 ```bash
 # Clone the repository
 git clone https://github.com/notepad-plus-plus/notepad-plus-plus
-cd notepad-plus-plus/linux-gtk-prototype
+cd notepad-plus-plus
 
-# Build with CMake
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
+# Build (automatically builds dependencies)
+make
+
+# Install (optional)
+sudo make install
 
 # Run
-./build/gtk-proto
+notepad++  # If installed
+# OR
+./build/linux-gtk-prototype/notepad++  # Run directly
 ```
 
-### Alternative Build (Make)
-```bash
-make
-./gtk-proto
-```
+**Note:** The repository is ~300MB because it contains the complete Notepad++ source including:
+- Scintilla editing component source (~50MB)
+- Lexilla syntax highlighting with 100+ language lexers (~80MB)
+- Windows build files and resources
+- Test files and documentation
+
+The Scintilla and Lexilla libraries (`.a`, `.so` files) are **not included** in git and will be built automatically on first build.
 
 ## Usage
 

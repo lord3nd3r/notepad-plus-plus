@@ -45,6 +45,18 @@ if(EXISTS ${LEXILLA_STATIC})
     target_link_libraries(gtk-proto PRIVATE ${LEXILLA_STATIC})
 elseif(EXISTS ${LEXILLA_SO})
     target_link_libraries(gtk-proto PRIVATE ${LEXILLA_SO})
+else()
+    message(STATUS "Lexilla library not found; will attempt to build it before building the prototype")
+    add_custom_target(build_lexilla
+        COMMAND ${CMAKE_MAKE_PROGRAM} -C ${CMAKE_SOURCE_DIR}/lexilla/src
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    add_dependencies(gtk-proto build_lexilla)
+    # After building, link to static if present
+    if(EXISTS ${LEXILLA_STATIC})
+        target_link_libraries(gtk-proto PRIVATE ${LEXILLA_STATIC})
+    elseif(EXISTS ${LEXILLA_SO})
+        target_link_libraries(gtk-proto PRIVATE ${LEXILLA_SO})
+    endif()
 endif()
 
 ## Now append GTK libraries so they appear after Scintilla on the link line
@@ -58,6 +70,8 @@ if(EXISTS ${SCINTILLA_STATIC})
     target_link_libraries(notepad++ PRIVATE ${SCINTILLA_STATIC})
 elseif(EXISTS ${SCINTILLA_SO})
     target_link_libraries(notepad++ PRIVATE ${SCINTILLA_SO})
+else()
+    add_dependencies(notepad++ build_scintilla)
 endif()
 
 ## Link Lexilla to notepad++ target
@@ -65,6 +79,8 @@ if(EXISTS ${LEXILLA_STATIC})
     target_link_libraries(notepad++ PRIVATE ${LEXILLA_STATIC})
 elseif(EXISTS ${LEXILLA_SO})
     target_link_libraries(notepad++ PRIVATE ${LEXILLA_SO})
+else()
+    add_dependencies(notepad++ build_lexilla)
 endif()
 
 ## Link GTK libraries

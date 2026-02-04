@@ -4,13 +4,21 @@
 all: build
 
 # Create build directory and build the project
-build:
+build: deps
 	@echo "Building Notepad++ GTK Prototype..."
 	@mkdir -p build
 	@cd build && cmake .. && $(MAKE)
 	@echo ""
 	@echo "Build complete! Binaries are in build/linux-gtk-prototype/"
 	@echo "Run 'make install' or 'sudo make install' to install."
+
+# Build dependencies (Scintilla and Lexilla)
+deps:
+	@echo "Building Scintilla library..."
+	@$(MAKE) -C scintilla/gtk GTK3=1
+	@echo "Building Lexilla library..."
+	@$(MAKE) -C lexilla/src
+	@echo "Dependencies built successfully."
 
 # Install the binary to /usr/local/bin
 install:

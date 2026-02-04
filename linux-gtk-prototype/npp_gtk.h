@@ -54,7 +54,8 @@ struct TabData {
   std::string filename;
   bool modified;
   int encoding;
-  int eolFormat;      // 0=Windows, 1=Unix, 2=Mac
+  int eolFormat; // 0=Windows, 1=Unix, 2=Mac
+  std::string language;
   time_t fileModTime; // Last modification time of the file on disk
 };
 

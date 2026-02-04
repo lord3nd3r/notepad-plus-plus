@@ -20,29 +20,38 @@ A native Linux port of Notepad++ using GTK3 and Scintilla. No Wine, no emulation
 
 ## Quick Start
 
+**📖 See [BUILD_LINUX.md](BUILD_LINUX.md) for detailed build instructions**  
+**ℹ️ Repository info: [REPO_INFO.md](REPO_INFO.md) (~300 MB, includes Scintilla + Lexilla source)**
+
 ### Prerequisites
 ```bash
 # Ubuntu/Debian
-sudo apt-get install build-essential cmake libgtk-3-dev
+sudo apt install build-essential cmake pkg-config libgtk-3-dev
 
 # Fedora
-sudo dnf install gcc-c++ cmake gtk3-devel
+sudo dnf install gcc-c++ cmake pkg-config gtk3-devel
 
 # Arch Linux
-sudo pacman -S base-devel cmake gtk3
+sudo pacman -S base-devel cmake pkg-config gtk3
 ```
 
 ### Build & Install
 ```bash
-git clone https://github.com/lord3nd3r/notepad-plus-plus.git
+git clone https://github.com/notepad-plus-plus/notepad-plus-plus.git
 cd notepad-plus-plus
+
+# Automatically builds Scintilla + Lexilla + Notepad++
 make
+
+# Install (optional)
 sudo make install
 ```
 
 ### Run
 ```bash
-notepad++
+notepad++  # If installed
+# OR
+./build/linux-gtk-prototype/notepad++  # Run directly
 ```
 
 ## Features

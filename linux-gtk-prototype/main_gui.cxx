@@ -921,13 +921,61 @@ static void update_statusbar(AppState *app, GtkWidget *sci) {
             scintilla_send_message((ScintillaObject *)sci, SCI_POSITIONFROMLINE,
                                    line - 1, 0) +
             1;
-  char buf[512];
-  snprintf(buf, sizeof(buf),
-           "length: %d   lines: %d          Ln: %d   Col: %d          "
-           "Dos\\\\Windows          UTF-8          INS",
-           len, lineCount, line, col);
-  gtk_statusbar_pop(GTK_STATUSBAR(app->statusbar), app->status_context);
-  gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context, buf);
+
+  // Sel and INS/OVR
+  int selStart = scintilla_send_message((ScintillaObject *)sci,
+                                        SCI_GETSELECTIONSTART, 0, 0);
+  int selEnd =
+      scintilla_send_message((ScintillaObject *)sci, SCI_GETSELECTIONEND, 0, 0);
+  int selLen = (selStart == selEnd) ? 0 : (selEnd - selStart);
+  bool overtype =
+      scintilla_send_message((ScintillaObject *)sci, SCI_GETOVERTYPE, 0, 0);
+
+  char buf_lang[128], buf_len[128], buf_pos[128], buf_eol[128], buf_enc[128],
+      buf_ins[128];
+
+  // Try to determine language display name
+  TabData *td = get_current_tabdata(app);
+  snprintf(buf_lang, sizeof(buf_lang), "%s",
+           (td && !td->language.empty()) ? td->language.c_str()
+                                         : "Normal text file");
+  snprintf(buf_len, sizeof(buf_len), "length : %d  lines : %d", len, lineCount);
+  snprintf(buf_pos, sizeof(buf_pos), "Ln : %d  Col : %d  Sel : %d", line, col,
+           selLen);
+  snprintf(buf_eol, sizeof(buf_eol),
+           "Windows (CR LF)"); // Hardcoded for now until EOL detection improved
+  snprintf(buf_enc, sizeof(buf_enc), "UTF-8");
+  snprintf(buf_ins, sizeof(buf_ins), overtype ? "OVR" : "INS");
+
+  // If we have separate labels in AppState, use them
+  if (g_object_get_data(G_OBJECT(app->statusbar), "label_lang")) {
+    gtk_label_set_text(
+        GTK_LABEL(g_object_get_data(G_OBJECT(app->statusbar), "label_lang")),
+        buf_lang);
+    gtk_label_set_text(
+        GTK_LABEL(g_object_get_data(G_OBJECT(app->statusbar), "label_len")),
+        buf_len);
+    gtk_label_set_text(
+        GTK_LABEL(g_object_get_data(G_OBJECT(app->statusbar), "label_pos")),
+        buf_pos);
+    gtk_label_set_text(
+        GTK_LABEL(g_object_get_data(G_OBJECT(app->statusbar), "label_eol")),
+        buf_eol);
+    gtk_label_set_text(
+        GTK_LABEL(g_object_get_data(G_OBJECT(app->statusbar), "label_enc")),
+        buf_enc);
+    gtk_label_set_text(
+        GTK_LABEL(g_object_get_data(G_OBJECT(app->statusbar), "label_ins")),
+        buf_ins);
+  } else {
+    // Fallback to single string
+    char total_buf[512];
+    snprintf(total_buf, sizeof(total_buf), "%s | %s | %s | %s | %s | %s",
+             buf_lang, buf_len, buf_pos, buf_eol, buf_enc, buf_ins);
+    gtk_statusbar_pop(GTK_STATUSBAR(app->statusbar), app->status_context);
+    gtk_statusbar_push(GTK_STATUSBAR(app->statusbar), app->status_context,
+                       total_buf);
+  }
 }
 
 static void update_window_title(AppState *app) {
@@ -4372,6 +4420,178 @@ static void session_restore(AppState *app) {
   ifs.close();
 }
 
+// Apply classic Notepad++ styling to the UI
+static void apply_npp_styling() {
+  GtkCssProvider *provider = gtk_css_provider_new();
+  // NPP peach active tab color: #ffc97e
+  // NPP light gray inactive tab: #f0f0f0
+  gtk_css_provider_load_from_data(provider,
+                                  "notebook tab {"
+                                  "  padding: 4px 10px;"
+                                  "  background-color: #ededed;"
+                                  "  border: 1px solid #dcdcdc;"
+                                  "  margin-right: 2px;"
+                                  "  border-radius: 4px 4px 0 0;"
+                                  "  transition: all 0.2s;"
+                                  "}"
+                                  "notebook tab:checked {"
+                                  "  background-color: #ffc97e;"
+                                  "  border-bottom: 2px solid #ffc97e;"
+                                  "}"
+                                  "notebook tab label {"
+                                  "  font-size: 9.5pt;"
+                                  "  color: #333;"
+                                  "}"
+                                  "notebook tab:checked label {"
+                                  "  font-weight: bold;"
+                                  "}"
+                                  "notebook tab button {"
+                                  "  padding: 0;"
+                                  "  margin: 0 0 0 6px;"
+                                  "  min-width: 14px;"
+                                  "  min-height: 14px;"
+                                  "  border-radius: 2px;"
+                                  "  background: transparent;"
+                                  "  border: none;"
+                                  "}"
+                                  "notebook tab button:hover {"
+                                  "  background-color: #e81123;"
+                                  "  color: white;"
+                                  "}"
+                                  /* Status bar styling */
+                                  "statusbar {"
+                                  "  background-color: #f0f0f0;"
+                                  "  border-top: 1px solid #c0c0c0;"
+                                  "}"
+                                  "statusbar label {"
+                                  "  padding-left: 10px;"
+                                  "  padding-right: 10px;"
+                                  "  border-left: 1px solid #c0c0c0;"
+                                  "}",
+                                  -1, NULL);
+  gtk_style_context_add_provider_for_screen(
+      gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider),
+      GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  g_object_unref(provider);
+}
+
+// Create toolbar with icons matching Windows Notepad++
+GtkWidget *create_toolbar(AppState *app) {
+  GtkWidget *toolbar = gtk_toolbar_new();
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
+  gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
+
+  // Helper to add toolbar button with icon
+  auto add_tool_button = [](GtkWidget *toolbar, const char *icon_name,
+                            const char *tooltip, GCallback callback,
+                            gpointer data) -> GtkToolItem * {
+    GtkToolItem *item;
+
+    // Try multiple possible icon paths
+    std::vector<std::string> possible_paths = {
+        std::string("icons/") + icon_name + ".png",
+        std::string("linux-gtk-prototype/icons/") + icon_name + ".png",
+        std::string(
+            "/home/ender/notepad-plus-plus/linux-gtk-prototype/icons/") +
+            icon_name + ".png"};
+
+    GdkPixbuf *pixbuf = nullptr;
+    for (const auto &path : possible_paths) {
+      pixbuf = gdk_pixbuf_new_from_file(path.c_str(), NULL);
+      if (pixbuf) {
+        std::cout << "Loaded icon from: " << path << std::endl;
+        break;
+      }
+    }
+
+    if (pixbuf) {
+      GtkWidget *image = gtk_image_new_from_pixbuf(pixbuf);
+      item = gtk_tool_button_new(image, NULL);
+      g_object_unref(pixbuf);
+    } else {
+      // Fallback: no icon, just text label
+      std::cout << "Failed to load icon: " << icon_name << std::endl;
+      item = gtk_tool_button_new(NULL, tooltip);
+    }
+
+    gtk_tool_item_set_tooltip_text(item, tooltip);
+    if (callback) {
+      g_signal_connect(item, "clicked", callback, data);
+    }
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), item, -1);
+    return item;
+  };
+
+  // Add separator helper
+  auto add_separator = [](GtkWidget *toolbar) {
+    GtkToolItem *sep = gtk_separator_tool_item_new();
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), sep, -1);
+  };
+
+  // Row 1: File operations
+  add_tool_button(toolbar, "new", "New", G_CALLBACK(cmd_new), app);
+  add_tool_button(toolbar, "open", "Open", G_CALLBACK(cmd_open), app);
+  add_tool_button(toolbar, "save", "Save", G_CALLBACK(cmd_save), app);
+  add_tool_button(toolbar, "saveall", "Save All", G_CALLBACK(cmd_close_all),
+                  app); // Reuse close_all for now
+  add_tool_button(toolbar, "close", "Close", NULL, app); // Not implemented yet
+  add_tool_button(toolbar, "closeall", "Close All", G_CALLBACK(cmd_close_all),
+                  app);
+
+  add_separator(toolbar);
+
+  // Edit operations
+  add_tool_button(toolbar, "cut", "Cut", G_CALLBACK(cmd_cut), app);
+  add_tool_button(toolbar, "copy", "Copy", G_CALLBACK(cmd_copy), app);
+  add_tool_button(toolbar, "paste", "Paste", G_CALLBACK(cmd_paste), app);
+
+  add_separator(toolbar);
+
+  // Undo/Redo
+  add_tool_button(toolbar, "undo", "Undo", G_CALLBACK(cmd_undo), app);
+  add_tool_button(toolbar, "redo", "Redo", G_CALLBACK(cmd_redo), app);
+
+  add_separator(toolbar);
+
+  // Search
+  add_tool_button(toolbar, "find", "Find", G_CALLBACK(cmd_find), app);
+  add_tool_button(toolbar, "findrep", "Replace", G_CALLBACK(cmd_replace), app);
+
+  add_separator(toolbar);
+
+  // Zoom
+  add_tool_button(toolbar, "zoomIn", "Zoom In", G_CALLBACK(cmd_zoom_in), app);
+  add_tool_button(toolbar, "zoomOut", "Zoom Out", G_CALLBACK(cmd_zoom_out),
+                  app);
+
+  add_separator(toolbar);
+
+  // View options
+  add_tool_button(toolbar, "wrap", "Word Wrap",
+                  G_CALLBACK(cmd_toggle_word_wrap), app);
+  add_tool_button(toolbar, "allChars", "Show All Characters", NULL, app);
+  add_tool_button(toolbar, "indentGuide", "Indent Guide", NULL, app);
+
+  add_separator(toolbar);
+
+  // Panels
+  add_tool_button(toolbar, "docMap", "Document Map", NULL, app);
+  add_tool_button(toolbar, "funcList", "Function List", NULL, app);
+  add_tool_button(toolbar, "fileBrowser", "File Browser", NULL, app);
+
+  add_separator(toolbar);
+
+  // Macro
+  add_tool_button(toolbar, "startrecord", "Start Recording",
+                  G_CALLBACK(cmd_start_macro_recording), app);
+  add_tool_button(toolbar, "stoprecord", "Stop Recording",
+                  G_CALLBACK(cmd_stop_macro_recording), app);
+  add_tool_button(toolbar, "playrecord", "Playback",
+                  G_CALLBACK(cmd_playback_macro), app);
+
+  return toolbar;
+}
+
 int main(int argc, char **argv) {
   // Suppress harmless GLib-GIO warnings about GFileInfo content-type
   // This is a known issue with GTK3 file chooser dialogs in newer GLib
@@ -4985,86 +5205,9 @@ int main(int argc, char **argv) {
 
   gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
 
-  // Toolbar
-  GtkWidget *toolbar = gtk_toolbar_new();
+  // Toolbar - Windows Notepad++ style
+  GtkWidget *toolbar = create_toolbar(&app);
   app.toolbar = toolbar; // Store for distraction-free mode
-  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
-
-  // Create toolbar buttons with icon names
-  GtkToolItem *tb_new = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("document-new", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_new, "New");
-
-  GtkToolItem *tb_open =
-      gtk_tool_button_new(gtk_image_new_from_icon_name(
-                              "document-open", GTK_ICON_SIZE_LARGE_TOOLBAR),
-                          NULL);
-  gtk_tool_item_set_tooltip_text(tb_open, "Open");
-
-  GtkToolItem *tb_save =
-      gtk_tool_button_new(gtk_image_new_from_icon_name(
-                              "document-save", GTK_ICON_SIZE_LARGE_TOOLBAR),
-                          NULL);
-  gtk_tool_item_set_tooltip_text(tb_save, "Save");
-
-  GtkToolItem *tb_sep1 = gtk_separator_tool_item_new();
-
-  GtkToolItem *tb_cut = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("edit-cut", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_cut, "Cut");
-
-  GtkToolItem *tb_copy = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("edit-copy", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_copy, "Copy");
-
-  GtkToolItem *tb_paste = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("edit-paste", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_paste, "Paste");
-
-  GtkToolItem *tb_sep2 = gtk_separator_tool_item_new();
-
-  GtkToolItem *tb_undo = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("edit-undo", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_undo, "Undo");
-
-  GtkToolItem *tb_redo = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("edit-redo", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_redo, "Redo");
-
-  GtkToolItem *tb_sep3 = gtk_separator_tool_item_new();
-
-  GtkToolItem *tb_find = gtk_tool_button_new(
-      gtk_image_new_from_icon_name("edit-find", GTK_ICON_SIZE_LARGE_TOOLBAR),
-      NULL);
-  gtk_tool_item_set_tooltip_text(tb_find, "Find");
-
-  GtkToolItem *tb_replace =
-      gtk_tool_button_new(gtk_image_new_from_icon_name(
-                              "edit-find-replace", GTK_ICON_SIZE_LARGE_TOOLBAR),
-                          NULL);
-  gtk_tool_item_set_tooltip_text(tb_replace, "Replace");
-
-  // Add buttons to toolbar
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_new, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_open, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_save, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_sep1, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_cut, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_copy, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_paste, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_sep2, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_undo, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_redo, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_sep3, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_find, -1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tb_replace, -1);
-
   gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
 
   // Notebook
@@ -5086,11 +5229,30 @@ int main(int argc, char **argv) {
   gtk_widget_hide(app.incremental_search_bar);
   app.incremental_search_active = false;
 
-  // Status bar
+  // Status bar - Multi-panel NPP style
   app.statusbar = gtk_statusbar_new();
-  app.status_context =
-      gtk_statusbar_get_context_id(GTK_STATUSBAR(app.statusbar), "status");
+  GtkWidget *sb_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+
+  auto add_sb_label = [&](const char *key, int width) {
+    GtkWidget *l = gtk_label_new("");
+    gtk_widget_set_size_request(l, width, -1);
+    gtk_label_set_xalign(GTK_LABEL(l), 0.1);
+    gtk_box_pack_start(GTK_BOX(sb_box), l, (width == -1), (width == -1), 0);
+    g_object_set_data(G_OBJECT(app.statusbar), key, l);
+    return l;
+  };
+
+  add_sb_label("label_lang", 180);
+  add_sb_label("label_len", 180);
+  add_sb_label("label_pos", 220);
+  add_sb_label("label_eol", 140);
+  add_sb_label("label_enc", 80);
+  add_sb_label("label_ins", 60);
+
+  gtk_container_add(GTK_CONTAINER(app.statusbar), sb_box);
   gtk_box_pack_start(GTK_BOX(vbox), app.statusbar, FALSE, FALSE, 0);
+
+  apply_npp_styling();
 
   // Connect signals
   g_signal_connect(file_new, "activate", G_CALLBACK(cmd_new), &app);
@@ -5109,18 +5271,6 @@ int main(int argc, char **argv) {
                    }),
                    &app);
   g_signal_connect(file_quit, "activate", G_CALLBACK(gtk_main_quit), NULL);
-
-  // Toolbar button signals
-  g_signal_connect(tb_new, "clicked", G_CALLBACK(cmd_new), &app);
-  g_signal_connect(tb_open, "clicked", G_CALLBACK(cmd_open), &app);
-  g_signal_connect(tb_save, "clicked", G_CALLBACK(cmd_save), &app);
-  g_signal_connect(tb_cut, "clicked", G_CALLBACK(cmd_cut), &app);
-  g_signal_connect(tb_copy, "clicked", G_CALLBACK(cmd_copy), &app);
-  g_signal_connect(tb_paste, "clicked", G_CALLBACK(cmd_paste), &app);
-  g_signal_connect(tb_undo, "clicked", G_CALLBACK(cmd_undo), &app);
-  g_signal_connect(tb_redo, "clicked", G_CALLBACK(cmd_redo), &app);
-  g_signal_connect(tb_find, "clicked", G_CALLBACK(cmd_find), &app);
-  g_signal_connect(tb_replace, "clicked", G_CALLBACK(cmd_replace), &app);
 
   g_signal_connect(edit_undo, "activate", G_CALLBACK(cmd_undo), &app);
   g_signal_connect(edit_redo, "activate", G_CALLBACK(cmd_redo), &app);
@@ -5262,10 +5412,6 @@ int main(int argc, char **argv) {
   g_signal_connect(macro_load, "activate", G_CALLBACK(cmd_load_macro), &app);
 
   g_signal_connect(help_about, "activate", G_CALLBACK(cmd_about), &app);
-
-  g_signal_connect(tb_new, "clicked", G_CALLBACK(cmd_new), &app);
-  g_signal_connect(tb_open, "clicked", G_CALLBACK(cmd_open), &app);
-  g_signal_connect(tb_save, "clicked", G_CALLBACK(cmd_save), &app);
 
   // Save session on quit
   g_signal_connect(app.window, "destroy",

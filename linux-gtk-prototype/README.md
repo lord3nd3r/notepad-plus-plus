@@ -6,6 +6,12 @@ A fully-featured native Linux port of Notepad++ using GTK3 and Scintilla.
 ![License](https://img.shields.io/badge/license-GPL-green)
 ![Platform](https://img.shields.io/badge/platform-Linux-orange)
 
+## Screenshot
+
+[![Notepad++ GTK in Action](screenshots/notepad-gtk-screenshot.png)](screenshots/notepad-gtk-screenshot.png)
+
+*Notepad++ GTK running on Linux with syntax highlighting and dark theme support*
+
 ## Overview
 
 This project brings the popular Notepad++ text editor to Linux as a native GTK3 application. It provides a familiar interface with tabbed editing, syntax highlighting for 20+ languages, and comprehensive text manipulation features.
